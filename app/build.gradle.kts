@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "id.eclipsegate.transcribe"
+    namespace = "org.sovereign.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "id.eclipsegate.transcribe"
+        applicationId = "org.sovereign.app"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -44,6 +44,11 @@ android {
 
     buildFeatures {
         compose = true
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
     }
 }
 

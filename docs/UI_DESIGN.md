@@ -150,7 +150,7 @@ Setelah rapat selesai, hasil transkripsi dan intelijen AI dibagi ke dalam segmen
 Berikut kode implementasi komponen inti transkripsi langsung yang modular, bebas dependensi visual berlebih, dan efisien:
 
 ```kotlin
-package id.eclipsegate.transcribe.ui.screen
+package org.sovereign.app.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

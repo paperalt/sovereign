@@ -14,7 +14,7 @@
 -keepclassmembers class * {
     @com.google.gson.annotations.SerializedName <fields>;
 }
--keep class id.eclipsegate.transcribe.network.** { *; }
+-keep class org.sovereign.app.network.** { *; }
 
 # Coroutines
 -dontwarn kotlinx.coroutines.**

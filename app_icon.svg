@@ -1,41 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <radialGradient id="bgGrad" cx="50%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#141A22"/>
-      <stop offset="100%" stop-color="#0A0D12"/>
-    </radialGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.6"/>
-    </filter>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="50%" stop-color="#0A0D14" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+
+    <!-- Neon Cyan / Blue Pulse Gradient -->
+    <linearGradient id="neonPulse" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7" />
+      <stop offset="50%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#7DD3FC" />
+    </linearGradient>
+
+    <!-- Metallic Shield Gradient -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#0284C7" stop-opacity="0.05" />
+    </linearGradient>
+
+    <!-- Border Glow Gradient -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.6" />
+      <stop offset="50%" stop-color="#1E293B" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#0284C7" stop-opacity="0.2" />
+    </linearGradient>
   </defs>
 
-  <!-- Background Squircle -->
-  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bgGrad)"/>
-  <rect x="16" y="16" width="480" height="480" rx="108" fill="none" stroke="#283342" stroke-width="4"/>
+  <!-- Base Rounded Container (Squircle) -->
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bgGrad)" />
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="none" stroke="url(#borderGrad)" stroke-width="4" />
 
-  <!-- Glowing Soundwave Accent -->
-  <g filter="url(#shadow)">
-    <!-- Active Recording Crimson Dot -->
-    <circle cx="256" cy="120" r="14" fill="#E11D48"/>
+  <!-- Geometric Sovereign Shield (Subtle Silhouette) -->
+  <path d="M 256 80 
+           C 340 80, 400 110, 400 180 
+           C 400 310, 310 390, 256 430 
+           C 202 390, 112 310, 112 180 
+           C 112 110, 172 80, 256 80 Z"
+        fill="url(#shieldGrad)"
+        stroke="#38BDF8"
+        stroke-width="2.5"
+        stroke-opacity="0.3" />
 
-    <!-- Microphone Capsule -->
-    <rect x="220" y="160" width="72" height="120" rx="36" fill="#38BDF8"/>
-    <!-- Microphone Grille Divider Line -->
-    <line x1="220" y1="216" x2="292" y2="216" stroke="#0A0D12" stroke-width="5"/>
+  <!-- Inner Dynamic Soundwave Bars converging into an Apex (Sovereign Core) -->
+  <g fill="url(#neonPulse)">
+    <!-- Central Primary Apex Pillar -->
+    <rect x="246" y="140" width="20" height="232" rx="10" />
 
-    <!-- Arc Cradle -->
-    <path d="M 180,224 C 180,270 214,308 256,308 C 298,308 332,270 332,224" fill="none" stroke="#F0F4F8" stroke-width="12" stroke-linecap="round"/>
+    <!-- Inner Waveform Symmetrical Columns -->
+    <rect x="210" y="180" width="18" height="152" rx="9" />
+    <rect x="284" y="180" width="18" height="152" rx="9" />
 
-    <!-- Stand & Base -->
-    <line x1="256" y1="308" x2="256" y2="368" stroke="#F0F4F8" stroke-width="12" stroke-linecap="round"/>
-    <line x1="200" y1="368" x2="312" y2="368" stroke="#F0F4F8" stroke-width="12" stroke-linecap="round"/>
+    <!-- Mid Waveform Symmetrical Columns -->
+    <rect x="174" y="210" width="18" height="92" rx="9" />
+    <rect x="320" y="210" width="18" height="92" rx="9" />
 
-    <!-- Flanking Soundwave Frequencies (Left) -->
-    <line x1="140" y1="190" x2="140" y2="258" stroke="#64748B" stroke-width="10" stroke-linecap="round"/>
-    <line x1="104" y1="208" x2="104" y2="240" stroke="#475569" stroke-width="10" stroke-linecap="round"/>
-
-    <!-- Flanking Soundwave Frequencies (Right) -->
-    <line x1="372" y1="190" x2="372" y2="258" stroke="#64748B" stroke-width="10" stroke-linecap="round"/>
-    <line x1="408" y1="208" x2="408" y2="240" stroke="#475569" stroke-width="10" stroke-linecap="round"/>
+    <!-- Outer Precision Impulse Columns -->
+    <rect x="138" y="235" width="18" height="42" rx="9" opacity="0.85" />
+    <rect x="356" y="235" width="18" height="42" rx="9" opacity="0.85" />
   </g>
+
+  <!-- Precision Geometric Nodes & Orbital Accents -->
+  <circle cx="256" cy="116" r="10" fill="#38BDF8" />
+  <circle cx="256" cy="396" r="6" fill="#38BDF8" opacity="0.75" />
 </svg>

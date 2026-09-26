@@ -70,7 +70,7 @@ Guarantees high-throughput transcription never jerks the screen when users scrol
 
 ```kotlin
 // ui/state/ScrollAnchorController.kt
-package id.eclipsegate.transcribe.ui.state
+package org.sovereign.app.ui.state
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*

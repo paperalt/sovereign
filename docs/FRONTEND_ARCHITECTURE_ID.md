@@ -70,7 +70,7 @@ Mekanisme ini menjamin transkripsi yang mengalir deras tidak pernah menyentak la
 
 ```kotlin
 // ui/state/ScrollAnchorController.kt
-package id.eclipsegate.transcribe.ui.state
+package org.sovereign.app.ui.state
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*

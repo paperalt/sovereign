@@ -4,40 +4,37 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Active Recording Indicator Dot -->
+    <!-- Sovereign Shield Silhouette -->
     <path
-        android:fillColor="#E11D48"
-        android:pathData="M54,28m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0" />
+        android:fillColor="#1538BDF8"
+        android:strokeColor="#38BDF8"
+        android:strokeWidth="1.2"
+        android:strokeAlpha="0.4"
+        android:pathData="M54,22 C70,22 84,28 84,42 C84,68 64,84 54,90 C44,84 24,68 24,42 C24,28 38,22 54,22 Z" />
 
-    <!-- Microphone Capsule -->
+    <!-- Center Monolith Pillar -->
     <path
         android:fillColor="#38BDF8"
-        android:pathData="M48,38h12c3.31,0 6,2.69 6,6v12c0,3.31 -2.69,6 -6,6h-12c-3.31,0 -6,-2.69 -6,-6v-12c0,-3.31 2.69,-6 6,-6z" />
+        android:pathData="M52,32h4c1.1,0 2,0.9 2,2v44c0,1.1 -0.9,2 -2,2h-4c-1.1,0 -2,-0.9 -2,-2v-44c0,-1.1 0.9,-2 2,-2z" />
 
-    <!-- Microphone Grille Texture Line -->
+    <!-- Inner Waveform Bars -->
     <path
-        android:strokeColor="#0A0D12"
-        android:strokeWidth="1.5"
-        android:pathData="M44,48h20" />
-
-    <!-- Arc Cradle & Stand -->
+        android:fillColor="#38BDF8"
+        android:pathData="M44,40h4c1.1,0 2,0.9 2,2v28c0,1.1 -0.9,2 -2,2h-4c-1.1,0 -2,-0.9 -2,-2v-28c0,-1.1 0.9,-2 2,-2z" />
     <path
-        android:strokeColor="#F0F4F8"
-        android:strokeWidth="2.5"
-        android:strokeLineCap="round"
-        android:pathData="M38,52c0,8.84 7.16,16 16,16s16,-7.16 16,-16" />
+        android:fillColor="#38BDF8"
+        android:pathData="M60,40h4c1.1,0 2,0.9 2,2v28c0,1.1 -0.9,2 -2,2h-4c-1.1,0 -2,-0.9 -2,-2v-28c0,-1.1 0.9,-2 2,-2z" />
 
+    <!-- Mid Waveform Bars -->
     <path
-        android:strokeColor="#F0F4F8"
-        android:strokeWidth="2.5"
-        android:strokeLineCap="round"
-        android:pathData="M54,68v8M44,76h20" />
-
-    <!-- Soundwave Flank Bars (Left & Right) -->
+        android:fillColor="#0284C7"
+        android:pathData="M36,46h4c1.1,0 2,0.9 2,2v16c0,1.1 -0.9,2 -2,2h-4c-1.1,0 -2,-0.9 -2,-2v-16c0,-1.1 0.9,-2 2,-2z" />
     <path
-        android:strokeColor="#64748B"
-        android:strokeWidth="2.5"
-        android:strokeLineCap="round"
-        android:pathData="M30,46v14M22,50v6M78,46v14M86,50v6" />
+        android:fillColor="#0284C7"
+        android:pathData="M68,46h4c1.1,0 2,0.9 2,2v16c0,1.1 -0.9,2 -2,2h-4c-1.1,0 -2,-0.9 -2,-2v-16c0,-1.1 0.9,-2 2,-2z" />
 
+    <!-- Outer Nodes -->
+    <path
+        android:fillColor="#7DD3FC"
+        android:pathData="M54,28m-2,0a2,2 0 1,0 4,0a2,2 0 1,0 -4,0" />
 </vector>
