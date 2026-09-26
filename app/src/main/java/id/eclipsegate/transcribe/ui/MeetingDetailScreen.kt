@@ -98,7 +98,7 @@ fun MeetingDetailScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "EDIT POTONGAN TRANSKRIP",
+                        text = "EDIT TRANSCRIPT SEGMENT",
                         color = TextPrimary,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
@@ -123,7 +123,7 @@ fun MeetingDetailScreen(
             text = {
                 Column {
                     Text(
-                        text = "Koreksi kata atau istilah yang keliru dikenali oleh mesin ASR:",
+                        text = "Correct terms or words misrecognized by the ASR engine:",
                         color = TextSecondary,
                         fontSize = 12.sp
                     )
@@ -164,10 +164,10 @@ fun MeetingDetailScreen(
                                         val newFullText = newChunks.joinToString(" ") { it.rawText }
                                         current.copy(chunks = newChunks, fullText = newFullText)
                                     }
-                                    Toast.makeText(context, "Potongan transkrip diperbarui", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Transcript segment updated", Toast.LENGTH_SHORT).show()
                                     editingChunk = null
                                 } else {
-                                    Toast.makeText(context, "Gagal memperbarui: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Failed to update: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
                                 }
                                 isSavingEdit = false
                             }
@@ -177,7 +177,7 @@ fun MeetingDetailScreen(
                     shape = RoundedCornerShape(4.dp),
                     enabled = !isSavingEdit && editedText.isNotBlank()
                 ) {
-                    Text(if (isSavingEdit) "MENYIMPAN..." else "SIMPAN", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(if (isSavingEdit) "SAVING..." else "SAVE", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -187,7 +187,7 @@ fun MeetingDetailScreen(
                     shape = RoundedCornerShape(4.dp),
                     enabled = !isSavingEdit
                 ) {
-                    Text("BATAL", color = TextPrimary, fontSize = 12.sp)
+                    Text("CANCEL", color = TextPrimary, fontSize = 12.sp)
                 }
             }
         )
@@ -210,7 +210,7 @@ fun MeetingDetailScreen(
             shape = RoundedCornerShape(8.dp),
             title = {
                 Text(
-                    text = "EDIT TRANSKRIPSI LENGKAP",
+                    text = "EDIT FULL TRANSCRIPT",
                     color = TextPrimary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
@@ -219,7 +219,7 @@ fun MeetingDetailScreen(
             text = {
                 Column {
                     Text(
-                        text = "Edit seluruh transkrip dokumen secara menyeluruh:",
+                        text = "Edit the full session transcript document:",
                         color = TextSecondary,
                         fontSize = 12.sp
                     )
@@ -253,11 +253,11 @@ fun MeetingDetailScreen(
                             scope.launch {
                                 val res = meetingRepository.updateFullTranscript(meetingId, trimmed)
                                 if (res.isSuccess) {
-                                    Toast.makeText(context, "Transkripsi lengkap berhasil disimpan", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Full transcript saved successfully", Toast.LENGTH_SHORT).show()
                                     showEditFullDialog = false
                                     reloadMeetingData()
                                 } else {
-                                    Toast.makeText(context, "Gagal memperbarui: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Failed to update: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
                                 }
                                 isSavingEdit = false
                             }
@@ -267,7 +267,7 @@ fun MeetingDetailScreen(
                     shape = RoundedCornerShape(4.dp),
                     enabled = !isSavingEdit && editedFullText.isNotBlank()
                 ) {
-                    Text(if (isSavingEdit) "MENYIMPAN..." else "SIMPAN PERUBAHAN", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(if (isSavingEdit) "SAVING..." else "SAVE CHANGES", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -277,7 +277,7 @@ fun MeetingDetailScreen(
                     shape = RoundedCornerShape(4.dp),
                     enabled = !isSavingEdit
                 ) {
-                    Text("BATAL", color = TextPrimary, fontSize = 12.sp)
+                    Text("CANCEL", color = TextPrimary, fontSize = 12.sp)
                 }
             }
         )
@@ -292,8 +292,8 @@ fun MeetingDetailScreen(
                 .padding(horizontal = 20.dp),
             containerColor = DarkSlate,
             shape = RoundedCornerShape(8.dp),
-            title = { Text("HAPUS SESI INI?", color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold) },
-            text = { Text("Seluruh rekaman dan transkripsi akan dihapus permanen.", color = TextSecondary, fontSize = 13.sp) },
+            title = { Text("DELETE THIS SESSION?", color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold) },
+            text = { Text("All recorded audio and transcript data will be permanently deleted.", color = TextSecondary, fontSize = 13.sp) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -301,17 +301,17 @@ fun MeetingDetailScreen(
                         scope.launch {
                             val res = meetingRepository.deleteMeeting(meetingId)
                             if (res.isSuccess) {
-                                Toast.makeText(context, "Sesi berhasil dihapus", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Session deleted successfully", Toast.LENGTH_SHORT).show()
                                 onBack()
                             } else {
-                                Toast.makeText(context, "Gagal menghapus sesi: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Failed to delete session: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
                             }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = CrimsonAlert),
                     shape = RoundedCornerShape(4.dp)
                 ) {
-                    Text("HAPUS", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("DELETE", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -320,7 +320,7 @@ fun MeetingDetailScreen(
                     border = BorderStroke(1.dp, SteelBorder),
                     shape = RoundedCornerShape(4.dp)
                 ) {
-                    Text("BATAL", color = TextPrimary, fontSize = 12.sp)
+                    Text("CANCEL", color = TextPrimary, fontSize = 12.sp)
                 }
             }
         )
@@ -339,7 +339,7 @@ fun MeetingDetailScreen(
             shape = RoundedCornerShape(8.dp),
             title = {
                 Text(
-                    text = "GANTI NAMA TRANSKRIP",
+                    text = "RENAME SESSION",
                     color = TextPrimary,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
@@ -348,7 +348,7 @@ fun MeetingDetailScreen(
             text = {
                 Column {
                     Text(
-                        text = "Ubah judul sesi transkripsi:",
+                        text = "Update the session title:",
                         color = TextSecondary,
                         fontSize = 13.sp
                     )
@@ -381,10 +381,10 @@ fun MeetingDetailScreen(
                                 val res = meetingRepository.updateMeetingTitle(meetingId, trimmed)
                                 if (res.isSuccess) {
                                     transcriptData = transcriptData?.copy(title = trimmed)
-                                    Toast.makeText(context, "Nama transkrip berhasil diubah", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Session title renamed successfully", Toast.LENGTH_SHORT).show()
                                     showRenameDialog = false
                                 } else {
-                                    Toast.makeText(context, "Gagal mengubah nama: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Failed to rename session: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
                                 }
                                 isSavingEdit = false
                             }
@@ -394,7 +394,7 @@ fun MeetingDetailScreen(
                     shape = RoundedCornerShape(4.dp),
                     enabled = !isSavingEdit && newTitle.isNotBlank()
                 ) {
-                    Text(if (isSavingEdit) "MENYIMPAN..." else "SIMPAN", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(if (isSavingEdit) "SAVING..." else "SAVE", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -404,7 +404,7 @@ fun MeetingDetailScreen(
                     shape = RoundedCornerShape(4.dp),
                     enabled = !isSavingEdit
                 ) {
-                    Text("BATAL", color = TextPrimary, fontSize = 12.sp)
+                    Text("CANCEL", color = TextPrimary, fontSize = 12.sp)
                 }
             }
         )
@@ -429,10 +429,10 @@ fun MeetingDetailScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = TextPrimary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimary)
                     }
                     Text(
-                        text = transcriptData?.title ?: "Detail Sesi",
+                        text = transcriptData?.title ?: "Session Details",
                         color = TextPrimary,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -446,7 +446,7 @@ fun MeetingDetailScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Ganti Nama Sesi",
+                            contentDescription = "Rename Session",
                             tint = TextSecondary,
                             modifier = Modifier.size(15.dp)
                         )
@@ -460,15 +460,15 @@ fun MeetingDetailScreen(
                             val md = buildMarkdown(data)
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("Transcript Markdown", md))
-                            Toast.makeText(context, "Disalin sebagai format Markdown", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Copied in Markdown format", Toast.LENGTH_SHORT).show()
                         }
                     }) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = "Salin Markdown", tint = AccentPrimary)
+                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy Markdown", tint = AccentPrimary)
                     }
 
                     // Delete Action
                     IconButton(onClick = { showDeleteDialog = true }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = CrimsonAlert)
+                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = CrimsonAlert)
                     }
                 }
             }
@@ -490,25 +490,25 @@ fun MeetingDetailScreen(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
                     modifier = Modifier.height(38.dp),
-                    text = { Text("TRANSKRIP", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false) }
+                    text = { Text("TRANSCRIPT", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false) }
                 )
                 Tab(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     modifier = Modifier.height(38.dp),
-                    text = { Text("RINGKASAN", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false) }
+                    text = { Text("SUMMARY", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false) }
                 )
                 Tab(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
                     modifier = Modifier.height(38.dp),
-                    text = { Text("TUGAS", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false) }
+                    text = { Text("ACTION ITEMS", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false) }
                 )
                 Tab(
                     selected = selectedTab == 3,
                     onClick = { selectedTab = 3 },
                     modifier = Modifier.height(38.dp),
-                    text = { Text("IDE TANYA", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false) }
+                    text = { Text("INQUIRY", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, softWrap = false) }
                 )
             }
 
@@ -518,7 +518,7 @@ fun MeetingDetailScreen(
                 }
             } else if (transcriptData == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Gagal memuat transkripsi.", color = TextMuted)
+                    Text("Failed to load transcript.", color = TextMuted)
                 }
             } else {
                 val data = transcriptData!!
@@ -541,7 +541,7 @@ fun MeetingDetailScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "POTONGAN SUARA (${data.chunks.size})",
+                                        text = "SEGMENTS (${data.chunks.size})",
                                         color = TextSecondary,
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
@@ -562,7 +562,7 @@ fun MeetingDetailScreen(
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = "EDIT LENGKAP",
+                                            text = "EDIT FULL",
                                             color = AccentPrimary,
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.SemiBold,
@@ -639,7 +639,7 @@ fun MeetingDetailScreen(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text(
-                                                text = "RINGKASAN EKSEKUTIF",
+                                                text = "EXECUTIVE SUMMARY",
                                                 color = AccentPrimary,
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.Bold,
@@ -652,10 +652,10 @@ fun MeetingDetailScreen(
                                                         scope.launch {
                                                             val res = meetingRepository.summarizeMeeting(meetingId)
                                                             if (res.isSuccess) {
-                                                                Toast.makeText(context, "Ringkasan berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(context, "Summary updated successfully", Toast.LENGTH_SHORT).show()
                                                                 reloadMeetingData()
                                                             } else {
-                                                                Toast.makeText(context, "Gagal membuat ringkasan: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(context, "Failed to generate summary: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
                                                             }
                                                             isRegeneratingSummary = false
                                                         }
@@ -675,7 +675,7 @@ fun MeetingDetailScreen(
                                                 )
                                                 Spacer(modifier = Modifier.width(4.dp))
                                                 Text(
-                                                    text = if (isRegeneratingSummary) "MEMPROSES..." else "PERBARUI",
+                                                    text = if (isRegeneratingSummary) "PROCESSING..." else "REGENERATE",
                                                     color = AccentPrimary,
                                                     fontSize = 9.sp,
                                                     fontWeight = FontWeight.SemiBold,
@@ -684,7 +684,7 @@ fun MeetingDetailScreen(
                                             }
                                         }
                                         Spacer(modifier = Modifier.height(8.dp))
-                                        val rawSummary = data.structuredSummary?.executiveSummary ?: (data.summary ?: "Belum ada ringkasan.")
+                                        val rawSummary = data.structuredSummary?.executiveSummary ?: (data.summary ?: "No executive summary available.")
                                         val cleanSummary = remember(rawSummary) {
                                             cleanExecutiveSummaryText(rawSummary)
                                         }
@@ -700,7 +700,7 @@ fun MeetingDetailScreen(
 
                             data.structuredSummary?.keyPoints?.let { points ->
                                 item {
-                                    Text("POIN-POIN PENTING", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text("KEY DISCUSSION POINTS", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 }
                                 items(points) { point ->
                                     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
@@ -722,7 +722,7 @@ fun MeetingDetailScreen(
                         val items = data.structuredSummary?.actionItems ?: emptyList()
                         if (items.isEmpty()) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("Tidak ada tugas / action items terdeteksi.", color = TextMuted, fontSize = 13.sp)
+                                Text("No action items detected.", color = TextMuted, fontSize = 13.sp)
                             }
                         } else {
                             LazyColumn(

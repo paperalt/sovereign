@@ -578,7 +578,7 @@ fun DashboardScreen(
 
     // User Guide Dialog
     if (showGuideDialog) {
-        UserGuideDialog(
+        GuideDialog(
             onDismiss = { showGuideDialog = false }
         )
     }
@@ -1125,7 +1125,7 @@ fun DashboardScreen(
                             onClick = { showUpdateDialog = true },
                             contentPadding = PaddingValues(horizontal = 6.dp, vertical = 1.dp)
                         ) {
-                            Text("LIHAT", color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("VIEW", color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                     Spacer(modifier = Modifier.height(10.dp))
@@ -1142,7 +1142,7 @@ fun DashboardScreen(
                     ) {
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("SESI AKTIF BERJALAN", color = AmberWarning, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Text("ACTIVE RECORDING SESSION", color = AmberWarning, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text("• ${ongoing.language.uppercase()}", color = TextMuted, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
                             }
@@ -1167,7 +1167,7 @@ fun DashboardScreen(
                                     modifier = Modifier.weight(1f),
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                                 ) {
-                                    Text("LANJUTKAN", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    Text("RESUME", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                 }
 
                                 OutlinedButton(
@@ -1182,7 +1182,7 @@ fun DashboardScreen(
                                     border = androidx.compose.foundation.BorderStroke(1.dp, CrimsonAlert),
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                                 ) {
-                                    Text("BATALKAN", color = CrimsonAlert, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    Text("DISCARD", color = CrimsonAlert, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -1229,7 +1229,7 @@ fun DashboardScreen(
                             displayedMeetings = allMeetings
                         }
                     },
-                    placeholder = { Text("Cari judul rapat, ringkasan, atau isi audio...", color = TextMuted, fontSize = 13.sp) },
+                    placeholder = { Text("Search sessions, transcripts, or summaries...", color = TextMuted, fontSize = 13.sp) },
                     leadingIcon = {
                         if (isSearching) {
                             CircularProgressIndicator(
@@ -2136,7 +2136,6 @@ fun CreateMeetingDialog(
     var selectedLang by remember { mutableStateOf("id") }
     var selectedTarget by remember { mutableStateOf("") }
     var selectedGroupId by remember(initialGroupId) { mutableStateOf(initialGroupId) }
-    val isQuotaExhausted = !isCustomSTT && userQuota != null && !userQuota.isUnlimited && userQuota.remainingSeconds <= 0
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -2147,35 +2146,19 @@ fun CreateMeetingDialog(
         containerColor = DarkSlate,
         shape = RoundedCornerShape(8.dp),
         title = {
-            Text("SESI TRANSKRIPSI BARU", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text("START RECORDING SESSION", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
-                if (isQuotaExhausted) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF2A0F12), RoundedCornerShape(4.dp))
-                            .border(1.dp, CrimsonAlert, RoundedCornerShape(4.dp))
-                            .padding(10.dp)
-                    ) {
-                        Column {
-                            Text("KUOTA TRANSKRIPSI HABIS", color = CrimsonAlert, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text("Sisa kuota 0 detik. Silakan beli paket kuota tambahan untuk memulai rekaman.", color = TextPrimary, fontSize = 12.sp)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(14.dp))
-                }
-
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Judul Sesi / Rapat", color = TextMuted, fontSize = 13.sp) },
+                    label = { Text("Session Title", color = TextMuted, fontSize = 13.sp) },
+                    placeholder = { Text("e.g. Planning Discussion", color = TextMuted.copy(alpha = 0.5f), fontSize = 13.sp) },
                     trailingIcon = {
                         if (title.isNotEmpty()) {
                             IconButton(onClick = { title = "" }, modifier = Modifier.size(28.dp)) {
-                                Icon(Icons.Default.Close, contentDescription = "Hapus Judul", tint = TextMuted, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = TextMuted, modifier = Modifier.size(16.dp))
                             }
                         }
                     },
@@ -2191,14 +2174,14 @@ fun CreateMeetingDialog(
 
                 if (groups.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("Grup / Folder:", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Folder:", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(6.dp))
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         item {
                             FilterChip(
                                 selected = selectedGroupId == null,
                                 onClick = { selectedGroupId = null },
-                                label = { Text("Tanpa Grup", fontSize = 11.sp) }
+                                label = { Text("No Folder", fontSize = 11.sp) }
                             )
                         }
                         items(groups) { grp ->
@@ -2213,7 +2196,7 @@ fun CreateMeetingDialog(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                Text("Bahasa Audio Sumber:", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Text("Source Audio Language:", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(6.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     items(listOf("id" to "ID", "en" to "EN", "ja" to "JA", "auto" to "AUTO")) { (code, label) ->
@@ -2227,10 +2210,10 @@ fun CreateMeetingDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Text("Terjemahan Tujuan (Opsional):", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Text("Target Translation (Optional):", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(6.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    items(listOf("" to "Tanpa Translasi", "id" to "Ke ID", "en" to "Ke EN")) { (code, label) ->
+                    items(listOf("" to "None", "id" to "To ID", "en" to "To EN")) { (code, label) ->
                         FilterChip(
                             selected = selectedTarget == code,
                             onClick = { selectedTarget = code },
@@ -2241,25 +2224,15 @@ fun CreateMeetingDialog(
             }
         },
         confirmButton = {
-            if (isQuotaExhausted) {
-                Button(
-                    onClick = onUpgradeClicked,
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
-                    shape = RoundedCornerShape(4.dp)
-                ) {
-                    Text("BELI KUOTA", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
-            } else {
-                Button(
-                    onClick = {
-                        val finalTitle = if (title.isBlank()) "Sesi Rapat" else title
-                        onCreate(finalTitle, selectedLang, selectedTarget, selectedGroupId)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
-                    shape = RoundedCornerShape(4.dp)
-                ) {
-                    Text("MULAI REKAM", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
+            Button(
+                onClick = {
+                    val finalTitle = if (title.isBlank()) "Session ${System.currentTimeMillis() % 10000}" else title
+                    onCreate(finalTitle, selectedLang, selectedTarget, selectedGroupId)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
+                shape = RoundedCornerShape(4.dp)
+            ) {
+                Text("START RECORDING", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
@@ -2268,7 +2241,7 @@ fun CreateMeetingDialog(
                 border = BorderStroke(1.dp, SteelBorder),
                 shape = RoundedCornerShape(4.dp)
             ) {
-                Text("BATAL", color = TextSecondary, fontSize = 12.sp)
+                Text("CANCEL", color = TextSecondary, fontSize = 12.sp)
             }
         }
     )

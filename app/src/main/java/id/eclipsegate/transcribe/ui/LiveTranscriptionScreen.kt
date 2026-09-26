@@ -125,7 +125,7 @@ fun LiveTranscriptionScreen(
             shape = RoundedCornerShape(12.dp),
             title = {
                 Text(
-                    text = "Batalkan Sesi Transkripsi?",
+                    text = "Discard Transcription Session?",
                     color = TextPrimary,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
@@ -133,7 +133,7 @@ fun LiveTranscriptionScreen(
             },
             text = {
                 Text(
-                    text = "Seluruh rekaman dan teks transkripsi dari sesi ini akan dihapus secara permanen dan tidak disimpan ke server.",
+                    text = "All recorded audio and transcript segments from this session will be permanently discarded.",
                     color = TextSecondary,
                     fontSize = 13.sp,
                     lineHeight = 18.sp
@@ -148,7 +148,7 @@ fun LiveTranscriptionScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = CrimsonAlert),
                     shape = RoundedCornerShape(6.dp)
                 ) {
-                    Text("YA, BATALKAN", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("DISCARD SESSION", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -157,7 +157,7 @@ fun LiveTranscriptionScreen(
                     border = BorderStroke(1.dp, SteelBorder),
                     shape = RoundedCornerShape(6.dp)
                 ) {
-                    Text("TETAP REKAM", color = TextPrimary, fontSize = 12.sp)
+                    Text("RESUME RECORDING", color = TextPrimary, fontSize = 12.sp)
                 }
             }
         )
@@ -188,7 +188,7 @@ fun LiveTranscriptionScreen(
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
                 modifier = Modifier.height(34.dp)
             ) {
-                Text("BATAL", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text("DISCARD", fontSize = 11.sp, fontWeight = FontWeight.Bold)
             }
 
             // Center: Title and Live Indicator
@@ -227,17 +227,17 @@ fun LiveTranscriptionScreen(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     val baseStatus = when {
-                        isFinalizing -> "PROSES"
-                        isPaused -> "DIJEDA"
+                        isFinalizing -> "FINALIZING"
+                        isPaused -> "PAUSED"
                         isRecording && isAdaptiveBeta -> {
                             when (vadState) {
-                                "SPEAKING" -> "VAD: AKTIF"
-                                "SUPPRESSED" -> "VAD: HEMAT"
+                                "SPEAKING" -> "VAD: ACTIVE"
+                                "SUPPRESSED" -> "VAD: SAVING"
                                 else -> "STREAM"
                             }
                         }
                         isRecording -> "STREAM"
-                        else -> "SIAP"
+                        else -> "READY"
                     }
                     val statusLabel = baseStatus
                     val metaLabel = if (aiProvider != "DEFAULT") {
@@ -268,7 +268,7 @@ fun LiveTranscriptionScreen(
                 OutlinedButton(
                     onClick = {
                         isKeepScreenOn = !isKeepScreenOn
-                        val msg = if (isKeepScreenOn) "Always On Display: AKTIF (Layar tetap menyala)" else "Always On Display: NONAKTIF"
+                        val msg = if (isKeepScreenOn) "Always On Display: ON" else "Always On Display: OFF"
                         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                     },
                     shape = RoundedCornerShape(6.dp),
@@ -299,7 +299,7 @@ fun LiveTranscriptionScreen(
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
                         modifier = Modifier.height(34.dp)
                     ) {
-                        Text("IDE TANYA", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text("INQUIRY", fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -337,14 +337,14 @@ fun LiveTranscriptionScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Mendengarkan audio perkuliahan / rapat...",
+                        text = "Listening for audio input...",
                         color = TextSecondary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Teks transkripsi akan muncul otomatis secara real-time.",
+                        text = "Real-time transcript segments will appear here automatically.",
                         color = TextMuted,
                         fontSize = 11.sp
                     )
@@ -422,7 +422,7 @@ fun LiveTranscriptionScreen(
                             modifier = Modifier.size(13.dp)
                         )
                         Spacer(modifier = Modifier.width(5.dp))
-                        Text("TEKS BARU", color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("NEW SEGMENT", color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -447,7 +447,7 @@ fun LiveTranscriptionScreen(
                 // Digital Monospace Timer
                 Column(modifier = Modifier.weight(1f, fill = false)) {
                     Text(
-                        text = "DURASI REKAMAN",
+                        text = "SESSION DURATION",
                         color = TextMuted,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
@@ -481,7 +481,7 @@ fun LiveTranscriptionScreen(
                         modifier = Modifier.height(38.dp)
                     ) {
                         Text(
-                            text = if (isPaused) "LANJUT" else "JEDA",
+                            text = if (isPaused) "RESUME" else "PAUSE",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             softWrap = false
@@ -508,9 +508,9 @@ fun LiveTranscriptionScreen(
                                 strokeWidth = 2.dp
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("FINALISASI...", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold, softWrap = false)
+                            Text("FINALIZING...", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold, softWrap = false)
                         } else {
-                            Text("SELESAIKAN", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold, softWrap = false)
+                            Text("FINISH", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold, softWrap = false)
                         }
                     }
                 }

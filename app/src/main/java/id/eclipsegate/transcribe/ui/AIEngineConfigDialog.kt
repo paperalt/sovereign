@@ -71,7 +71,7 @@ fun AIEngineConfigDialog(
     val scope = rememberCoroutineScope()
     val directAIClient = remember { DirectAIClient() }
 
-    // Active Navigation Tab: 0 = PRESETS, 1 = VOICE / STT, 2 = LLM / NALAR
+    // Active Navigation Tab: 0 = PRESETS, 1 = VOICE / STT, 2 = REASONING / LLM
     var activeTab by remember { mutableStateOf(0) }
 
     // Presets state
@@ -114,13 +114,13 @@ fun AIEngineConfigDialog(
                         val res = ProviderPresetManager.importFromJsonString(jsonContent, context)
                         if (res.isSuccess) {
                             presets = res.getOrThrow()
-                            Toast.makeText(context, "Berhasil mengimpor ${presets.size} preset dari berkas", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Successfully imported ${presets.size} presets", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal memproses berkas JSON", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to parse JSON file", Toast.LENGTH_LONG).show()
                         }
                     }
                 } catch (e: Exception) {
-                    Toast.makeText(context, "Gagal membaca berkas: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Failed to read file: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -170,7 +170,7 @@ fun AIEngineConfigDialog(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "PENGATURAN MODEL AI",
+                                text = "AI MODEL CONFIGURATION",
                                 color = TextPrimary,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
@@ -178,7 +178,7 @@ fun AIEngineConfigDialog(
                                 letterSpacing = 0.5.sp
                             )
                             Text(
-                                text = "Konfigurasi Endpoint, Model, dan Kunci API",
+                                text = "Endpoints, Models & Key Storage",
                                 color = TextSecondary,
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace
@@ -190,7 +190,7 @@ fun AIEngineConfigDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Tutup",
+                                contentDescription = "Close",
                                 tint = TextSecondary
                             )
                         }
@@ -208,9 +208,9 @@ fun AIEngineConfigDialog(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         val tabs = listOf(
-                            "PRESET" to 0,
-                            "SUARA (STT)" to 1,
-                            "NALAR (LLM)" to 2
+                            "PRESETS" to 0,
+                            "VOICE (STT)" to 1,
+                            "REASONING (LLM)" to 2
                         )
                         tabs.forEach { (title, index) ->
                             val isSelected = activeTab == index
@@ -240,7 +240,7 @@ fun AIEngineConfigDialog(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // 3. Tab Contents (Wrapped in weight so Bottom Bar stays fixed)
+                    // 3. Tab Contents
                     Box(modifier = Modifier.weight(1f, fill = false)) {
                         when (activeTab) {
                             0 -> PresetManagementTab(
@@ -257,9 +257,9 @@ fun AIEngineConfigDialog(
                                         if (res.isSuccess) {
                                             presets = res.getOrThrow()
                                             tokenStorage.setCustomPresetsUrl(customUrlInput)
-                                            Toast.makeText(context, "Daftar preset berhasil dimuat (${presets.size} preset)", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Loaded ${presets.size} presets", Toast.LENGTH_SHORT).show()
                                         } else {
-                                            Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal memuat URL", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to fetch presets", Toast.LENGTH_LONG).show()
                                         }
                                     }
                                 },
@@ -273,7 +273,7 @@ fun AIEngineConfigDialog(
                                     presets = ProviderPresetManager.resetToDefault(context)
                                     customUrlInput = ProviderPresetManager.DEFAULT_GITHUB_RAW_URL
                                     tokenStorage.setCustomPresetsUrl(customUrlInput)
-                                    Toast.makeText(context, "Daftar preset dikembalikan ke bawaan", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Presets restored to defaults", Toast.LENGTH_SHORT).show()
                                 },
                                 onSelectPreset = { preset ->
                                     selectedPresetId = preset.id
@@ -283,7 +283,7 @@ fun AIEngineConfigDialog(
                                         llmEndpoint = preset.llm.endpoint
                                         llmModel = preset.llm.defaultModel
                                     }
-                                    Toast.makeText(context, "Preset [${preset.name}] diterapkan", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Preset [${preset.name}] applied", Toast.LENGTH_SHORT).show()
                                 }
                             )
 
@@ -301,7 +301,7 @@ fun AIEngineConfigDialog(
                                 isDetectingModels = isDetectingModels && targetModelField == "STT",
                                 onDetectModels = {
                                     if (sttEndpoint.isBlank()) {
-                                        Toast.makeText(context, "Masukkan STT Endpoint terlebih dahulu", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Please enter STT Endpoint first", Toast.LENGTH_SHORT).show()
                                         return@VoiceSttTab
                                     }
                                     scope.launch {
@@ -313,7 +313,7 @@ fun AIEngineConfigDialog(
                                             detectedModels = res.getOrThrow()
                                             showModelPickerDialog = true
                                         } else {
-                                            Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal deteksi model", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to detect models", Toast.LENGTH_LONG).show()
                                         }
                                     }
                                 }
@@ -332,7 +332,7 @@ fun AIEngineConfigDialog(
                                 isDetectingModels = isDetectingModels && targetModelField == "LLM",
                                 onDetectModels = {
                                     if (llmEndpoint.isBlank()) {
-                                        Toast.makeText(context, "Masukkan LLM Endpoint terlebih dahulu", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Please enter LLM Endpoint first", Toast.LENGTH_SHORT).show()
                                         return@LlmReasoningTab
                                     }
                                     scope.launch {
@@ -345,7 +345,7 @@ fun AIEngineConfigDialog(
                                             detectedModels = res.getOrThrow()
                                             showModelPickerDialog = true
                                         } else {
-                                            Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal deteksi model", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to detect models", Toast.LENGTH_LONG).show()
                                         }
                                     }
                                 }
@@ -369,7 +369,7 @@ fun AIEngineConfigDialog(
                             border = BorderStroke(1.dp, SteelBorder)
                         ) {
                             Text(
-                                text = "[BATAL]",
+                                text = "[CANCEL]",
                                 color = TextSecondary,
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 12.sp
@@ -390,7 +390,7 @@ fun AIEngineConfigDialog(
                                 tokenStorage.setAdaptiveStreamingBetaEnabled(isAdaptiveBeta)
                                 tokenStorage.setCustomPresetsUrl(customUrlInput)
 
-                                Toast.makeText(context, "Pengaturan AI berhasil disimpan", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Configuration saved successfully", Toast.LENGTH_SHORT).show()
                                 onSaved(selectedPresetId)
                                 onDismiss()
                             },
@@ -401,7 +401,7 @@ fun AIEngineConfigDialog(
                             colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary)
                         ) {
                             Text(
-                                text = "[SIMPAN]",
+                                text = "[SAVE SETTINGS]",
                                 color = OnyxBlack,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Monospace,
@@ -448,7 +448,7 @@ fun AIEngineConfigDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "PILIH MODEL ($targetModelField)",
+                                text = "SELECT MODEL ($targetModelField)",
                                 color = TextPrimary,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
@@ -460,7 +460,7 @@ fun AIEngineConfigDialog(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Tutup",
+                                    contentDescription = "Close",
                                     tint = TextSecondary
                                 )
                             }
@@ -471,7 +471,7 @@ fun AIEngineConfigDialog(
                         OutlinedTextField(
                             value = modelFilterQuery,
                             onValueChange = { modelFilterQuery = it },
-                            placeholder = { Text("Filter model...", fontSize = 11.sp) },
+                            placeholder = { Text("Filter models...", fontSize = 11.sp) },
                             leadingIcon = {
                                 Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = TextMuted)
                             },
@@ -489,7 +489,7 @@ fun AIEngineConfigDialog(
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Text(
-                            text = "${filteredList.size} model terdeteksi:",
+                            text = "${filteredList.size} models detected:",
                             color = TextSecondary,
                             fontSize = 10.sp,
                             fontFamily = FontFamily.Monospace
@@ -525,7 +525,7 @@ fun AIEngineConfigDialog(
                                         modifier = Modifier.weight(1f)
                                     )
                                     Text(
-                                        text = "[PILIH]",
+                                        text = "[SELECT]",
                                         color = AccentPrimary,
                                         fontSize = 10.sp,
                                         fontFamily = FontFamily.Monospace
@@ -570,7 +570,7 @@ fun AIEngineConfigDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "TEMPEL JSON PRESET",
+                                text = "PASTE PRESETS JSON",
                                 color = TextPrimary,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
@@ -580,7 +580,7 @@ fun AIEngineConfigDialog(
                                 onClick = { showPasteJsonModal = false },
                                 modifier = Modifier.size(34.dp)
                             ) {
-                                Icon(imageVector = Icons.Default.Close, contentDescription = "Tutup", tint = TextSecondary)
+                                Icon(imageVector = Icons.Default.Close, contentDescription = "Close", tint = TextSecondary)
                             }
                         }
 
@@ -625,10 +625,10 @@ fun AIEngineConfigDialog(
                                         val res = ProviderPresetManager.importFromJsonString(rawJsonText, context)
                                         if (res.isSuccess) {
                                             presets = res.getOrThrow()
-                                            Toast.makeText(context, "Preset berhasil dimuat (${presets.size} preset)", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Loaded ${presets.size} presets successfully", Toast.LENGTH_SHORT).show()
                                             showPasteJsonModal = false
                                         } else {
-                                            Toast.makeText(context, res.exceptionOrNull()?.message ?: "Format JSON tidak valid", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(context, res.exceptionOrNull()?.message ?: "Invalid JSON format", Toast.LENGTH_LONG).show()
                                         }
                                     }
                                 },
@@ -638,7 +638,7 @@ fun AIEngineConfigDialog(
                                     .weight(1f)
                                     .height(40.dp)
                             ) {
-                                Text("[IMPOR PRESET]", color = OnyxBlack, fontWeight = FontWeight.Bold, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
+                                Text("[IMPORT PRESETS]", color = OnyxBlack, fontWeight = FontWeight.Bold, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
                             }
                         }
                     }
@@ -649,7 +649,7 @@ fun AIEngineConfigDialog(
 }
 
 // ==============================================================================
-// SUB-COMPONENT: TAB 1 (PRESET & MANAGEMENT)
+// SUB-COMPONENT: TAB 1 (PRESET & SOURCES)
 // ==============================================================================
 @Composable
 private fun PresetManagementTab(
@@ -669,9 +669,8 @@ private fun PresetManagementTab(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
     ) {
-        // Source URL Input Card
         Text(
-            text = "SUMBER PRESET",
+            text = "PRESET SOURCES",
             color = AccentPrimary,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
@@ -687,7 +686,7 @@ private fun PresetManagementTab(
             OutlinedTextField(
                 value = customUrlInput,
                 onValueChange = { onUrlChange(it) },
-                label = { Text("URL Presets", fontSize = 10.sp) },
+                label = { Text("Presets File URL", fontSize = 10.sp) },
                 placeholder = { Text("https://.../providers.json", fontSize = 10.sp) },
                 modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -725,7 +724,6 @@ private fun PresetManagementTab(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Preset action tools row (Import, Paste, Reset)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -741,7 +739,7 @@ private fun PresetManagementTab(
             ) {
                 Icon(imageVector = Icons.Default.FileOpen, contentDescription = "Import", tint = TextSecondary, modifier = Modifier.size(12.dp))
                 Spacer(modifier = Modifier.width(3.dp))
-                Text("[IMPOR FILE]", color = TextSecondary, fontSize = 9.sp, fontFamily = FontFamily.Monospace)
+                Text("[IMPORT FILE]", color = TextSecondary, fontSize = 9.sp, fontFamily = FontFamily.Monospace)
             }
 
             OutlinedButton(
@@ -755,7 +753,7 @@ private fun PresetManagementTab(
             ) {
                 Icon(imageVector = Icons.Default.ContentPaste, contentDescription = "Paste", tint = TextSecondary, modifier = Modifier.size(12.dp))
                 Spacer(modifier = Modifier.width(3.dp))
-                Text("[TEMPEL JSON]", color = TextSecondary, fontSize = 9.sp, fontFamily = FontFamily.Monospace)
+                Text("[PASTE JSON]", color = TextSecondary, fontSize = 9.sp, fontFamily = FontFamily.Monospace)
             }
 
             OutlinedButton(
@@ -775,9 +773,8 @@ private fun PresetManagementTab(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Preset items list
         Text(
-            text = "DAFTAR PRESET (${presets.size})",
+            text = "AVAILABLE PRESETS (${presets.size})",
             color = AccentPrimary,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
@@ -822,7 +819,7 @@ private fun PresetManagementTab(
                             }
                             if (isSelected) {
                                 Text(
-                                    text = "[AKTIF]",
+                                    text = "[ACTIVE]",
                                     color = EmeraldSuccess,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
@@ -892,7 +889,7 @@ private fun VoiceSttTab(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = "ENDPOINT & MODEL SUARA (STT)",
+            text = "AUDIO TRANSCRIPTION (STT)",
             color = AccentPrimary,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
@@ -900,7 +897,6 @@ private fun VoiceSttTab(
         )
         Spacer(modifier = Modifier.height(6.dp))
 
-        // STT Endpoint Input
         OutlinedTextField(
             value = sttEndpoint,
             onValueChange = { onSttEndpointChange(it) },
@@ -919,7 +915,6 @@ private fun VoiceSttTab(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // STT Model Input + Auto-detect Button
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -928,7 +923,7 @@ private fun VoiceSttTab(
             OutlinedTextField(
                 value = sttModel,
                 onValueChange = { onSttModelChange(it) },
-                label = { Text("Model", fontSize = 11.sp) },
+                label = { Text("Model Name", fontSize = 11.sp) },
                 placeholder = { Text("whisper-large-v3-turbo", fontSize = 11.sp) },
                 modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -949,7 +944,7 @@ private fun VoiceSttTab(
                 contentPadding = PaddingValues(horizontal = 10.dp)
             ) {
                 Text(
-                    text = if (isDetectingModels) "MENCARI..." else "[DETEKSI]",
+                    text = if (isDetectingModels) "SEARCHING..." else "[DETECT]",
                     color = AccentPrimary,
                     fontSize = 10.sp,
                     fontFamily = FontFamily.Monospace
@@ -959,12 +954,11 @@ private fun VoiceSttTab(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // STT API Key Input
         OutlinedTextField(
             value = sttKey,
             onValueChange = { onSttKeyChange(it) },
-            label = { Text("API Key STT", fontSize = 11.sp) },
-            placeholder = { Text("Masukkan API Key STT", fontSize = 11.sp) },
+            label = { Text("STT API Key", fontSize = 11.sp) },
+            placeholder = { Text("Enter STT API Key", fontSize = 11.sp) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = AccentPrimary,
@@ -1003,7 +997,6 @@ private fun VoiceSttTab(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Adaptive Streaming Switch
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1015,14 +1008,14 @@ private fun VoiceSttTab(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "STREAMING ADAPTIF",
+                    text = "ADAPTIVE STREAMING",
                     color = TextPrimary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace
                 )
                 Text(
-                    text = "Deteksi jeda bicara (VAD) untuk efisiensi transmisi data.",
+                    text = "Automated Voice Activity Detection (VAD) silence suppression.",
                     color = TextSecondary,
                     fontSize = 10.sp
                 )
@@ -1042,7 +1035,7 @@ private fun VoiceSttTab(
 }
 
 // ==============================================================================
-// SUB-COMPONENT: TAB 3 (LLM / NALAR)
+// SUB-COMPONENT: TAB 3 (REASONING / LLM)
 // ==============================================================================
 @Composable
 private fun LlmReasoningTab(
@@ -1071,7 +1064,7 @@ private fun LlmReasoningTab(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "ENDPOINT & MODEL BAHASA (LLM)",
+                text = "LANGUAGE & REASONING (LLM)",
                 color = AccentPrimary,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
@@ -1079,7 +1072,7 @@ private fun LlmReasoningTab(
             )
             if (sttKey.isNotBlank() && llmKey != sttKey) {
                 Text(
-                    text = "[SALIN DARI STT]",
+                    text = "[COPY FROM STT]",
                     color = AccentPrimary,
                     fontSize = 10.sp,
                     fontFamily = FontFamily.Monospace,
@@ -1091,7 +1084,6 @@ private fun LlmReasoningTab(
         }
         Spacer(modifier = Modifier.height(6.dp))
 
-        // LLM Endpoint Input
         OutlinedTextField(
             value = llmEndpoint,
             onValueChange = { onLlmEndpointChange(it) },
@@ -1110,7 +1102,6 @@ private fun LlmReasoningTab(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // LLM Model Input + Auto-detect Button
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -1119,7 +1110,7 @@ private fun LlmReasoningTab(
             OutlinedTextField(
                 value = llmModel,
                 onValueChange = { onLlmModelChange(it) },
-                label = { Text("Model", fontSize = 11.sp) },
+                label = { Text("Model Name", fontSize = 11.sp) },
                 placeholder = { Text("llama-3.3-70b-versatile", fontSize = 11.sp) },
                 modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -1140,7 +1131,7 @@ private fun LlmReasoningTab(
                 contentPadding = PaddingValues(horizontal = 10.dp)
             ) {
                 Text(
-                    text = if (isDetectingModels) "MENCARI..." else "[DETEKSI]",
+                    text = if (isDetectingModels) "SEARCHING..." else "[DETECT]",
                     color = AccentPrimary,
                     fontSize = 10.sp,
                     fontFamily = FontFamily.Monospace
@@ -1150,12 +1141,11 @@ private fun LlmReasoningTab(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // LLM API Key Input
         OutlinedTextField(
             value = llmKey,
             onValueChange = { onLlmKeyChange(it) },
-            label = { Text("API Key LLM", fontSize = 11.sp) },
-            placeholder = { Text("Masukkan API Key LLM", fontSize = 11.sp) },
+            label = { Text("LLM API Key", fontSize = 11.sp) },
+            placeholder = { Text("Enter LLM API Key", fontSize = 11.sp) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = AccentPrimary,

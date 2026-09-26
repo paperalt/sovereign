@@ -12,21 +12,21 @@ android {
         applicationId = "id.eclipsegate.transcribe"
         minSdk = 26
         targetSdk = 35
-        versionCode = 42
-        versionName = "2.1.0"
+        versionCode = 1
+        versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug") // Default debug key for dev builds
+            signingConfig = signingConfigs.getByName("debug") // Standalone signed release
         }
         debug {
             isDebuggable = true

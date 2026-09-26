@@ -90,7 +90,7 @@ fun QuestionSuggestionDialog(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Saran Pertanyaan Kritis",
+                        text = "In-Meeting Inquiry",
                         color = TextPrimary,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
@@ -98,7 +98,7 @@ fun QuestionSuggestionDialog(
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "Analisis AI berbasis isi materi nyata (Zero Hallucination)",
+                        text = "Context-grounded inquiries with source citations",
                         color = TextMuted,
                         fontSize = 11.sp,
                         maxLines = 1,
@@ -108,7 +108,7 @@ fun QuestionSuggestionDialog(
                 IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Tutup",
+                        contentDescription = "Close",
                         tint = TextSecondary,
                         modifier = Modifier.size(20.dp)
                     )
@@ -123,7 +123,7 @@ fun QuestionSuggestionDialog(
             ) {
                 // 1. Modular Time Window Selector Chips
                 Text(
-                    text = "RENTANG WAKTU MATERI:",
+                    text = "DISCUSSION WINDOW:",
                     color = TextMuted,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
@@ -136,10 +136,10 @@ fun QuestionSuggestionDialog(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     listOf(
-                        5 to "5 Menit",
-                        15 to "15 Menit",
-                        30 to "30 Menit",
-                        0 to "Semua"
+                        5 to "5 Min",
+                        15 to "15 Min",
+                        30 to "30 Min",
+                        0 to "Full Session"
                     ).forEach { (win, label) ->
                         val isSelected = selectedWindow == win
                         Box(
@@ -194,7 +194,7 @@ fun QuestionSuggestionDialog(
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = "Menganalisis materi & merumuskan pertanyaan...",
+                                text = "Analyzing transcript & formulating questions...",
                                 color = TextMuted,
                                 fontSize = 12.sp
                             )
@@ -209,7 +209,7 @@ fun QuestionSuggestionDialog(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = errorMessage ?: "Terjadi kesalahan",
+                                text = errorMessage ?: "An unexpected error occurred",
                                 color = CrimsonAlert,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -222,7 +222,7 @@ fun QuestionSuggestionDialog(
                             ) {
                                 Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Coba Lagi", fontSize = 12.sp)
+                                Text("Retry", fontSize = 12.sp)
                             }
                         }
                     }
@@ -246,7 +246,7 @@ fun QuestionSuggestionDialog(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "KONTEKS MATERI BELUM CUKUP",
+                                        text = "INSUFFICIENT TRANSCRIPT CONTEXT",
                                         color = AmberEdgeCase,
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold
@@ -254,14 +254,14 @@ fun QuestionSuggestionDialog(
                                 }
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = res.message ?: "Materi pada rentang waktu ini belum cukup padat untuk merumuskan pertanyaan spesifik.",
+                                    text = res.message ?: "Transcript in this window is not yet substantive enough to formulate grounded inquiries.",
                                     color = TextSecondary,
                                     fontSize = 12.sp,
                                     lineHeight = 17.sp
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "Saran: Terus rekam materi perkuliahan/rapat, atau pilih rentang 'Semua' untuk merangkum sejak awal sesi.",
+                                    text = "Recommendation: Continue recording, or select 'Full Session' to analyze from the start.",
                                     color = TextMuted,
                                     fontSize = 11.sp
                                 )
@@ -274,7 +274,7 @@ fun QuestionSuggestionDialog(
                                 .weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("Belum ada saran pertanyaan.", color = TextMuted, fontSize = 12.sp)
+                            Text("No question suggestions available yet.", color = TextMuted, fontSize = 12.sp)
                         }
                     } else {
                         // Display Question Cards
@@ -290,8 +290,8 @@ fun QuestionSuggestionDialog(
                                     item = item,
                                     onCopy = { q ->
                                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                        clipboard.setPrimaryClip(ClipData.newPlainText("Pertanyaan Rapat", q))
-                                        Toast.makeText(context, "Pertanyaan disalin ke clipboard", Toast.LENGTH_SHORT).show()
+                                        clipboard.setPrimaryClip(ClipData.newPlainText("Inquiry", q))
+                                        Toast.makeText(context, "Question copied to clipboard", Toast.LENGTH_SHORT).show()
                                     }
                                 )
                             }
@@ -311,7 +311,7 @@ fun QuestionSuggestionDialog(
                     .height(44.dp)
             ) {
                 Text(
-                    text = "TUTUP",
+                    text = "CLOSE",
                     color = TextPrimary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
@@ -329,9 +329,9 @@ fun QuestionCard(
     onCopy: (String) -> Unit
 ) {
     val (badgeText, badgeColor) = when (item.category.lowercase()) {
-        "critical_edge_case" -> "CRITICAL / STRESS-TEST" to AmberEdgeCase
-        "practical_impact" -> "DAMPAK PRAKTIS & BIAYA" to IndigoImpact
-        else -> "KLARIFIKASI KONSEP" to EmeraldClarify
+        "critical_edge_case" -> "CRITICAL / EDGE-CASE" to AmberEdgeCase
+        "practical_impact" -> "PRACTICAL IMPACT" to IndigoImpact
+        else -> "CONCEPT CLARIFICATION" to EmeraldClarify
     }
 
     Card(
@@ -406,7 +406,7 @@ fun QuestionCard(
                 ) {
                     Column {
                         Text(
-                            text = "DASAR KUTIPAN DARI MATERI:",
+                            text = "SOURCE CONTEXT (VERBATIM):",
                             color = TextMuted,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
@@ -429,7 +429,7 @@ fun QuestionCard(
                 if (starter.isNotBlank()) {
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Saran Momen: $starter",
+                        text = "Recommendation: $starter",
                         color = TextMuted,
                         fontSize = 11.sp,
                         lineHeight = 15.sp

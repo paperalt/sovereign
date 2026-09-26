@@ -1,5 +1,6 @@
 package id.eclipsegate.transcribe.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -8,10 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Dns
-import androidx.compose.material.icons.filled.HelpOutline
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,132 +42,139 @@ fun SystemInfoDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Card(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            shape = RoundedCornerShape(10.dp),
-            colors = CardDefaults.cardColors(containerColor = OnyxBlack)
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.75f)),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, SteelBorder, RoundedCornerShape(10.dp))
-                    .padding(20.dp)
-                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp)
+                    .heightIn(max = 600.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = OnyxBlack),
+                border = BorderStroke(1.dp, SteelBorder)
             ) {
-                // Header
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "INFORMASI SISTEM",
-                            color = TextPrimary,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.5.sp
-                        )
-                        Text(
-                            text = "Arsitektur Transcribe Core v$currentVersionName",
-                            color = TextSecondary,
-                            fontSize = 11.sp
-                        )
-                    }
-                    IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Default.Close, contentDescription = "Tutup", tint = TextSecondary)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Server Status Card
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(CardBackground, RoundedCornerShape(6.dp))
-                        .border(1.dp, SteelBorder, RoundedCornerShape(6.dp))
-                        .padding(12.dp)
+                        .padding(20.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                    // Header
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
                             Text(
-                                text = "INFRASTRUKTUR UTAMA",
-                                color = TextMuted,
-                                fontSize = 10.sp,
+                                text = "SYSTEM INFORMATION",
+                                color = TextPrimary,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Monospace,
-                                fontWeight = FontWeight.Bold
+                                letterSpacing = 0.5.sp
                             )
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Sovereign Core Architecture v$currentVersionName",
+                                color = TextSecondary,
+                                fontSize = 11.sp,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        }
+                        IconButton(onClick = onDismiss, modifier = Modifier.size(34.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondary)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Architecture Overview
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBackground),
+                        border = BorderStroke(1.dp, SteelBorder)
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "CORE ARCHITECTURE",
+                                    color = AccentPrimary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace
+                                )
                                 Box(
                                     modifier = Modifier
-                                        .size(6.dp)
-                                        .background(EmeraldSuccess, RoundedCornerShape(3.dp))
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "ONLINE",
-                                    color = EmeraldSuccess,
-                                    fontSize = 10.sp,
-                                    fontFamily = FontFamily.Monospace,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                        .background(EmeraldSuccess.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                        .border(1.dp, EmeraldSuccess, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "STANDALONE",
+                                        color = EmeraldSuccess,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = FontFamily.Monospace
+                                    )
+                                }
                             }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            InfoRow(label = "Platform", value = "100% On-Device Standalone Android")
+                            InfoRow(label = "Database", value = "Embedded SQLite 3 (App Sandbox)")
+                            InfoRow(label = "Audio Ingestion", value = "16kHz Mono Linear PCM -> In-Memory WAV")
+                            InfoRow(label = "Audio Chunker", value = "Client-Side RMS Energy VAD Gating")
+                            InfoRow(label = "AI Routing", value = "Direct HTTPS to User-Configured Endpoints")
                         }
-
-                        InfoRow(label = "Endpoint Domain", value = "gate.eclipsegate.my.id")
-                        InfoRow(label = "Protokol", value = "HTTPS / WSS (TLS 1.3 Let's Encrypt)")
-                        InfoRow(label = "Audio Streaming", value = "PCM 16kHz Mono -> In-Memory WAV")
-                        InfoRow(label = "VAD Chunker", value = "RMS Silence Split (5s - 25s)")
-                        InfoRow(label = "Basis Data", value = "PostgreSQL 16 (GIN + B-Tree)")
                     }
-                }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
-                // Security & Privacy Specs
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(CardBackground, RoundedCornerShape(6.dp))
-                        .border(1.dp, SteelBorder, RoundedCornerShape(6.dp))
-                        .padding(12.dp)
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Lock, contentDescription = null, tint = EmeraldSuccess, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
+                    // Security & Privacy Card
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBackground),
+                        border = BorderStroke(1.dp, SteelBorder)
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
                             Text(
-                                text = "KEAMANAN & PRIVASI",
-                                color = TextPrimary,
+                                text = "SECURITY & PRIVACY",
+                                color = AccentPrimary,
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "• Hardware Keystore: API keys are encrypted at rest using AES-256-GCM.\n• Zero Intermediary Server: Audio and transcripts are stored strictly in local SQLite.\n• Direct HTTPS: Network calls travel directly from the device to your AI provider.",
+                                color = TextSecondary,
+                                fontSize = 11.sp,
+                                lineHeight = 16.sp
                             )
                         }
-                        Text(
-                            text = "• Kunci pribadi API disimpan di Android Keystore (AES-256-GCM).\n• Zero-knowledge server: API Key pribadi tidak pernah disimpan ke SSD server.\n• Token sesi menggunakan JWT dual-token dengan Argon2id hash.",
-                            color = TextSecondary,
-                            fontSize = 11.sp,
-                            lineHeight = 16.sp
-                        )
                     }
-                }
 
-                Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(6.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E2632))
-                ) {
-                    Text(text = "TUTUP", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary)
+                    ) {
+                        Text(text = "[CLOSE]", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                    }
                 }
             }
         }
@@ -176,93 +182,101 @@ fun SystemInfoDialog(
 }
 
 @Composable
-fun UserGuideDialog(
+fun GuideDialog(
     onDismiss: () -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Card(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            shape = RoundedCornerShape(10.dp),
-            colors = CardDefaults.cardColors(containerColor = OnyxBlack)
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.75f)),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, SteelBorder, RoundedCornerShape(10.dp))
-                    .padding(20.dp)
-                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp)
+                    .heightIn(max = 620.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = OnyxBlack),
+                border = BorderStroke(1.dp, SteelBorder)
             ) {
-                // Header
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Column {
-                        Text(
-                            text = "PANDUAN & BANTUAN",
-                            color = TextPrimary,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.5.sp
-                        )
-                        Text(
-                            text = "Tips Optimal Transcribe Core",
-                            color = TextSecondary,
-                            fontSize = 11.sp
-                        )
+                    // Header
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "GUIDE & DOCUMENTATION",
+                                color = TextPrimary,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                letterSpacing = 0.5.sp
+                            )
+                            Text(
+                                text = "Usage & Configuration Guidelines",
+                                color = TextSecondary,
+                                fontSize = 11.sp,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        }
+                        IconButton(onClick = onDismiss, modifier = Modifier.size(34.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondary)
+                        }
                     }
-                    IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Default.Close, contentDescription = "Tutup", tint = TextSecondary)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    GuideItem(
+                        title = "1. Obtaining a Groq API Key (Recommended)",
+                        description = "1. Navigate to console.groq.com.\n2. Sign in with Google or GitHub.\n3. Create an API Key in the 'API Keys' section.\n4. Paste the key (starts with 'gsk_') in AI Model Settings.\n5. Includes generous free daily tier with ultra-fast ~300ms Whisper Turbo transcription."
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    GuideItem(
+                        title = "2. Obtaining a Google Gemini API Key",
+                        description = "1. Visit aistudio.google.com/apikey in your browser.\n2. Generate a key and paste it into the Gemini configuration.\n3. Ideal for extensive discussions requiring up to 1 million tokens of context."
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    GuideItem(
+                        title = "3. Background Recording & Always On Display",
+                        description = "• Audio recording runs seamlessly in the background via Android Foreground Service and CPU WakeLock.\n• To keep the screen awake on your desk during lectures or meetings, toggle [ AOD ON ] on the top right of the recording screen."
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    GuideItem(
+                        title = "4. In-Meeting Inquiry Recommendation",
+                        description = "During live discussions, tap [ INQUIRY ] to formulate 3 context-grounded critical questions based on recent speaker statements without waiting for the session to finish."
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary)
+                    ) {
+                        Text(text = "[CLOSE]", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                     }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Guide 1: How to get Groq Key
-                GuideCard(
-                    title = "1. Cara Mendapatkan API Key Groq (Gratis)",
-                    description = "1. Buka situs console.groq.com di browser.\n2. Login dengan akun Google atau GitHub Anda.\n3. Masuk ke menu 'API Keys' lalu klik 'Create API Key'.\n4. Salin kunci (diawali 'gsk_') dan masukkan ke menu Konfigurasi Mesin AI di aplikasi.\n5. Anda mendapatkan kuota gratis 8 jam audio per hari dengan kecepatan transkripsi 0,3 detik!"
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Guide 2: How to get Gemini Key
-                GuideCard(
-                    title = "2. Cara Mendapatkan API Key Google Gemini",
-                    description = "1. Buka aistudio.google.com/apikey di browser.\n2. Klik 'Create API key' dan pilih proyek Google Cloud Anda.\n3. Salin kunci (diawali 'AIza') dan masukkan ke aplikasi.\n4. Nikmati transkripsi audio dengan context window raksasa 1 juta token bebas kuota server."
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Guide 3: Background & AOD
-                GuideCard(
-                    title = "3. Perekaman di Latar Belakang (Background)",
-                    description = "• Aplikasi tetap merekam saat layar dimatikan atau saat membuka aplikasi lain berkat CPU WakeLock dan Foreground Service.\n• Jika ingin layar tetap menyala di atas meja saat kuliah/rapat, aktifkan tombol [ AOD ON ] di pojok kanan atas layar transkripsi."
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Guide 4: Question suggestions
-                GuideCard(
-                    title = "4. Fitur Ide Tanya Instan",
-                    description = "Saat sesi berlangsung, ketuk tombol [ IDE TANYA ] untuk mendapatkan 3 rekomendasi pertanyaan kritis berbasis topik yang baru saja dibahas dosen/pembicara tanpa menunggu sesi selesai."
-                )
-
-                Spacer(modifier = Modifier.height(18.dp))
-
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(6.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E2632))
-                ) {
-                    Text(text = "MENGERTI", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -271,25 +285,53 @@ fun UserGuideDialog(
 
 @Composable
 private fun InfoRow(label: String, value: String) {
-    Column {
-        Text(text = label, color = TextMuted, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
-        Text(text = value, color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            color = TextSecondary,
+            fontSize = 11.sp,
+            fontFamily = FontFamily.Monospace,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = value,
+            color = TextPrimary,
+            fontSize = 11.sp,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 
 @Composable
-private fun GuideCard(title: String, description: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(CardBackground, RoundedCornerShape(6.dp))
-            .border(1.dp, SteelBorder, RoundedCornerShape(6.dp))
-            .padding(12.dp)
+private fun GuideItem(title: String, description: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        border = BorderStroke(1.dp, SteelBorder)
     ) {
-        Column {
-            Text(text = title, color = AccentPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = description, color = TextSecondary, fontSize = 11.sp, lineHeight = 16.sp)
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(
+                text = title,
+                color = AccentPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = description,
+                color = TextSecondary,
+                fontSize = 11.sp,
+                lineHeight = 16.sp
+            )
         }
     }
 }
