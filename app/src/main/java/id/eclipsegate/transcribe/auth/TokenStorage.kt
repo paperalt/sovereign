@@ -53,6 +53,9 @@ interface TokenStorage {
 
     fun getLLMKey(): String
     fun setLLMKey(key: String)
+
+    fun getCustomPresetsUrl(): String
+    fun setCustomPresetsUrl(url: String)
 }
 
 class EncryptedTokenStorage(context: Context) : TokenStorage {
@@ -227,6 +230,15 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
         prefs.edit().putString(KEY_LLM_KEY, key.trim()).apply()
     }
 
+    override fun getCustomPresetsUrl(): String {
+        return prefs.getString(KEY_CUSTOM_PRESETS_URL, "https://raw.githubusercontent.com/paperalt/sovereign/master/config/providers.json")
+            ?: "https://raw.githubusercontent.com/paperalt/sovereign/master/config/providers.json"
+    }
+
+    override fun setCustomPresetsUrl(url: String) {
+        prefs.edit().putString(KEY_CUSTOM_PRESETS_URL, url.trim()).apply()
+    }
+
     override fun hasValidSession(): Boolean {
         return !getAccessToken().isNullOrBlank() && !getRefreshToken().isNullOrBlank()
     }
@@ -249,5 +261,6 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
         private const val KEY_LLM_ENDPOINT = "llm_endpoint"
         private const val KEY_LLM_MODEL = "llm_model"
         private const val KEY_LLM_KEY = "llm_key"
+        private const val KEY_CUSTOM_PRESETS_URL = "custom_presets_url"
     }
 }

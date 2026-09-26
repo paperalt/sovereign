@@ -1,11 +1,14 @@
 package id.eclipsegate.transcribe.network
 
+import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.io.File
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 data class ModelEndpointConfig(
@@ -26,15 +29,16 @@ data class ProviderPreset(
 
 object ProviderPresetManager {
 
-    private const val GITHUB_RAW_URL = "https://raw.githubusercontent.com/paperalt/sovereign/master/config/providers.json"
+    const val DEFAULT_GITHUB_RAW_URL = "https://raw.githubusercontent.com/paperalt/sovereign/master/config/providers.json"
+    private const val CACHE_FILENAME = "user_presets.json"
+
     private val httpClient = OkHttpClient.Builder()
-        .connectTimeout(5, TimeUnit.SECONDS)
-        .readTimeout(8, TimeUnit.SECONDS)
+        .connectTimeout(6, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
         .build()
     private val gson = Gson()
 
-    // Bundled fallback presets available offline out of the box
-    private val fallbackPresets = listOf(
+    val fallbackPresets = listOf(
         ProviderPreset(
             id = "groq",
             name = "Groq Cloud (LPU Whisper Turbo)",
@@ -156,24 +160,69 @@ object ProviderPresetManager {
         )
     )
 
-    suspend fun loadPresets(forceRemote: Boolean = false): List<ProviderPreset> = withContext(Dispatchers.IO) {
+    suspend fun loadPresets(context: Context): List<ProviderPreset> = withContext(Dispatchers.IO) {
+        val cacheFile = File(context.filesDir, CACHE_FILENAME)
+        if (cacheFile.exists()) {
+            try {
+                val cached = cacheFile.readText(Charsets.UTF_8)
+                val list = parsePresetsJson(cached)
+                if (list.isNotEmpty()) {
+                    return@withContext list
+                }
+            } catch (_: Exception) {}
+        }
+        fallbackPresets
+    }
+
+    suspend fun fetchFromUrl(url: String, context: Context): Result<List<ProviderPreset>> = withContext(Dispatchers.IO) {
         try {
-            val request = Request.Builder()
-                .url(GITHUB_RAW_URL)
-                .build()
+            val targetUrl = url.trim().ifBlank { DEFAULT_GITHUB_RAW_URL }
+            val request = Request.Builder().url(targetUrl).build()
 
             httpClient.newCall(request).execute().use { response ->
-                if (response.isSuccessful) {
-                    val body = response.body?.string() ?: ""
-                    val parsed = parsePresetsJson(body)
-                    if (parsed.isNotEmpty()) {
-                        return@withContext parsed
-                    }
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(IOException("Gagal mengambil preset dari URL (${response.code})"))
                 }
-            }
-        } catch (_: Exception) {}
+                val body = response.body?.string() ?: ""
+                val list = parsePresetsJson(body)
+                if (list.isEmpty()) {
+                    return@withContext Result.failure(IOException("Format JSON preset tidak valid atau kosong."))
+                }
 
-        fallbackPresets
+                // Cache locally
+                val cacheFile = File(context.filesDir, CACHE_FILENAME)
+                cacheFile.writeText(body, Charsets.UTF_8)
+
+                Result.success(list)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun importFromJsonString(jsonStr: String, context: Context): Result<List<ProviderPreset>> = withContext(Dispatchers.IO) {
+        try {
+            val list = parsePresetsJson(jsonStr)
+            if (list.isEmpty()) {
+                return@withContext Result.failure(IOException("Format JSON tidak valid atau tidak memiliki daftar 'providers'."))
+            }
+
+            // Cache locally
+            val cacheFile = File(context.filesDir, CACHE_FILENAME)
+            cacheFile.writeText(jsonStr, Charsets.UTF_8)
+
+            Result.success(list)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun resetToDefault(context: Context): List<ProviderPreset> {
+        val cacheFile = File(context.filesDir, CACHE_FILENAME)
+        if (cacheFile.exists()) {
+            cacheFile.delete()
+        }
+        return fallbackPresets
     }
 
     fun parsePresetsJson(jsonStr: String): List<ProviderPreset> {
