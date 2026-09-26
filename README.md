@@ -1,13 +1,13 @@
-# Sovereign Speech Intelligence (Sovereign Core)
+# Sovereign: Pure Standalone Android Speech Intelligence
 
-**Enterprise Local-First Real-Time Speech Ingestion, In-Meeting Grounded Inquiry & Executive Intelligence Stack**
+**Local-First, Zero-Backend Real-Time Speech Ingestion, In-Meeting Grounded Inquiry & Executive Intelligence Engine**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
-[![Security Vault](https://img.shields.io/badge/Security-Android%20Keystore%20AES--256--GCM-10B981?style=flat-square)]()
-[![Go Backend](https://img.shields.io/badge/Go-1.22%2B%20%7C%20Zero--CGO%20SQLite-00ADD8?style=flat-square&logo=go)](https://go.dev/)
-[![Android Client](https://img.shields.io/badge/Android-Kotlin%202.0%20%7C%20Jetpack%20Compose-3DDC84?style=flat-square&logo=android)](https://developer.android.com/jetpack/compose)
-[![Storage](https://img.shields.io/badge/Storage-Local%20SQLite%203%20FTS5-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/)
-[![AI Orchestration](https://img.shields.io/badge/AI%20Engines-Groq%20LPU%20%7C%20Gemini%20Flash%20%7C%20OpenAI-FF6F00?style=flat-square)](https://groq.com/)
+[![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B%20%28API%2026%2B%29-3DDC84?style=flat-square&logo=android)](https://developer.android.com/)
+[![Language](https://img.shields.io/badge/Kotlin-2.0%20%7C%20Jetpack%20Compose-7F52FF?style=flat-square&logo=kotlin)](https://kotlinlang.org/)
+[![Database](https://img.shields.io/badge/Storage-On--Device%20SQLite%203-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/)
+[![Key Vault](https://img.shields.io/badge/Security-Android%20Keystore%20AES--256--GCM-10B981?style=flat-square)]()
+[![AI Routing](https://img.shields.io/badge/Direct%20AI-Groq%20LPU%20%7C%20Gemini%20Flash%20%7C%20OpenAI-FF6F00?style=flat-square)](https://groq.com/)
 
 ---
 
@@ -15,128 +15,110 @@
 
 ---
 
-## 1. Executive Summary & The Sovereign Paradigm
+## 1. Executive Summary & Pure Client-Side Paradigm
 
-**Sovereign Speech Intelligence** is a fully open-source, local-first speech-to-intelligence ecosystem designed to return complete data sovereignty back to the user. While existing commercial SaaS platforms (Otter.ai, Fireflies.ai) charge high recurring subscriptions ($17–$18/month), enforce vendor lock-in, and store confidential meeting recordings on proprietary multi-tenant cloud servers, Sovereign Core shifts **100% of endpoints and data storage directly to the user's side**.
+**Sovereign** is a 100% standalone, pure Android application that brings real-time speech transcription, contextual in-meeting inquiry, and executive summarization directly to your mobile device **without any backend server, central database, or intermediary cloud proxy**.
 
-### Core Architectural Tenets:
-* **100% User-Side Storage (Embedded SQLite 3):** All meeting transcripts, audio chunks, and structured executive summaries are stored in an embedded SQLite database (`./data/sovereign.db` or `~/.sovereign/sovereign.db`) using zero-CGO pure Go driver (`modernc.org/sqlite`). Full-text search is powered by SQLite FTS, providing sub-millisecond query retrieval without requiring any external database server.
-* **100% User-Controlled Endpoints:** Operates as a lightweight, single-binary daemon on `127.0.0.1:8080` (or `0.0.0.0:8080` for private home labs, LANs, and Tailscale networks). Zero external user tracking, zero centralized telemetry, and zero mandatory cloud gateways.
-* **Direct BYOK AI Routing:** Users supply their own personal API keys (Groq Cloud, Google AI Studio, OpenAI, or local Ollama). Audio is transcribed via **Groq LPU Whisper Large Turbo** at ~0.3s latency (free 8 hours/day) and summarized via **Groq Llama 3.3 70B** or **Google Gemini 2.0 Flash**.
-* **Zero-Knowledge Hardware Vault:** Keys entered on the mobile client reside exclusively in hardware-backed **Android Keystore (AES-256-GCM)** and are transmitted strictly via TLS 1.3 to transient Goroutine memory, immediately cleared upon socket termination.
-* **Dual Ingestion Pipelines:**
-  * *Standard Pipeline:* Lossless 16kHz 16-bit Mono PCM streamed with server-side RMS VAD chunking (5.0s–25.0s).
-  * *Adaptive Low-Latency Pipeline:* Client-side energy gating (RMS 280.0 silence suppression, saving ~78.2% mobile data), 256ms pre-roll queue, and 128ms (4096 bytes) packet compaction.
-* **In-Meeting Grounded Inquiry Engine:** Generates sharp, actionable questions during live discussions across sliding time windows (5m, 15m, 30m, full) backed by verbatim quote references (`context_ref`) to eliminate hallucinations.
-* **100% Open Source:** Released permissively under the **MIT License** for unrestricted personal, academic, and enterprise self-hosting.
+While commercial transcription platforms (Otter.ai, Fireflies.ai) charge $17–$18/month, enforce vendor lock-in, and store confidential meeting recordings on third-party servers, Sovereign operates on a **Pure Local-First Architecture**:
+
+* **Zero Backend Server Required:** No Go server, no Python API, no Docker container, and no remote host to maintain. The application is completely self-contained.
+* **100% On-Device Data Storage (Native SQLite 3):** All meeting transcripts, audio chunks, and structured executive summaries are stored in a local SQLite database (`sovereign_transcribe.db`) inside the Android app's private sandbox.
+* **On-Device Audio Ingestion & WAV Encoding:** Raw 16kHz, 16-bit Mono Linear PCM from `AudioRecord` is chunked and packed into RFC 2361 compliant RIFF/WAVE byte containers in memory using native Kotlin binary encoders (`WavEncoder.kt`).
+* **Client-Side VAD Streaming Chunker:** Voice Activity Detection (VAD) energy gating (< 50 RMS silence suppression, < 280 RMS pause boundary detection, 2.5s–12.0s chunking) runs directly in Kotlin coroutines on the device.
+* **Direct Client-to-Provider AI Ingestion:** The app connects directly from the phone to AI providers (Groq Cloud Whisper Turbo, Google AI Studio Gemini 2.0 Flash, or OpenAI Whisper-1) via direct HTTPS multipart/JSON calls using personal API keys.
+* **Hardware-Backed Keystore Vault:** API keys reside exclusively in the **Android Keystore (AES-256-GCM)** via `EncryptedSharedPreferences`. Keys never touch an external server or unencrypted storage.
+* **100% Free & Open Source:** Licensed under the permissive **MIT License**.
 
 ---
 
-## 2. System Architecture & Topology
+## 2. Standalone Client Architecture
 
 ```mermaid
 flowchart TD
-    subgraph UserDevice["1. CLIENT RUNTIME (Android / Desktop / Web)"]
-        UI["Industrial Dark UI<br/>• Jetpack Compose Material 3<br/>• Long-Press Batch Multi-Select<br/>• In-Place Chunk & Document Editor"]
-        Vault["Hardware Keystore Vault<br/>• Android Keystore AES-256-GCM<br/>• Transient TLS Handshake Transmission"]
-        AudioPump["Audio Streaming Engine<br/>• AudioRecord 16kHz Mono PCM<br/>• Client VAD Suppression (< 280 RMS)<br/>• 256ms Pre-Roll & 128ms Compaction"]
-        UI --> Vault
-        UI --> AudioPump
+    subgraph AndroidApp["SOVEREIGN PURE ANDROID APP (No Backend Server)"]
+        subgraph Hardware["1. Audio Hardware & Ingestion"]
+            Mic["Microphone Input<br/>• AudioRecord 16kHz Mono PCM<br/>• VOICE_RECOGNITION tuning"]
+            Chunker["AudioStreamChunker.kt<br/>• Client-Side RMS VAD Gating<br/>• Pause Detection (< 280 RMS)<br/>• Chunk boundaries: 2.5s - 12.0s"]
+            Encoder["WavEncoder.kt<br/>• RFC 2361 RIFF/WAVE Packer<br/>• 44-byte Header Injection in RAM"]
+            Mic --> Chunker --> Encoder
+        end
+
+        subgraph LocalStore["2. On-Device SQLite Storage"]
+            SQLite[("Native SQLite 3 DB<br/>• sovereign_transcribe.db<br/>• meetings, transcript_chunks<br/>• transcript_groups, summaries<br/>• Sub-millisecond queries")]
+        end
+
+        subgraph UI["3. Jetpack Compose UI"]
+            Dashboard["DashboardScreen.kt<br/>• Offline meeting library<br/>• Long-press batch actions<br/>• Local search index"]
+            Live["LiveTranscriptionScreen.kt<br/>• Real-time waveform (32 bars)<br/>• Live chunk feed<br/>• In-meeting inquiry dialog"]
+            Detail["MeetingDetailScreen.kt<br/>• In-place chunk & full editor<br/>• Summary regeneration<br/>• Markdown export"]
+        end
+
+        subgraph DirectAI["4. Direct-to-Provider AI Client"]
+            AIClient["DirectAIClient.kt (OkHttp)<br/>• Groq LPU Whisper Turbo (~0.3s STT)<br/>• Groq Llama 3.3 70B (Summary & Questions)<br/>• Google Gemini 2.0 Flash / OpenAI"]
+        end
+
+        Encoder --> AIClient
+        AIClient --> LocalStore
+        LocalStore <--> UI
     end
 
-    subgraph LocalDaemon["2. SOVEREIGN ENGINE (User-Side Go Daemon :8080)"]
-        WSGateway["WebSocket Ingestion Gateway<br/>• WSS: /ws/transcribe<br/>• Direct In-Memory PCM Ingestion"]
-        Chunker["In-Memory RMS VAD Stream Chunker<br/>• Standard Mode: 5.0s - 25.0s<br/>• Adaptive Mode: 2.5s - 12.0s<br/>• Dead-Air RMS Silence Guard (< 50 RMS)"]
-        FIFO["Sequential FIFO Queue<br/>• Strict Monotonic Processing Order"]
-        InquiryEngine["Auto Question Suggestion Engine<br/>• Grounded Anti-Hallucination (Temp 0.2)<br/>• Verbatim Quote Extraction (context_ref)"]
-        ExecutiveSummarizer["Executive Intelligence Synthesizer<br/>• Zero-Preamble Synthesis Harness<br/>• Executive Summary, Key Points & Action Items"]
-
-        WSGateway --> Chunker
-        Chunker --> FIFO
+    subgraph ExternalAPIs["USER'S OWN AI PROVIDERS (Direct HTTPS)"]
+        Groq["Groq Cloud API<br/>https://api.groq.com"]
+        Google["Google AI Studio<br/>generativelanguage.googleapis.com"]
+        OpenAI["OpenAI Platform<br/>api.openai.com"]
     end
 
-    subgraph UserStorage["3. USER-SIDE LOCAL STORAGE"]
-        SQLite[("Embedded SQLite 3 (sovereign.db)<br/>• Zero CGO (modernc.org/sqlite)<br/>• Local Full-Text Search (FTS)<br/>• Sub-Millisecond In-Memory Queries")]
-    end
-
-    subgraph DirectAI["4. DIRECT USER BYOK ROUTING"]
-        Groq["Groq Cloud LPU<br/>• Whisper Large Turbo (~0.3s STT)<br/>• Llama 3.3 70B Versatile (~1.8s Nalar)"]
-        Gemini["Google AI Studio<br/>• Gemini 2.0 Flash (1M Token Context)"]
-        OpenAI["OpenAI Platform<br/>• Whisper-1 & GPT-4o Mini"]
-        LocalModel["Local Inference (Optional)<br/>• Ollama / Local Whisper.cpp"]
-    end
-
-    UserDevice <==> |Local WSS / HTTP :8080| LocalDaemon
-    LocalDaemon <==> |Direct Disk I/O| SQLite
-    LocalDaemon --> DirectAI
+    AIClient <==> |Direct HTTPS with BYOK| ExternalAPIs
 ```
 
 ---
 
-## 3. Quick Start: Single-Binary Execution
+## 3. How to Build & Install
 
-### Option A: Direct Go Binary (Zero External Dependencies)
+### Prerequisites
+* JDK 17 or JDK 21
+* Android SDK 35 (minSdk 26 — Android 8.0 Oreo or higher)
+
+### Build Debug APK
 ```bash
 # 1. Clone repository
 git clone https://github.com/paperalt/sovereign.git
-cd sovereign-speech-intelligence
+cd sovereign
 
-# 2. Build single binary
-go build -o bin/sovereign-server ./cmd/server
+# 2. Make Gradle wrapper executable
+chmod +x gradlew
 
-# 3. Run daemon (runs with embedded SQLite on 0.0.0.0:8080)
-./bin/sovereign-server
+# 3. Assemble Debug APK
+./gradlew assembleDebug
+
+# Output APK path:
+# app/build/outputs/apk/debug/app-debug.apk
 ```
 
-### Option B: Run via Docker Compose (Portable Local Stack)
+### Install directly to device
 ```bash
-# Start lightweight containerized daemon
-docker compose -f docker-compose.sqlite.yml up -d
-
-# Verify daemon status
-curl -s http://127.0.0.1:8080/health
-# Output: {"status":"ok"}
+adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ---
 
-## 4. Multi-Target Disaster Recovery & Backup
+## 4. Technical Specifications & Features
 
-Sovereign Core includes automated multi-target backup and restore scripts (`scripts/backup.sh` and `scripts/restore.sh`):
-
-```bash
-# 1. Backup to Local Directory or External USB/HDD
-./scripts/backup.sh /var/backups/sovereign
-
-# 2. Backup to Remote Home Server via SSH / SCP
-./scripts/backup.sh user@192.168.1.100:/mnt/storage/backups
-
-# 3. Backup to Private Cloud via Rclone (S3, Cloudflare R2, Google Drive)
-./scripts/backup.sh r2:my-bucket/sovereign-backups
-
-# 4. Instant One-Command Restoration
-./scripts/restore.sh /var/backups/sovereign
-```
-
----
-
-## 5. Technical Specifications Matrix
-
-| Metric / Parameter | Sovereign Speech Intelligence | Traditional Cloud SaaS (Otter.ai, etc.) |
+| Capability | Sovereign (Pure Android) | Cloud SaaS (Otter.ai, etc.) |
 | :--- | :---: | :---: |
-| **Data Storage Location** | **100% User-Side (Local SQLite 3)** | Third-Party Centralized Cloud |
-| **API Endpoints** | **Localhost / User-Hosted Daemon** | Vendor-Controlled Gateways |
-| **Cost & Business Model** | **Free & Open Source (MIT License)** | $17–$18 / month recurring |
-| **Transcription Latency** | **~0.30s (Groq LPU Whisper Turbo)** | 2.0s – 5.0s |
-| **Data Bandwidth** | **~25 MB / hour (Adaptive VAD Gating)** | 60–120 MB / hour |
-| **In-Meeting Inquiries** | **Grounded AI with Citations (`context_ref`)** | None / Static Post-Meeting |
-| **Key Vault Security** | **Android Keystore AES-256-GCM** | Vendor Stored / Plaintext |
-| **Offline / LAN Capability** | **Full Local Support (LAN / Tailscale)** | Requires Internet & Vendor Login |
+| **Backend Server** | **NONE (Pure Android App)** | Proprietary Cloud Gateway |
+| **Data Storage** | **100% On-Device (Native SQLite 3)** | Vendor Multi-Tenant Cloud |
+| **Audio Encoding** | **On-Device (WavEncoder 16kHz)** | Server-side / Cloud transcode |
+| **Network Latency** | **Direct HTTPS (~300ms via Groq)** | High (WebSocket hop + Server queue) |
+| **Cost** | **$0 / month (Free & Open Source)** | $17–$18 / month recurring |
+| **Data Privacy** | **Zero-Knowledge (Data never leaves phone)** | Shared with SaaS vendor |
+| **API Key Storage** | **Android Keystore AES-256-GCM** | Stored on vendor servers |
+| **License** | **MIT License** | Proprietary Commercial |
 
 ---
 
-## 6. Official Repository & License
+## 5. Repository & License
 
 * **GitHub Repository:** [`https://github.com/paperalt/sovereign`](https://github.com/paperalt/sovereign)
 * **Author:** Asmaul Khusna (`@paperalt`)
-* **License:** [MIT License](LICENSE) — Free for personal, academic, and commercial self-hosting.
+* **License:** [MIT License](LICENSE)

@@ -59,17 +59,16 @@ jobs:
           cache-read-only: false
 
       - name: Make Gradle Wrapper Executable
-        run: chmod +x android/gradlew
+        run: chmod +x gradlew
 
       - name: Compile and Assemble Debug APK
-        working-directory: android
         run: |
           ./gradlew assembleDebug --no-daemon --parallel -Dorg.gradle.jvmargs="-Xmx3072m -XX:+UseG1GC"
 
       - name: Prepare Artifacts & Calculate Checksum
         id: prepare_artifacts
         run: |
-          APK_PATH="android/app/build/outputs/apk/debug/app-debug.apk"
+          APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
           if [ ! -f "$APK_PATH" ]; then
             echo "Error: APK not found at $APK_PATH"
             exit 1

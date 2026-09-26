@@ -14,7 +14,7 @@ import json
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-COMPOSE_SRC_DIR = BASE_DIR / "android" / "app" / "src" / "main" / "java" / "id" / "eclipsegate" / "transcribe"
+COMPOSE_SRC_DIR = (BASE_DIR / "app" / "src" / "main" / "java" / "id" / "eclipsegate" / "transcribe") if (BASE_DIR / "app").exists() else (BASE_DIR / "android" / "app" / "src" / "main" / "java" / "id" / "eclipsegate" / "transcribe")
 
 # Regex Patterns for UI Defect Rules
 EMOJI_PATTERN = re.compile(

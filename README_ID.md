@@ -1,13 +1,13 @@
-# Sovereign Speech Intelligence (Sovereign Core)
+# Sovereign: Aplikasi Android Murni Intelijen Wicara
 
-**Platform Intelijen Wicara & Transkripsi Audio Real-Time Local-First, Rekomendasi Pertanyaan Rapat, dan Kedaulatan Data Penuh**
+**Platform Transkripsi Audio Real-Time Mandiri Tanpa Backend, Rekomendasi Pertanyaan Rapat, dan Kedaulatan Data Lokal Penuh**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
-[![Security Vault](https://img.shields.io/badge/Security-Android%20Keystore%20AES--256--GCM-10B981?style=flat-square)]()
-[![Go Backend](https://img.shields.io/badge/Go-1.22%2B%20%7C%20Zero--CGO%20SQLite-00ADD8?style=flat-square&logo=go)](https://go.dev/)
-[![Android Client](https://img.shields.io/badge/Android-Kotlin%202.0%20%7C%20Jetpack%20Compose-3DDC84?style=flat-square&logo=android)](https://developer.android.com/jetpack/compose)
-[![Storage](https://img.shields.io/badge/Storage-Local%20SQLite%203%20FTS5-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/)
-[![AI Orchestration](https://img.shields.io/badge/AI%20Engines-Groq%20LPU%20%7C%20Gemini%20Flash%20%7C%20OpenAI-FF6F00?style=flat-square)](https://groq.com/)
+[![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B%20%28API%2026%2B%29-3DDC84?style=flat-square&logo=android)](https://developer.android.com/)
+[![Language](https://img.shields.io/badge/Kotlin-2.0%20%7C%20Jetpack%20Compose-7F52FF?style=flat-square&logo=kotlin)](https://kotlinlang.org/)
+[![Database](https://img.shields.io/badge/Storage-On--Device%20SQLite%203-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/)
+[![Key Vault](https://img.shields.io/badge/Security-Android%20Keystore%20AES--256--GCM-10B981?style=flat-square)]()
+[![AI Routing](https://img.shields.io/badge/Direct%20AI-Groq%20LPU%20%7C%20Gemini%20Flash%20%7C%20OpenAI-FF6F00?style=flat-square)](https://groq.com/)
 
 ---
 
@@ -15,128 +15,110 @@
 
 ---
 
-## 1. Ringkasan Eksekutif & Paradigma Kedaulatan Data (Sovereign Paradigm)
+## 1. Ringkasan Eksekutif & Paradigma Aplikasi Mandiri (Pure Standalone)
 
-**Sovereign Speech Intelligence** adalah ekosistem transkripsi audio real-time dan analisis rapat berlisensi open source murni yang dirancang untuk mengembalikan kedaulatan data secara utuh ke tangan pengguna (*data sovereignty*). Di saat layanan komersial konvensional (seperti Otter.ai atau Fireflies.ai) memungut biaya langganan mahal ($17–$18/bulan), membatasi pengguna pada vendor tunggal, dan menyimpan rekaman rapat privat di server cloud terpusat, Sovereign Core mengalihkan **100% endpoint pemrosesan dan penyimpanan basis data langsung ke sisi pengguna (*local-first*)**.
+**Sovereign** adalah aplikasi Android mandiri (*pure standalone application*) berlisensi open source murni yang memproses perekaman audio langsung, transkripsi real-time, rekomendasi pertanyaan rapat cerdas, dan perangkuman eksekutif **tanpa memerlukan server backend, basis data terpusat, atau perantara cloud apa pun**.
 
-### Prinsip Utama Rekayasa:
-* **Penyimpanan 100% di Sisi Pengguna (Embedded SQLite 3):** Seluruh data transkrip pertemuan, potongan audio, dan ringkasan eksekutif disimpan secara lokal di dalam basis data SQLite (`./data/sovereign.db` atau `~/.sovereign/sovereign.db`) menggunakan driver Go murni tanpa CGO (`modernc.org/sqlite`). Pencarian teks cepat ditenagai oleh SQLite FTS dengan waktu respons sub-milidetik tanpa memerlukan server basis data eksternal.
-* **Endpoint 100% Dikelola Pengguna:** Berjalan sebagai daemon biner tunggal yang sangat ringan pada `127.0.0.1:8080` (atau `0.0.0.0:8080` untuk home-lab, jaringan LAN lokal, atau VPN Tailscale). Bebas dari pelacakan pengguna eksternal, telemetri terpusat, dan ketergantungan cloud gateway.
-* **Routing Kunci Pribadi (BYOK) Langsung:** Pengguna memasukkan API key pribadi secara cuma-cuma (Groq Cloud, Google AI Studio, OpenAI, atau inferensi lokal Ollama). Audio ditranskripsikan via **Groq LPU Whisper Large Turbo** dengan latensi 0,3 detik (gratis 8 jam audio/hari) dan diringkas via **Groq Llama 3.3 70B** atau **Google Gemini 2.0 Flash**.
-* **Brankas Kredensial Zero-Knowledge:** Kunci yang dimasukkan di aplikasi mobile tersimpan di brankas perangkat keras **Android Keystore (AES-256-GCM)** dan hanya diteruskan melalui TLS 1.3 ke RAM transien Goroutine saat sesi aktif, kemudian langsung dimusnahkan saat koneksi ditutup.
-* **Pipa Transmisi Audio Ganda:**
-  * *Pipa Standar:* Streaming lossless PCM 16kHz 16-bit Mono dengan server RMS VAD chunker (5,0s–25,0s).
-  * *Pipa Streaming Adaptif:* Client-side energy gating (supresi hening RMS 280,0, menghemat kuota seluler ~78,2%), antrean pre-roll 256ms, dan konsolidasi paket 128ms (4096 bytes).
-* **Mesin Rekomendasi Pertanyaan Rapat Anti-Halusinasi:** Menghasilkan ide tanya berbobot secara langsung selama rapat berlangsung melintasi rentang waktu 5m, 15m, 30m, atau seluruh sesi yang diperkuat rujukan kutipan verbatim pemateri (`context_ref`).
-* **100% Bebas & Terbuka:** Dirilis secara resmi di bawah lisensi terbuka **MIT License** untuk kebebasan self-hosting personal, akademik, maupun komersial.
+Di saat layanan transkripsi komersial (seperti Otter.ai atau Fireflies.ai) membebankan biaya langganan rutin ($17–$18/bulan), membatasi pengguna pada vendor tunggal, dan menyimpan rekaman rapat privat di server cloud pihak ketiga, Sovereign menerapkan **Arsitektur Kedaulatan Data Lokal Penuh**:
+
+* **Murni Tanpa Server Backend:** Tidak memerlukan server Go, API Python, kontainer Docker, maupun VPS untuk beroperasi. Seluruh sistem berjalan mandiri di dalam satu aplikasi Android.
+* **Penyimpanan 100% di Perangkat (Native SQLite 3):** Seluruh transkrip, potongan rekaman, pengelompokan folder (*groups*), dan ringkasan eksekutif disimpan di basis data SQLite lokal (`sovereign_transcribe.db`) di dalam ruang aman (*internal app storage sandbox*) Android.
+* **Ingesti & Encoding Audio Langsung di Android:** Sinyal mentah 16kHz 16-bit Mono Linear PCM dari `AudioRecord` dipotong dan dikemas menjadi kontainer biner standar RIFF/WAVE (RFC 2361) secara in-memory menggunakan enkoder bawaan Kotlin (`WavEncoder.kt`).
+* **Client-Side VAD Streaming Chunker:** Voice Activity Detection (supresi hening < 50 RMS, pemotongan jeda bicara < 280 RMS, jendela durasi 2,5s–12,0s) dieksekusi langsung menggunakan coroutine Kotlin di ponsel.
+* **Routing AI Langsung Ponsel-ke-Penyedia (Direct HTTPS):** Ponsel terhubung langsung ke API penyedia AI (Groq LPU Whisper Large Turbo, Google AI Studio Gemini 2.0 Flash, atau OpenAI Whisper-1) melalui protokol HTTPS standar menggunakan API key pribadi pengguna tanpa perantara proxy.
+* **Brankas Kunci Keras Android Keystore:** Kunci API pengguna disimpan secara terenkripsi menggunakan **Android Keystore (AES-256-GCM)** via `EncryptedSharedPreferences`. Kunci tidak pernah terekspos ke penyimpanan eksternal atau teks biasa.
+* **100% Bebas & Terbuka:** Berlisensi resmi di bawah **MIT License**.
 
 ---
 
-## 2. Arsitektur & Topologi Sistem
+## 2. Arsitektur Sistem Klien Mandiri
 
 ```mermaid
 flowchart TD
-    subgraph UserDevice["1. KLIEN RUNTIME (Android / Desktop / Web)"]
-        UI["Antarmuka Modern Dark Industrial<br/>• Jetpack Compose Material 3<br/>• Gestur Long-Press Batch Multi-Select<br/>• In-Place Chunk & Document Editor"]
-        Vault["Brankas Keystore Perangkat Keras<br/>• Android Keystore AES-256-GCM<br/>• Transmisi TLS Handshake RAM Transien"]
-        AudioPump["Mesin Audio Streaming<br/>• AudioRecord 16kHz Mono PCM<br/>• Client VAD Suppression (< 280 RMS)<br/>• Pre-Roll 256ms & Kompaksi Paket 128ms"]
-        UI --> Vault
-        UI --> AudioPump
+    subgraph AndroidApp["APLIKASI ANDROID SOVEREIGN (Tanpa Server Backend)"]
+        subgraph Hardware["1. Perangkat Keras Audio & Encoding"]
+            Mic["Input Mikrofon<br/>• AudioRecord 16kHz Mono PCM<br/>• Penalaan VOICE_RECOGNITION"]
+            Chunker["AudioStreamChunker.kt<br/>• Client-Side RMS VAD Gating<br/>• Deteksi Jeda Hening (< 280 RMS)<br/>• Pemotongan Adaptif: 2.5s - 12.0s"]
+            Encoder["WavEncoder.kt<br/>• Enkoder RFC 2361 RIFF/WAVE<br/>• Injeksi Header 44-byte di RAM"]
+            Mic --> Chunker --> Encoder
+        end
+
+        subgraph LocalStore["2. Basis Data SQLite Lokal"]
+            SQLite[("Native SQLite 3 DB<br/>• sovereign_transcribe.db<br/>• meetings, transcript_chunks<br/>• transcript_groups, summaries<br/>• Kueri Cepat Sub-Milidetik")]
+        end
+
+        subgraph UI["3. Antarmuka Jetpack Compose"]
+            Dashboard["DashboardScreen.kt<br/>• Pustaka rapat offline<br/>• Operasi massal long-press<br/>• Pencarian teks instan"]
+            Live["LiveTranscriptionScreen.kt<br/>• Visualisasi waveform 32-bar<br/>• Aliran teks transkrip live<br/>• Dialog rekomendasi ide tanya"]
+            Detail["MeetingDetailScreen.kt<br/>• Editor in-place chunk & naskah<br/>• Regenerasi ringkasan eksekutif<br/>• Ekspor format Markdown"]
+        end
+
+        subgraph DirectAI["4. Klien AI Langsung (DirectAIClient)"]
+            AIClient["DirectAIClient.kt (OkHttp)<br/>• Groq LPU Whisper Turbo (~0.3s STT)<br/>• Groq Llama 3.3 70B (Summary & Tanya)<br/>• Google Gemini 2.0 Flash / OpenAI"]
+        end
+
+        Encoder --> AIClient
+        AIClient --> LocalStore
+        LocalStore <--> UI
     end
 
-    subgraph LocalDaemon["2. SOVEREIGN ENGINE (Daemon Go Sisi Pengguna :8080)"]
-        WSGateway["WebSocket Ingestion Gateway<br/>• WSS: /ws/transcribe<br/>• Ingesti PCM In-Memory Tanpa Disk"]
-        Chunker["In-Memory RMS VAD Stream Chunker<br/>• Mode Standar: 5.0s - 25.0s<br/>• Mode Adaptif: 2.5s - 12.0s<br/>• Silence RMS Guard (< 50 RMS Discard)"]
-        FIFO["Sequential FIFO Queue<br/>• Menjamin Urutan Kronologis Monotonik"]
-        InquiryEngine["Auto Question Suggestion Engine<br/>• Kontekstual Grounding Anti-Halusinasi (Temp 0.2)<br/>• Validasi Kutipan Kalimat Asli (context_ref)"]
-        ExecutiveSummarizer["Executive Intelligence Synthesizer<br/>• Strict Zero-Preamble Synthesis Harness<br/>• Ringkasan Eksekutif, Poin Kunci & Action Items"]
-
-        WSGateway --> Chunker
-        Chunker --> FIFO
+    subgraph ExternalAPIs["PENYEDIA MODEL AI PENGGUNA (Direct HTTPS)"]
+        Groq["Groq Cloud API<br/>https://api.groq.com"]
+        Google["Google AI Studio<br/>generativelanguage.googleapis.com"]
+        OpenAI["OpenAI Platform<br/>api.openai.com"]
     end
 
-    subgraph UserStorage["3. PENYIMPANAN LOKAL SISI PENGGUNA"]
-        SQLite[("Embedded SQLite 3 (sovereign.db)<br/>• Zero CGO (modernc.org/sqlite)<br/>• Local Full-Text Search (FTS)<br/>• Kueri Cepat Sub-Milidetik")]
-    end
-
-    subgraph DirectAI["4. ROUTING MODEL AI PRIBADI (BYOK)"]
-        Groq["Groq Cloud LPU<br/>• Whisper Large Turbo (~0.3s STT)<br/>• Llama 3.3 70B Versatile (~1.8s Nalar)"]
-        Gemini["Google AI Studio<br/>• Gemini 2.0 Flash (Konteks 1M Token)"]
-        OpenAI["OpenAI Platform<br/>• Whisper-1 & GPT-4o Mini"]
-        LocalModel["Inferensi Lokal (Opsional)<br/>• Ollama / Local Whisper.cpp"]
-    end
-
-    UserDevice <==> |Lokal WSS / HTTP :8080| LocalDaemon
-    LocalDaemon <==> |Direct Disk I/O| SQLite
-    LocalDaemon --> DirectAI
+    AIClient <==> |Direct HTTPS dengan Kunci Pribadi| ExternalAPIs
 ```
 
 ---
 
-## 3. Panduan Cepat: Menjalankan Sistem
+## 3. Panduan Kompilasi & Pemasangan
 
-### Opsi A: Menjalankan Biner Go Mandiri (Nol Dependensi Eksternal)
+### Prasyarat
+* JDK 17 atau JDK 21
+* Android SDK 35 (minSdk 26 — Android 8.0 Oreo ke atas)
+
+### Kompilasi Debug APK
 ```bash
 # 1. Klon repositori
 git clone https://github.com/paperalt/sovereign.git
-cd sovereign-speech-intelligence
+cd sovereign
 
-# 2. Kompilasi biner tunggal
-go build -o bin/sovereign-server ./cmd/server
+# 2. Beri hak akses eksekusi gradle wrapper
+chmod +x gradlew
 
-# 3. Jalankan daemon (otomatis membuat SQLite di ./data/sovereign.db)
-./bin/sovereign-server
+# 3. Kompilasi APK
+./gradlew assembleDebug
+
+# Lokasi berkas APK hasil kompilasi:
+# app/build/outputs/apk/debug/app-debug.apk
 ```
 
-### Opsi B: Menjalankan via Docker Compose (Portabel)
+### Pemasangan Langsung ke Ponsel via ADB
 ```bash
-# Jalankan container daemon lokal ultra-ringan
-docker compose -f docker-compose.sqlite.yml up -d
-
-# Verifikasi status server
-curl -s http://127.0.0.1:8080/health
-# Output: {"status":"ok"}
+adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ---
 
-## 4. Pencadangan & Pemulihan Bencana Multi-Target
+## 4. Matriks Perbandingan Teknis
 
-Sovereign Core dilengkapi otomasi pencadangan terenkripsi multi-destinasi (`scripts/backup.sh` dan `scripts/restore.sh`):
-
-```bash
-# 1. Pencadangan ke Direktori Lokal atau Mount USB/HDD Eksternal
-./scripts/backup.sh /var/backups/sovereign
-
-# 2. Pencadangan ke Server Pribadi via SSH / SCP
-./scripts/backup.sh user@192.168.1.100:/mnt/storage/backups
-
-# 3. Pencadangan ke Private Cloud via Rclone (S3, Cloudflare R2, Google Drive)
-./scripts/backup.sh r2:my-bucket/sovereign-backups
-
-# 4. Restorasi Instan dari Backup Lokal / Cloud
-./scripts/restore.sh /var/backups/sovereign
-```
-
----
-
-## 5. Matriks Perbandingan Teknis
-
-| Parameter / Metrik | Sovereign Speech Intelligence | Layanan Cloud SaaS Komersial (Otter, dll) |
+| Kapabilitas / Parameter | Sovereign (Aplikasi Android Murni) | Layanan Cloud SaaS (Otter.ai, dll) |
 | :--- | :---: | :---: |
-| **Lokasi Penyimpanan Data** | **100% di Sisi Pengguna (SQLite 3 Lokal)** | Server Cloud Vendor Pihak Ketiga |
-| **API Endpoints** | **Localhost / Server Mandiri Pengguna** | Gateway Terpusat Milik Vendor |
-| **Model Biaya & Lisensi** | **Bebas & Terbuka Penuh (Lisensi MIT)** | Berlangganan $17–$18 / bulan rutin |
-| **Latensi Transkripsi ASR** | **~0,30 detik (Groq LPU Whisper Turbo)** | 2,0 – 5,0 detik |
-| **Konsumsi Kuota Transmisi** | **~25 MB / jam (Pipa VAD Adaptif)** | 60–120 MB / jam |
-| **Rekomendasi Pertanyaan Rapat** | **AI Grounded dengan Kutipan (`context_ref`)** | Tidak Ada / Hanya Ringkasan Pasca Rapat |
-| **Keamanan Kunci API** | **Android Keystore AES-256-GCM** | Disimpan di server vendor / teks biasa |
-| **Operasional Jaringan Lokal** | **Dukungan Penuh Jaringan LAN / Tailscale** | Wajib Akses Internet & Login Vendor |
+| **Ketergantungan Server Backend** | **TIDAK ADA (Murni di Android)** | Membutuhkan Server Cloud Vendor |
+| **Lokasi Penyimpanan Data** | **100% di Perangkat (SQLite 3 Lokal)** | Basis Data Cloud Pihak Ketiga |
+| **Enkoding Audio** | **In-Memory di Ponsel (WavEncoder 16kHz)** | Transcoding di Server / Cloud |
+| **Latensi Jaringan** | **Direct HTTPS (~300ms via Groq)** | Tinggi (Antrean WebSocket Server) |
+| **Biaya Bulanan** | **$0 / bulan (Bebas & Open Source)** | $17–$18 / bulan rutin |
+| **Privasi Rekaman** | **Zero-Knowledge (Data tidak keluar HP)** | Tersimpan di server vendor |
+| **Penyimpanan Kunci API** | **Android Keystore AES-256-GCM** | Server vendor / teks biasa |
+| **Lisensi Perangkat Lunak** | **MIT License** | Lisensi Komersial Terikat |
 
 ---
 
-## 6. Repositori Resmi & Lisensi
+## 5. Repositori Resmi & Lisensi
 
 * **Repositori GitHub:** [`https://github.com/paperalt/sovereign`](https://github.com/paperalt/sovereign)
 * **Penulis / Pemilik:** Asmaul Khusna (`@paperalt`)
-* **Lisensi:** [MIT License](LICENSE) — Bebas digunakan untuk kebutuhan personal, akademik, maupun self-hosting enterprise.
+* **Lisensi:** [MIT License](LICENSE)
