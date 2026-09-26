@@ -1,4 +1,4 @@
-module github.com/paperalt/sovereign-speech-intelligence
+module github.com/paperalt/sovereign
 
 go 1.26.0
 

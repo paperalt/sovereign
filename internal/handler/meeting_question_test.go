@@ -10,12 +10,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/paperalt/sovereign-speech-intelligence/internal/database"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/middleware"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/model"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/repository"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/service"
-	"github.com/paperalt/sovereign-speech-intelligence/pkg/token"
+	"github.com/paperalt/sovereign/internal/database"
+	"github.com/paperalt/sovereign/internal/middleware"
+	"github.com/paperalt/sovereign/internal/model"
+	"github.com/paperalt/sovereign/internal/repository"
+	"github.com/paperalt/sovereign/internal/service"
+	"github.com/paperalt/sovereign/pkg/token"
 )
 
 func TestMeetingHandler_SuggestQuestions_Endpoint(t *testing.T) {

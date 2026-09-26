@@ -45,7 +45,7 @@ Pada VPS baru (Ubuntu/Debian bersih), jalankan:
 
 ```bash
 # Clone atau salin repositori project ke /opt/audio-transcribe-system
-git clone https://github.com/paperalt/sovereign-speech-intelligence.git /opt/audio-transcribe-system
+git clone https://github.com/paperalt/sovereign.git /opt/audio-transcribe-system
 cd /opt/audio-transcribe-system
 
 # Jalankan bootstrap (otomatis pasang Docker & Compose)

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/paperalt/sovereign-speech-intelligence/internal/model"
+	"github.com/paperalt/sovereign/internal/model"
 )
 
 type TranscriptRepository interface {

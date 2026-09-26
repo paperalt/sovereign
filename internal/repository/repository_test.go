@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/paperalt/sovereign-speech-intelligence/internal/database"
+	"github.com/paperalt/sovereign/internal/database"
 )
 
 func setupTestDB(t *testing.T) *databaseTestFixture {

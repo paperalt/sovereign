@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/database"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/repository"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/service"
-	"github.com/paperalt/sovereign-speech-intelligence/pkg/token"
+	"github.com/paperalt/sovereign/internal/database"
+	"github.com/paperalt/sovereign/internal/repository"
+	"github.com/paperalt/sovereign/internal/service"
+	"github.com/paperalt/sovereign/pkg/token"
 )
 
 type mockBYOKService struct {

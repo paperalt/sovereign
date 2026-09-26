@@ -23,7 +23,7 @@ def run_comprehensive_audit():
     print("========================================================\n")
 
     server_proc = subprocess.Popen(
-        ["/root/sovereign-speech-intelligence/bin/sovereign-server"],
+        ["/root/sovereign/bin/sovereign-server"],
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,

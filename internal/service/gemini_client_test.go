@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/paperalt/sovereign-speech-intelligence/internal/audio"
+	"github.com/paperalt/sovereign/internal/audio"
 )
 
 func TestGeminiClient_TranscribeWAV_MockJSON(t *testing.T) {

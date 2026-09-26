@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/model"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/repository"
+	"github.com/paperalt/sovereign/internal/model"
+	"github.com/paperalt/sovereign/internal/repository"
 )
 
 // QuestionEngine defines the interface for generating grounded, intelligent question suggestions.

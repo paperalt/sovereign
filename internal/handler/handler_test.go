@@ -10,11 +10,11 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/database"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/middleware"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/model"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/repository"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/service"
+	"github.com/paperalt/sovereign/internal/database"
+	"github.com/paperalt/sovereign/internal/middleware"
+	"github.com/paperalt/sovereign/internal/model"
+	"github.com/paperalt/sovereign/internal/repository"
+	"github.com/paperalt/sovereign/internal/service"
 )
 
 func setupTestServer(t *testing.T) (*httptest.Server, string) {

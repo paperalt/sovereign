@@ -78,7 +78,7 @@ flowchart TD
 ### Option A: Direct Go Binary (Zero External Dependencies)
 ```bash
 # 1. Clone repository
-git clone https://github.com/paperalt/sovereign-speech-intelligence.git
+git clone https://github.com/paperalt/sovereign.git
 cd sovereign-speech-intelligence
 
 # 2. Build single binary
@@ -137,6 +137,6 @@ Sovereign Core includes automated multi-target backup and restore scripts (`scri
 
 ## 6. Official Repository & License
 
-* **GitHub Repository:** [`https://github.com/paperalt/sovereign-speech-intelligence`](https://github.com/paperalt/sovereign-speech-intelligence)
+* **GitHub Repository:** [`https://github.com/paperalt/sovereign`](https://github.com/paperalt/sovereign)
 * **Author:** Asmaul Khusna (`@paperalt`)
 * **License:** [MIT License](LICENSE) — Free for personal, academic, and commercial self-hosting.

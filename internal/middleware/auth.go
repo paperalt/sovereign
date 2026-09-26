@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/paperalt/sovereign-speech-intelligence/pkg/token"
+	"github.com/paperalt/sovereign/pkg/token"
 )
 
 type contextKey string

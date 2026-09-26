@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/paperalt/sovereign-speech-intelligence/internal/database"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/model"
+	"github.com/paperalt/sovereign/internal/database"
+	"github.com/paperalt/sovereign/internal/model"
 )
 
 func TestGroupRepository_Lifecycle(t *testing.T) {

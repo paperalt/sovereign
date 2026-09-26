@@ -11,12 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/paperalt/sovereign-speech-intelligence/internal/config"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/database"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/handler"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/middleware"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/repository"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/service"
+	"github.com/paperalt/sovereign/internal/config"
+	"github.com/paperalt/sovereign/internal/database"
+	"github.com/paperalt/sovereign/internal/handler"
+	"github.com/paperalt/sovereign/internal/middleware"
+	"github.com/paperalt/sovereign/internal/repository"
+	"github.com/paperalt/sovereign/internal/service"
 )
 
 func main() {

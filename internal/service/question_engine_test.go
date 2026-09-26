@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/paperalt/sovereign-speech-intelligence/internal/model"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/repository"
+	"github.com/paperalt/sovereign/internal/model"
+	"github.com/paperalt/sovereign/internal/repository"
 )
 
 // mockMeetingRepo implements repository.MeetingRepository for testing.

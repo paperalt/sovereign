@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/paperalt/sovereign-speech-intelligence/internal/middleware"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/model"
-	"github.com/paperalt/sovereign-speech-intelligence/internal/repository"
+	"github.com/paperalt/sovereign/internal/middleware"
+	"github.com/paperalt/sovereign/internal/model"
+	"github.com/paperalt/sovereign/internal/repository"
 )
 
 var AvailablePlans = []model.SubscriptionPlan{

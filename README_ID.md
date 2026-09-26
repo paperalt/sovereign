@@ -78,7 +78,7 @@ flowchart TD
 ### Opsi A: Menjalankan Biner Go Mandiri (Nol Dependensi Eksternal)
 ```bash
 # 1. Klon repositori
-git clone https://github.com/paperalt/sovereign-speech-intelligence.git
+git clone https://github.com/paperalt/sovereign.git
 cd sovereign-speech-intelligence
 
 # 2. Kompilasi biner tunggal
@@ -137,6 +137,6 @@ Sovereign Core dilengkapi otomasi pencadangan terenkripsi multi-destinasi (`scri
 
 ## 6. Repositori Resmi & Lisensi
 
-* **Repositori GitHub:** [`https://github.com/paperalt/sovereign-speech-intelligence`](https://github.com/paperalt/sovereign-speech-intelligence)
+* **Repositori GitHub:** [`https://github.com/paperalt/sovereign`](https://github.com/paperalt/sovereign)
 * **Penulis / Pemilik:** Asmaul Khusna (`@paperalt`)
 * **Lisensi:** [MIT License](LICENSE) — Bebas digunakan untuk kebutuhan personal, akademik, maupun self-hosting enterprise.
