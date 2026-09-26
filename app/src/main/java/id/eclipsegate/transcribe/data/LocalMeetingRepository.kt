@@ -426,7 +426,7 @@ class LocalMeetingRepository(
     override suspend fun topUp(planId: String): Result<UserQuotaDto> = getUserQuota()
 
     override suspend fun redeemVoucher(code: String): Result<String> = withContext(Dispatchers.IO) {
-        Result.success("Sistem ini berjalan dalam mode Kedaulatan Penuh (tanpa voucher server)")
+        Result.success("Sistem beroperasi mandiri secara lokal.")
     }
 
     override suspend fun checkAppVersion(): Result<AppVersionDto> = withContext(Dispatchers.IO) {
@@ -436,7 +436,7 @@ class LocalMeetingRepository(
                 latestVersionName = "2.1.0",
                 minSupportedVersionCode = 1,
                 downloadUrl = "https://github.com/paperalt/sovereign/releases",
-                releaseNotes = "Sovereign Core: 100% Android Standalone Local-First Architecture",
+                releaseNotes = "Sovereign: Aplikasi Transkripsi & Intelijen Mandiri",
                 isCritical = false,
                 sha256 = null
             )

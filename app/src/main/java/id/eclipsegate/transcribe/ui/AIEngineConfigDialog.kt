@@ -170,7 +170,7 @@ fun AIEngineConfigDialog(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "KONFIGURASI AI UNIVERSAL",
+                                text = "PENGATURAN MODEL AI",
                                 color = TextPrimary,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
@@ -178,7 +178,7 @@ fun AIEngineConfigDialog(
                                 letterSpacing = 0.5.sp
                             )
                             Text(
-                                text = "Kedaulatan Lokal • Preset & Direct Endpoints",
+                                text = "Konfigurasi Endpoint, Model, dan Kunci API",
                                 color = TextSecondary,
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace
@@ -209,8 +209,8 @@ fun AIEngineConfigDialog(
                     ) {
                         val tabs = listOf(
                             "PRESET" to 0,
-                            "VOICE / STT" to 1,
-                            "LLM / NALAR" to 2
+                            "SUARA (STT)" to 1,
+                            "NALAR (LLM)" to 2
                         )
                         tabs.forEach { (title, index) ->
                             val isSelected = activeTab == index
@@ -390,7 +390,7 @@ fun AIEngineConfigDialog(
                                 tokenStorage.setAdaptiveStreamingBetaEnabled(isAdaptiveBeta)
                                 tokenStorage.setCustomPresetsUrl(customUrlInput)
 
-                                Toast.makeText(context, "Konfigurasi tersimpan di Keystore", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Pengaturan AI berhasil disimpan", Toast.LENGTH_SHORT).show()
                                 onSaved(selectedPresetId)
                                 onDismiss()
                             },
@@ -671,7 +671,7 @@ private fun PresetManagementTab(
     ) {
         // Source URL Input Card
         Text(
-            text = "SUMBER PRESET (URL / FILE / PASTE)",
+            text = "SUMBER PRESET",
             color = AccentPrimary,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
@@ -686,8 +686,8 @@ private fun PresetManagementTab(
         ) {
             OutlinedTextField(
                 value = customUrlInput,
-                onValueChange = onUrlChange,
-                label = { Text("URL Raw JSON", fontSize = 10.sp) },
+                onValueChange = { onUrlChange(it) },
+                label = { Text("URL Presets", fontSize = 10.sp) },
                 placeholder = { Text("https://.../providers.json", fontSize = 10.sp) },
                 modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -755,7 +755,7 @@ private fun PresetManagementTab(
             ) {
                 Icon(imageVector = Icons.Default.ContentPaste, contentDescription = "Paste", tint = TextSecondary, modifier = Modifier.size(12.dp))
                 Spacer(modifier = Modifier.width(3.dp))
-                Text("[PASTE JSON]", color = TextSecondary, fontSize = 9.sp, fontFamily = FontFamily.Monospace)
+                Text("[TEMPEL JSON]", color = TextSecondary, fontSize = 9.sp, fontFamily = FontFamily.Monospace)
             }
 
             OutlinedButton(
@@ -777,7 +777,7 @@ private fun PresetManagementTab(
 
         // Preset items list
         Text(
-            text = "DAFTAR PRESET AKTIF (${presets.size})",
+            text = "DAFTAR PRESET (${presets.size})",
             color = AccentPrimary,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
@@ -892,7 +892,7 @@ private fun VoiceSttTab(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = "PENGATURAN SUARA / TRANSKRIPSI (STT)",
+            text = "ENDPOINT & MODEL SUARA (STT)",
             color = AccentPrimary,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
@@ -903,8 +903,8 @@ private fun VoiceSttTab(
         // STT Endpoint Input
         OutlinedTextField(
             value = sttEndpoint,
-            onValueChange = onSttEndpointChange,
-            label = { Text("STT API Endpoint URL", fontSize = 11.sp) },
+            onValueChange = { onSttEndpointChange(it) },
+            label = { Text("Endpoint URL", fontSize = 11.sp) },
             placeholder = { Text("https://api.groq.com/openai/v1/audio/transcriptions", fontSize = 11.sp) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
@@ -927,8 +927,8 @@ private fun VoiceSttTab(
         ) {
             OutlinedTextField(
                 value = sttModel,
-                onValueChange = onSttModelChange,
-                label = { Text("STT Model Name", fontSize = 11.sp) },
+                onValueChange = { onSttModelChange(it) },
+                label = { Text("Model", fontSize = 11.sp) },
                 placeholder = { Text("whisper-large-v3-turbo", fontSize = 11.sp) },
                 modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -962,9 +962,9 @@ private fun VoiceSttTab(
         // STT API Key Input
         OutlinedTextField(
             value = sttKey,
-            onValueChange = onSttKeyChange,
-            label = { Text("STT API Key (Keystore Encrypted)", fontSize = 11.sp) },
-            placeholder = { Text("gsk_... / AIzaSy... / sk-...", fontSize = 11.sp) },
+            onValueChange = { onSttKeyChange(it) },
+            label = { Text("API Key STT", fontSize = 11.sp) },
+            placeholder = { Text("Masukkan API Key STT", fontSize = 11.sp) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = AccentPrimary,
@@ -1015,14 +1015,14 @@ private fun VoiceSttTab(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "STREAMING ADAPTIF (VAD GATED)",
+                    text = "STREAMING ADAPTIF",
                     color = TextPrimary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace
                 )
                 Text(
-                    text = "Supresi hening < 280 RMS. Menghemat ~78% transmisi.",
+                    text = "Deteksi jeda bicara (VAD) untuk efisiensi transmisi data.",
                     color = TextSecondary,
                     fontSize = 10.sp
                 )
@@ -1071,7 +1071,7 @@ private fun LlmReasoningTab(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "PENGATURAN NALAR & RINGKASAN (LLM)",
+                text = "ENDPOINT & MODEL BAHASA (LLM)",
                 color = AccentPrimary,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
@@ -1094,8 +1094,8 @@ private fun LlmReasoningTab(
         // LLM Endpoint Input
         OutlinedTextField(
             value = llmEndpoint,
-            onValueChange = onLlmEndpointChange,
-            label = { Text("LLM API Endpoint URL", fontSize = 11.sp) },
+            onValueChange = { onLlmEndpointChange(it) },
+            label = { Text("Endpoint URL", fontSize = 11.sp) },
             placeholder = { Text("https://api.groq.com/openai/v1/chat/completions", fontSize = 11.sp) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
@@ -1118,8 +1118,8 @@ private fun LlmReasoningTab(
         ) {
             OutlinedTextField(
                 value = llmModel,
-                onValueChange = onLlmModelChange,
-                label = { Text("LLM Model Name", fontSize = 11.sp) },
+                onValueChange = { onLlmModelChange(it) },
+                label = { Text("Model", fontSize = 11.sp) },
                 placeholder = { Text("llama-3.3-70b-versatile", fontSize = 11.sp) },
                 modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -1153,9 +1153,9 @@ private fun LlmReasoningTab(
         // LLM API Key Input
         OutlinedTextField(
             value = llmKey,
-            onValueChange = onLlmKeyChange,
-            label = { Text("LLM API Key (Keystore Encrypted)", fontSize = 11.sp) },
-            placeholder = { Text("Kunci API khusus nalar...", fontSize = 11.sp) },
+            onValueChange = { onLlmKeyChange(it) },
+            label = { Text("API Key LLM", fontSize = 11.sp) },
+            placeholder = { Text("Masukkan API Key LLM", fontSize = 11.sp) },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = AccentPrimary,

@@ -635,7 +635,7 @@ fun DashboardScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // Account Status Summary Card in Drawer
+                    // Engine Status Summary Card in Drawer
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -650,7 +650,7 @@ fun DashboardScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "STATUS AKUN & KUOTA",
+                                    text = "STATUS ENGINE",
                                     color = TextMuted,
                                     fontSize = 10.sp,
                                     fontFamily = FontFamily.Monospace,
@@ -662,8 +662,8 @@ fun DashboardScreen(
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
                                     Text(
-                                        text = userQuota?.tier?.uppercase() ?: "STARTER",
-                                        color = AccentPrimary,
+                                        text = "AKTIF",
+                                        color = EmeraldSuccess,
                                         fontSize = 10.sp,
                                         fontFamily = FontFamily.Monospace,
                                         fontWeight = FontWeight.Bold
@@ -671,19 +671,15 @@ fun DashboardScreen(
                                 }
                             }
 
-                            val isBYOKActive = (currentAIProvider != "DEFAULT")
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Box(
                                     modifier = Modifier
                                         .size(6.dp)
-                                        .background(
-                                            if (isBYOKActive) EmeraldSuccess else TextSecondary,
-                                            shape = RoundedCornerShape(3.dp)
-                                        )
+                                        .background(EmeraldSuccess, shape = RoundedCornerShape(3.dp))
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = if (isBYOKActive) "Mesin: $currentAIProvider (Bebas Kuota)" else "Mesin: Server Cloud",
+                                    text = "Penyedia: $currentAIProvider",
                                     color = TextPrimary,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
@@ -692,36 +688,12 @@ fun DashboardScreen(
                                 )
                             }
 
-                            val sisaDetik = userQuota?.remainingSeconds ?: 0
-                            val sisaMenit = sisaDetik / 60
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = if (userQuota?.isUnlimited == true) "Sisa: Bebas Kuota" else "Sisa: $sisaMenit mnt ($sisaDetik s)",
-                                    color = TextSecondary,
-                                    fontSize = 11.sp,
-                                    fontFamily = FontFamily.Monospace,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f, fill = false)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                OutlinedButton(
-                                    onClick = {
-                                        scope.launch { drawerState.close() }
-                                        showSubscriptionDialog = true
-                                    },
-                                    border = BorderStroke(1.dp, SteelBorder),
-                                    shape = RoundedCornerShape(4.dp),
-                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
-                                    modifier = Modifier.height(26.dp)
-                                ) {
-                                    Text("+ VOUCHER", color = AccentPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold, softWrap = false)
-                                }
-                            }
+                            Text(
+                                text = "Penyimpanan: SQLite Lokal",
+                                color = TextSecondary,
+                                fontSize = 10.sp,
+                                fontFamily = FontFamily.Monospace
+                            )
                         }
                     }
 
@@ -741,8 +713,8 @@ fun DashboardScreen(
                     // Menu Item 1: Konfigurasi AI Engine
                     DrawerNavRow(
                         icon = Icons.Default.Settings,
-                        title = "Konfigurasi Mesin AI",
-                        subtitle = "Groq LPU, Gemini, atau OpenAI",
+                        title = "Pengaturan Model AI",
+                        subtitle = "Endpoint, model, dan API key",
                         badge = currentAIProvider,
                         onClick = {
                             scope.launch { drawerState.close() }
@@ -750,29 +722,18 @@ fun DashboardScreen(
                         }
                     )
 
-                    // Menu Item 2: Aktivasi / Redeem Voucher Kuota
-                    DrawerNavRow(
-                        icon = Icons.Default.ConfirmationNumber,
-                        title = "Redeem Voucher Kuota",
-                        subtitle = "Klaim kode voucher paket prabayar",
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            showSubscriptionDialog = true
-                        }
-                    )
-
-                    // Menu Item 3: Informasi Sistem & Server
+                    // Menu Item 2: Informasi Aplikasi
                     DrawerNavRow(
                         icon = Icons.Default.Info,
-                        title = "Informasi Sistem & Server",
-                        subtitle = "Domain, TLS 1.3 & enkripsi",
+                        title = "Informasi Aplikasi",
+                        subtitle = "Versi dan detail aplikasi",
                         onClick = {
                             scope.launch { drawerState.close() }
                             showInfoDialog = true
                         }
                     )
 
-                    // Menu Item 4: Panduan Penggunaan
+                    // Menu Item 3: Panduan Penggunaan
                     DrawerNavRow(
                         icon = Icons.AutoMirrored.Filled.HelpOutline,
                         title = "Panduan & Bantuan",

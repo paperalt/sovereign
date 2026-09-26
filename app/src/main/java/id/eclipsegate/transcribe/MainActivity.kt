@@ -130,7 +130,7 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate(Screen.LiveTranscription.createRoute(meetingId, title))
                                 },
                                 onLogout = {
-                                    Toast.makeText(this@MainActivity, "Sovereign: Mode Offline & Kedaulatan Penuh Aktif", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@MainActivity, "Aplikasi beroperasi secara lokal", Toast.LENGTH_SHORT).show()
                                 }
                             )
                         }

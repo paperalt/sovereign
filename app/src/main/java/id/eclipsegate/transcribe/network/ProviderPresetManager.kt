@@ -41,8 +41,8 @@ object ProviderPresetManager {
     val fallbackPresets = listOf(
         ProviderPreset(
             id = "groq",
-            name = "Groq Cloud (LPU Whisper Turbo)",
-            badge = "LPU SPEED",
+            name = "Groq Cloud",
+            badge = "GROQ",
             stt = ModelEndpointConfig(
                 endpoint = "https://api.groq.com/openai/v1/audio/transcriptions",
                 defaultModel = "whisper-large-v3-turbo",
@@ -54,12 +54,12 @@ object ProviderPresetManager {
                 modelsEndpoint = "https://api.groq.com/openai/v1/models"
             ),
             apiKeyUrl = "https://console.groq.com/keys",
-            description = "Latensi STT ~300ms dan penalaran ~1.8s. Kuota gratis harian 8 jam audio."
+            description = "Transkripsi cepat Whisper Turbo (~300ms) dan penalaran Llama 3.3 70B."
         ),
         ProviderPreset(
             id = "gemini",
-            name = "Google AI Studio (Gemini)",
-            badge = "1M CONTEXT",
+            name = "Google AI Studio",
+            badge = "GEMINI",
             stt = ModelEndpointConfig(
                 endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
                 defaultModel = "gemini-2.0-flash",
@@ -71,12 +71,12 @@ object ProviderPresetManager {
                 modelsEndpoint = "https://generativelanguage.googleapis.com/v1beta/models"
             ),
             apiKeyUrl = "https://aistudio.google.com/app/apikey",
-            description = "Konteks masif hingga 1 juta token, cocok untuk rapat panjang berjam-jam."
+            description = "Model multimodal Gemini 2.0 Flash dengan kapasitas konteks hingga 1 juta token."
         ),
         ProviderPreset(
             id = "openai",
-            name = "OpenAI Official Platform",
-            badge = "INDUSTRY STD",
+            name = "OpenAI Platform",
+            badge = "OPENAI",
             stt = ModelEndpointConfig(
                 endpoint = "https://api.openai.com/v1/audio/transcriptions",
                 defaultModel = "whisper-1",
@@ -88,12 +88,12 @@ object ProviderPresetManager {
                 modelsEndpoint = "https://api.openai.com/v1/models"
             ),
             apiKeyUrl = "https://platform.openai.com/api-keys",
-            description = "Whisper-1 standar industri dan GPT-4o-Mini untuk akurasi tinggi."
+            description = "Whisper-1 untuk akurasi transkripsi dan GPT-4o-Mini untuk perangkuman."
         ),
         ProviderPreset(
             id = "deepseek",
-            name = "DeepSeek (LLM Nalar) + Groq STT",
-            badge = "REASONING",
+            name = "DeepSeek + Groq",
+            badge = "DEEPSEEK",
             stt = ModelEndpointConfig(
                 endpoint = "https://api.groq.com/openai/v1/audio/transcriptions",
                 defaultModel = "whisper-large-v3-turbo",
@@ -105,12 +105,12 @@ object ProviderPresetManager {
                 modelsEndpoint = "https://api.deepseek.com/models"
             ),
             apiKeyUrl = "https://platform.deepseek.com/api_keys",
-            description = "Model penalaran DeepSeek-V3 / R1 dengan harga sangat terjangkau."
+            description = "Penalaran DeepSeek Chat dipadukan dengan Whisper Large Turbo."
         ),
         ProviderPreset(
             id = "openrouter",
-            name = "OpenRouter Universal Router",
-            badge = "MULTI-MODEL",
+            name = "OpenRouter",
+            badge = "ROUTER",
             stt = ModelEndpointConfig(
                 endpoint = "https://api.groq.com/openai/v1/audio/transcriptions",
                 defaultModel = "whisper-large-v3-turbo",
@@ -122,12 +122,12 @@ object ProviderPresetManager {
                 modelsEndpoint = "https://openrouter.ai/api/v1/models"
             ),
             apiKeyUrl = "https://openrouter.ai/keys",
-            description = "Akses ke ratusan model open-source dan komersial dengan satu API key."
+            description = "Akses multi-penyedia model melalui satu endpoint terintegrasi."
         ),
         ProviderPreset(
             id = "ollama",
-            name = "Ollama / Localhost Server",
-            badge = "100% OFFLINE",
+            name = "Ollama (Lokal)",
+            badge = "LOKAL",
             stt = ModelEndpointConfig(
                 endpoint = "http://10.0.2.2:11434/v1/audio/transcriptions",
                 defaultModel = "whisper",
@@ -139,12 +139,12 @@ object ProviderPresetManager {
                 modelsEndpoint = "http://10.0.2.2:11434/v1/models"
             ),
             apiKeyUrl = "",
-            description = "Server lokal Ollama di jaringan LAN atau emulator tanpa koneksi internet."
+            description = "Inferensi mandiri pada server lokal atau jaringan privat."
         ),
         ProviderPreset(
             id = "custom",
-            name = "Konfigurasi Universal (Kustom Penuh)",
-            badge = "UNIVERSAL",
+            name = "Kustom Penuh",
+            badge = "KUSTOM",
             stt = ModelEndpointConfig(
                 endpoint = "",
                 defaultModel = "",
@@ -156,7 +156,7 @@ object ProviderPresetManager {
                 modelsEndpoint = ""
             ),
             apiKeyUrl = "",
-            description = "Masukkan endpoint API, model, dan API key secara manual sesuai kebutuhan."
+            description = "Konfigurasi kustom untuk endpoint dan nama model mandiri."
         )
     )
 
