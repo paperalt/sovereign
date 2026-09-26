@@ -1,0 +1,30 @@
+name: Sovereign Core CI (Go Tests & Audits)
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test-go:
+    name: Run Go Unit & Integration Tests (SQLite Mode)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go 1.22+
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: true
+
+      - name: Run Go Unit Tests
+        run: |
+          go test -race -v ./internal/... ./pkg/...
+
+      - name: Build Sovereign Single-Binary Server
+        run: |
+          go build -o bin/sovereign-server ./cmd/server
+          ls -lh bin/sovereign-server

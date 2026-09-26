@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Transcribe Core</string>
+    <string name="channel_name">Transkripsi Audio Langsung</string>
+    <string name="channel_description">Menjaga perekaman audio tetap berjalan saat aplikasi di latar belakang.</string>
+</resources>

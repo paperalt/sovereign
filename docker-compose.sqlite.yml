@@ -1,0 +1,50 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: transcribe-core-backend:latest
+    container_name: transcribe-backend
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      - PORT=8080
+      - BIND_HOST=0.0.0.0
+      - DB_DRIVER=sqlite
+      - SQLITE_PATH=/data/transcribe.db
+      - JWT_SECRET=${JWT_SECRET:-super-secret-jwt-signing-key-default-32bytes}
+      - NINEROUTER_URL=${NINEROUTER_URL:-http://host.docker.internal:20128/v1}
+      - NINEROUTER_KEY=${NINEROUTER_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-ag/gemini-3.8-flash}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-709542679592-lprl5ob7uv2ktin74idhg4347n8urbuk.apps.googleusercontent.com}
+      - ALLOW_PASSWORD_AUTH=${ALLOW_PASSWORD_AUTH:-false}
+      - ADMIN_SECRET=${ADMIN_SECRET:-}
+      - DOWNLOADS_DIR=/app/downloads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - downloads_data:/app/downloads
+      - sqlite_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - transcribe_net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+volumes:
+  sqlite_data:
+    name: transcribe_sqlite_data
+  downloads_data:
+    name: transcribe_downloads_data
+
+networks:
+  transcribe_net:
+    name: transcribe_network
+    driver: bridge

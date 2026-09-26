@@ -1,0 +1,130 @@
+name: Build Android APK & GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Publish as GitHub Release?'
+        required: true
+        type: boolean
+        default: false
+      tag_name:
+        description: 'Tag name (e.g. v1.6.2)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Autonomous UI Defect & Sanitation Static Auditor
+        run: |
+          python3 test/eval_harness/ui_sanitation_auditor.py
+
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.11.1
+          cache-read-only: false
+
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x android/gradlew
+
+      - name: Compile and Assemble Debug APK
+        working-directory: android
+        run: |
+          ./gradlew assembleDebug --no-daemon --parallel -Dorg.gradle.jvmargs="-Xmx3072m -XX:+UseG1GC"
+
+      - name: Prepare Artifacts & Calculate Checksum
+        id: prepare_artifacts
+        run: |
+          APK_PATH="android/app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -f "$APK_PATH" ]; then
+            echo "Error: APK not found at $APK_PATH"
+            exit 1
+          fi
+          
+          mkdir -p dist
+          cp "$APK_PATH" dist/transcribe-core.apk
+          cd dist
+          sha256sum transcribe-core.apk > transcribe-core.apk.sha256
+          SHA256=$(cat transcribe-core.apk.sha256 | awk '{print $1}')
+          echo "apk_sha256=$SHA256" >> $GITHUB_OUTPUT
+          cd ..
+          echo "APK successfully prepared with SHA-256: $SHA256"
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcribe-core-apk
+          path: |
+            dist/transcribe-core.apk
+            dist/transcribe-core.apk.sha256
+          retention-days: 14
+
+      - name: Determine Release Eligibility
+        id: release_check
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]] || [[ "${{ inputs.create_release }}" == "true" ]]; then
+            echo "should_release=true" >> $GITHUB_OUTPUT
+            if [[ -n "${{ inputs.tag_name }}" ]]; then
+              echo "tag_name=${{ inputs.tag_name }}" >> $GITHUB_OUTPUT
+            else
+              echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "should_release=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        if: steps.release_check.outputs.should_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_check.outputs.tag_name }}
+          name: Release ${{ steps.release_check.outputs.tag_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            dist/transcribe-core.apk
+            dist/transcribe-core.apk.sha256
+          body: |
+            ### Transcribe Core Production Release (${{ steps.release_check.outputs.tag_name }})
+            
+            Android APK build compiled by GitHub Actions CI/CD pipeline.
+            
+            * **Binary File:** `transcribe-core.apk`
+            * **Checksum (SHA-256):** `${{ steps.prepare_artifacts.outputs.apk_sha256 }}`
+            * **Architecture:** Heterogeneous Cross-Model Speech-to-Text & In-Meeting Inquiry Stack
+            * **Security:** Android Keystore AES-256-GCM Zero-Knowledge Key Vault

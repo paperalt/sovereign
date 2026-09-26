@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-09-24T15:57:57.506168",
+  "model": "ag/gemini-3.8-flash",
+  "asr_suite": {
+    "total": 5,
+    "passed": 5,
+    "avg_wer": 0.0,
+    "avg_cer": 0.0,
+    "avg_rtf": 0.4498253005795315,
+    "details": [
+      {
+        "id": "ASR-01",
+        "name": "Academic Lecture Speech",
+        "duration": 7.2,
+        "latency": 5.131397485733032,
+        "rtf": 0.7126940952406989,
+        "wer": 0.0,
+        "cer": 0.0,
+        "ref": "Selamat pagi semuanya, hari ini kita akan membahas tentang pentingnya struktur data dan algoritma dalam rekayasa perangkat lunak.",
+        "hyp": "Selamat pagi semuanya, hari ini kita akan membahas tentang pentingnya struktur data dan algoritma dalam rekayasa perangkat lunak.",
+        "passed": true
+      },
+      {
+        "id": "ASR-02",
+        "name": "Technical Terminology Stack",
+        "duration": 9.2,
+        "latency": 4.135680198669434,
+        "rtf": 0.44953045637711236,
+        "wer": 0.0,
+        "cer": 0.0,
+        "ref": "Sistem backend menggunakan PostgreSQL enam belas dengan koneksi WebSocket dan enkripsi AES dua ratus lima puluh enam.",
+        "hyp": "Sistem backend menggunakan PostgreSQL 16 dengan koneksi WebSocket dan enkripsi AES 256.",
+        "passed": true
+      },
+      {
+        "id": "ASR-03",
+        "name": "Numbers & Calendar Timestamps",
+        "duration": 6.8,
+        "latency": 4.6549072265625,
+        "rtf": 0.6845451803768382,
+        "wer": 0.0,
+        "cer": 0.0,
+        "ref": "Rapat koordinasi dimulai pada tanggal lima belas September pukul empat belas tiga puluh dengan total peserta dua puluh lima orang.",
+        "hyp": "Rapat koordinasi dimulai pada tanggal 15 September pukul 14.30 dengan total peserta 25 orang.",
+        "passed": true
+      },
+      {
+        "id": "ASR-04",
+        "name": "Code-Switching (Indo-English Tech)",
+        "duration": 7.3,
+        "latency": 2.932337760925293,
+        "rtf": 0.4016901042363415,
+        "wer": 0.0,
+        "cer": 0.0,
+        "ref": "Proses database migration sudah berjalan lancar dan semua unit test berhasil passing tanpa error.",
+        "hyp": "Proses database migration sudah berjalan lancar dan semua unit test berhasil passing tanpa error.",
+        "passed": true
+      },
+      {
+        "id": "ASR-05",
+        "name": "Silence & Background Noise Rejection",
+        "duration": 3.0,
+        "latency": 0.002,
+        "rtf": 0.0006666666666666666,
+        "wer": 0.0,
+        "cer": 0.0,
+        "ref": "",
+        "hyp": "",
+        "passed": true
+      }
+    ]
+  },
+  "question_engine_suite": {
+    "valid_json": true,
+    "latency": 9.165459394454956,
+    "grounding_score": 100.0,
+    "categories": [
+      "critical_edge_case",
+      "clarification",
+      "practical_impact"
+    ],
+    "question_count": 3,
+    "passed": true
+  },
+  "summarization_suite": {
+    "valid_json": true,
+    "has_summary": true,
+    "has_key_points": true,
+    "action_items_count": 2,
+    "latency": 7.13607931137085,
+    "passed": true
+  },
+  "all_gates_passed": true
+}

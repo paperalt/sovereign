@@ -1,0 +1,43 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Active Recording Indicator Dot -->
+    <path
+        android:fillColor="#E11D48"
+        android:pathData="M54,28m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0" />
+
+    <!-- Microphone Capsule -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M48,38h12c3.31,0 6,2.69 6,6v12c0,3.31 -2.69,6 -6,6h-12c-3.31,0 -6,-2.69 -6,-6v-12c0,-3.31 2.69,-6 6,-6z" />
+
+    <!-- Microphone Grille Texture Line -->
+    <path
+        android:strokeColor="#0A0D12"
+        android:strokeWidth="1.5"
+        android:pathData="M44,48h20" />
+
+    <!-- Arc Cradle & Stand -->
+    <path
+        android:strokeColor="#F0F4F8"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M38,52c0,8.84 7.16,16 16,16s16,-7.16 16,-16" />
+
+    <path
+        android:strokeColor="#F0F4F8"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M54,68v8M44,76h20" />
+
+    <!-- Soundwave Flank Bars (Left & Right) -->
+    <path
+        android:strokeColor="#64748B"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M30,46v14M22,50v6M78,46v14M86,50v6" />
+
+</vector>

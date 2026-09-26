@@ -1,0 +1,67 @@
+# ==============================================================================
+# Git Ignore Rules - Realtime Speech Intelligence System
+# ==============================================================================
+
+# Binaries and compiled outputs
+bin/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+*.apk
+*.aab
+*.zip
+
+# Database and runtime logs
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.log
+*.aux
+*.out
+*.toc
+
+# Snapshots and migration dumps
+migrations/
+
+# OS artifacts & temporary editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+
+# Agent, IDE & Editor settings
+.hermes/
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# Android build outputs, local properties & Gradle caches
+.gradle/
+build/
+android/.gradle/
+android/build/
+android/app/build/
+local.properties
+android/local.properties
+android/.idea/
+android/*.iml
+android/app/*.iml
