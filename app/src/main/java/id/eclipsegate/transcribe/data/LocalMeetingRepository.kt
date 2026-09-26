@@ -290,16 +290,22 @@ class LocalMeetingRepository(
             }
             val fullText = sb.toString().trim()
 
-            val provider = tokenStorage.getLLMProvider().ifBlank { "groq" }
-            val apiKey = tokenStorage.getProviderApiKey(provider)
-                ?: tokenStorage.getCustomApiKey()
-                ?: ""
+            val provider = tokenStorage.getSelectedPreset().ifBlank { "groq" }
+            val llmEndpoint = tokenStorage.getLLMEndpoint()
+            val llmModel = tokenStorage.getLLMModel()
+            val apiKey = tokenStorage.getLLMKey().ifBlank { tokenStorage.getSTTKey() }
 
-            if (apiKey.isBlank()) {
+            if (apiKey.isBlank() && !llmEndpoint.contains("localhost") && !llmEndpoint.contains("10.0.2.2")) {
                 return@withContext Result.failure(Exception("Kunci API AI belum dikonfigurasi di Pengaturan Kunci Pribadi."))
             }
 
-            val summaryRes = directAIClient.generateSummary(fullText, provider, apiKey)
+            val summaryRes = directAIClient.generateSummary(
+                fullTranscript = fullText,
+                provider = provider,
+                apiKey = apiKey,
+                customEndpoint = llmEndpoint.ifBlank { null },
+                customModel = llmModel.ifBlank { null }
+            )
             if (summaryRes.isFailure) {
                 return@withContext Result.failure(summaryRes.exceptionOrNull() ?: Exception("Gagal merangkum"))
             }
@@ -475,16 +481,23 @@ class LocalMeetingRepository(
             }
 
             val contextText = chunksList.joinToString(" ")
-            val provider = tokenStorage.getLLMProvider().ifBlank { "groq" }
-            val apiKey = tokenStorage.getProviderApiKey(provider)
-                ?: tokenStorage.getCustomApiKey()
-                ?: ""
+            val provider = tokenStorage.getSelectedPreset().ifBlank { "groq" }
+            val llmEndpoint = tokenStorage.getLLMEndpoint()
+            val llmModel = tokenStorage.getLLMModel()
+            val apiKey = tokenStorage.getLLMKey().ifBlank { tokenStorage.getSTTKey() }
 
-            if (apiKey.isBlank()) {
+            if (apiKey.isBlank() && !llmEndpoint.contains("localhost") && !llmEndpoint.contains("10.0.2.2")) {
                 return@withContext Result.failure(Exception("Kunci API belum diisi di Pengaturan Kunci Pribadi."))
             }
 
-            val questionsRes = directAIClient.suggestQuestions(contextText, focusTopic, provider, apiKey)
+            val questionsRes = directAIClient.suggestQuestions(
+                transcriptContext = contextText,
+                focusTopic = focusTopic,
+                provider = provider,
+                apiKey = apiKey,
+                customEndpoint = llmEndpoint.ifBlank { null },
+                customModel = llmModel.ifBlank { null }
+            )
             if (questionsRes.isFailure) {
                 return@withContext Result.failure(questionsRes.exceptionOrNull() ?: Exception("Gagal membuat rekomendasi pertanyaan"))
             }

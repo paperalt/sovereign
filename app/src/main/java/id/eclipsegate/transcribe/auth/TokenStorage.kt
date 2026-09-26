@@ -31,6 +31,28 @@ interface TokenStorage {
     // Beta Features
     fun isAdaptiveStreamingBetaEnabled(): Boolean
     fun setAdaptiveStreamingBetaEnabled(enabled: Boolean)
+
+    // Universal Endpoint & Model Configuration
+    fun getSelectedPreset(): String
+    fun setSelectedPreset(preset: String)
+
+    fun getSTTEndpoint(): String
+    fun setSTTEndpoint(url: String)
+
+    fun getSTTModel(): String
+    fun setSTTModel(model: String)
+
+    fun getSTTKey(): String
+    fun setSTTKey(key: String)
+
+    fun getLLMEndpoint(): String
+    fun setLLMEndpoint(url: String)
+
+    fun getLLMModel(): String
+    fun setLLMModel(model: String)
+
+    fun getLLMKey(): String
+    fun setLLMKey(key: String)
 }
 
 class EncryptedTokenStorage(context: Context) : TokenStorage {
@@ -148,6 +170,63 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
         prefs.edit().putBoolean(KEY_ADAPTIVE_STREAMING_BETA, enabled).apply()
     }
 
+    override fun getSelectedPreset(): String {
+        return prefs.getString(KEY_SELECTED_PRESET, "groq") ?: "groq"
+    }
+
+    override fun setSelectedPreset(preset: String) {
+        prefs.edit().putString(KEY_SELECTED_PRESET, preset).apply()
+    }
+
+    override fun getSTTEndpoint(): String {
+        return prefs.getString(KEY_STT_ENDPOINT, "https://api.groq.com/openai/v1/audio/transcriptions") ?: "https://api.groq.com/openai/v1/audio/transcriptions"
+    }
+
+    override fun setSTTEndpoint(url: String) {
+        prefs.edit().putString(KEY_STT_ENDPOINT, url.trim()).apply()
+    }
+
+    override fun getSTTModel(): String {
+        return prefs.getString(KEY_STT_MODEL, "whisper-large-v3-turbo") ?: "whisper-large-v3-turbo"
+    }
+
+    override fun setSTTModel(model: String) {
+        prefs.edit().putString(KEY_STT_MODEL, model.trim()).apply()
+    }
+
+    override fun getSTTKey(): String {
+        return prefs.getString(KEY_STT_KEY, null) ?: getProviderApiKey("groq") ?: ""
+    }
+
+    override fun setSTTKey(key: String) {
+        prefs.edit().putString(KEY_STT_KEY, key.trim()).apply()
+        setProviderApiKey("groq", key.trim())
+    }
+
+    override fun getLLMEndpoint(): String {
+        return prefs.getString(KEY_LLM_ENDPOINT, "https://api.groq.com/openai/v1/chat/completions") ?: "https://api.groq.com/openai/v1/chat/completions"
+    }
+
+    override fun setLLMEndpoint(url: String) {
+        prefs.edit().putString(KEY_LLM_ENDPOINT, url.trim()).apply()
+    }
+
+    override fun getLLMModel(): String {
+        return prefs.getString(KEY_LLM_MODEL, "llama-3.3-70b-versatile") ?: "llama-3.3-70b-versatile"
+    }
+
+    override fun setLLMModel(model: String) {
+        prefs.edit().putString(KEY_LLM_MODEL, model.trim()).apply()
+    }
+
+    override fun getLLMKey(): String {
+        return prefs.getString(KEY_LLM_KEY, null) ?: getSTTKey()
+    }
+
+    override fun setLLMKey(key: String) {
+        prefs.edit().putString(KEY_LLM_KEY, key.trim()).apply()
+    }
+
     override fun hasValidSession(): Boolean {
         return !getAccessToken().isNullOrBlank() && !getRefreshToken().isNullOrBlank()
     }
@@ -163,5 +242,12 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
         private const val KEY_LLM_PROVIDER = "llm_provider"
         private const val KEY_CUSTOM_API_KEY = "custom_api_key"
         private const val KEY_ADAPTIVE_STREAMING_BETA = "adaptive_streaming_beta"
+        private const val KEY_SELECTED_PRESET = "selected_preset"
+        private const val KEY_STT_ENDPOINT = "stt_endpoint"
+        private const val KEY_STT_MODEL = "stt_model"
+        private const val KEY_STT_KEY = "stt_key"
+        private const val KEY_LLM_ENDPOINT = "llm_endpoint"
+        private const val KEY_LLM_MODEL = "llm_model"
+        private const val KEY_LLM_KEY = "llm_key"
     }
 }

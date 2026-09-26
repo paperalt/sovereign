@@ -26,6 +26,8 @@ While commercial transcription platforms (Otter.ai, Fireflies.ai) charge $17–$
 * **On-Device Audio Ingestion & WAV Encoding:** Raw 16kHz, 16-bit Mono Linear PCM from `AudioRecord` is chunked and packed into RFC 2361 compliant RIFF/WAVE byte containers in memory using native Kotlin binary encoders (`WavEncoder.kt`).
 * **Client-Side VAD Streaming Chunker:** Voice Activity Detection (VAD) energy gating (< 50 RMS silence suppression, < 280 RMS pause boundary detection, 2.5s–12.0s chunking) runs directly in Kotlin coroutines on the device.
 * **Direct Client-to-Provider AI Ingestion:** The app connects directly from the phone to AI providers (Groq Cloud Whisper Turbo, Google AI Studio Gemini 2.0 Flash, or OpenAI Whisper-1) via direct HTTPS multipart/JSON calls using personal API keys.
+* **Universal Multi-Endpoint Configuration & Model Auto-Detection:** Users can configure arbitrary custom endpoints and models for Voice (STT) and LLM (Reasoning) independently. The `[DETEKSI]` feature queries the endpoint's `GET /models` to discover and list all available models in real time.
+* **Preconfigured Presets via GitHub Raw JSON:** Provider profiles are fetched dynamically from `config/providers.json` on GitHub with offline fallback, enabling one-tap configuration where the user only needs to paste their API key.
 * **Hardware-Backed Keystore Vault:** API keys reside exclusively in the **Android Keystore (AES-256-GCM)** via `EncryptedSharedPreferences`. Keys never touch an external server or unencrypted storage.
 * **100% Free & Open Source:** Licensed under the permissive **MIT License**.
 

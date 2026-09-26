@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "updated_at": "2026-09-27T00:00:00Z",
+  "providers": [
+    {
+      "id": "groq",
+      "name": "Groq Cloud (Rekomendasi Cepat)",
+      "badge": "LPU SPEED",
+      "stt": {
+        "endpoint": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "default_model": "whisper-large-v3-turbo",
+        "models_endpoint": "https://api.groq.com/openai/v1/models"
+      },
+      "llm": {
+        "endpoint": "https://api.groq.com/openai/v1/chat/completions",
+        "default_model": "llama-3.3-70b-versatile",
+        "models_endpoint": "https://api.groq.com/openai/v1/models"
+      },
+      "api_key_url": "https://console.groq.com/keys",
+      "description": "Latensi STT ~300ms dan penalaran ~1.8s. Kuota gratis harian 8 jam audio."
+    },
+    {
+      "id": "gemini",
+      "name": "Google AI Studio (Gemini)",
+      "badge": "1M CONTEXT",
+      "stt": {
+        "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "default_model": "gemini-2.0-flash",
+        "models_endpoint": "https://generativelanguage.googleapis.com/v1beta/models"
+      },
+      "llm": {
+        "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "default_model": "gemini-2.0-flash",
+        "models_endpoint": "https://generativelanguage.googleapis.com/v1beta/models"
+      },
+      "api_key_url": "https://aistudio.google.com/app/apikey",
+      "description": "Konteks masif hingga 1 juta token, cocok untuk rapat panjang berjam-jam."
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI Official Platform",
+      "badge": "INDUSTRY STD",
+      "stt": {
+        "endpoint": "https://api.openai.com/v1/audio/transcriptions",
+        "default_model": "whisper-1",
+        "models_endpoint": "https://api.openai.com/v1/models"
+      },
+      "llm": {
+        "endpoint": "https://api.openai.com/v1/chat/completions",
+        "default_model": "gpt-4o-mini",
+        "models_endpoint": "https://api.openai.com/v1/models"
+      },
+      "api_key_url": "https://platform.openai.com/api-keys",
+      "description": "Whisper-1 standar industri dan GPT-4o-Mini untuk akurasi tinggi."
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek (LLM Nalar) + Groq STT",
+      "badge": "REASONING",
+      "stt": {
+        "endpoint": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "default_model": "whisper-large-v3-turbo",
+        "models_endpoint": "https://api.groq.com/openai/v1/models"
+      },
+      "llm": {
+        "endpoint": "https://api.deepseek.com/chat/completions",
+        "default_model": "deepseek-chat",
+        "models_endpoint": "https://api.deepseek.com/models"
+      },
+      "api_key_url": "https://platform.deepseek.com/api_keys",
+      "description": "Model penalaran DeepSeek-V3 / R1 dengan harga sangat terjangkau."
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter Universal Router",
+      "badge": "MULTI-MODEL",
+      "stt": {
+        "endpoint": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "default_model": "whisper-large-v3-turbo",
+        "models_endpoint": "https://api.groq.com/openai/v1/models"
+      },
+      "llm": {
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "default_model": "meta-llama/llama-3.3-70b-instruct",
+        "models_endpoint": "https://openrouter.ai/api/v1/models"
+      },
+      "api_key_url": "https://openrouter.ai/keys",
+      "description": "Akses ke ratusan model open-source dan komersial dengan satu API key."
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama / Localhost Server",
+      "badge": "100% OFFLINE",
+      "stt": {
+        "endpoint": "http://10.0.2.2:11434/v1/audio/transcriptions",
+        "default_model": "whisper",
+        "models_endpoint": "http://10.0.2.2:11434/v1/models"
+      },
+      "llm": {
+        "endpoint": "http://10.0.2.2:11434/v1/chat/completions",
+        "default_model": "llama3.2",
+        "models_endpoint": "http://10.0.2.2:11434/v1/models"
+      },
+      "api_key_url": "",
+      "description": "Server lokal Ollama di jaringan LAN atau emulator tanpa koneksi internet."
+    },
+    {
+      "id": "custom",
+      "name": "Konfigurasi Universal (Kustom Penuh)",
+      "badge": "UNIVERSAL",
+      "stt": {
+        "endpoint": "",
+        "default_model": "",
+        "models_endpoint": ""
+      },
+      "llm": {
+        "endpoint": "",
+        "default_model": "",
+        "models_endpoint": ""
+      },
+      "api_key_url": "",
+      "description": "Masukkan endpoint API, model, dan API key secara manual sesuai kebutuhan."
+    }
+  ]
+}

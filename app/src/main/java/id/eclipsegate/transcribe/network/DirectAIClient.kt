@@ -34,15 +34,25 @@ class DirectAIClient(
 ) {
 
     /**
-     * Directly transcribes a WAV audio byte array via the selected provider.
+     * Directly transcribes a WAV audio byte array via the selected provider or universal endpoint.
      */
     suspend fun transcribeAudio(
         wavBytes: ByteArray,
         language: String,
-        provider: String,
-        apiKey: String
+        provider: String = "groq",
+        apiKey: String,
+        customEndpoint: String? = null,
+        customModel: String? = null
     ): Result<String> = withContext(Dispatchers.IO) {
         try {
+            if (!customEndpoint.isNullOrBlank()) {
+                if (customEndpoint.contains("generativelanguage.googleapis.com")) {
+                    return@withContext transcribeGemini(wavBytes, language, apiKey, customEndpoint)
+                }
+                val model = if (!customModel.isNullOrBlank()) customModel else "whisper-large-v3-turbo"
+                return@withContext transcribeOpenAICompatible(wavBytes, language, customEndpoint, model, apiKey)
+            }
+
             when (provider.lowercase()) {
                 "groq" -> transcribeGroq(wavBytes, language, apiKey)
                 "openai" -> transcribeOpenAI(wavBytes, language, apiKey)
@@ -54,10 +64,16 @@ class DirectAIClient(
         }
     }
 
-    private fun transcribeGroq(wavBytes: ByteArray, language: String, apiKey: String): Result<String> {
+    private fun transcribeOpenAICompatible(
+        wavBytes: ByteArray,
+        language: String,
+        endpoint: String,
+        model: String,
+        apiKey: String
+    ): Result<String> {
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
-            .addFormDataPart("model", "whisper-large-v3-turbo")
+            .addFormDataPart("model", model)
             .addFormDataPart("response_format", "json")
             .addFormDataPart("language", if (language.isNotEmpty()) language else "id")
             .addFormDataPart(
@@ -67,38 +83,43 @@ class DirectAIClient(
             )
             .build()
 
-        val request = Request.Builder()
-            .url("https://api.groq.com/openai/v1/audio/transcriptions")
-            .header("Authorization", "Bearer $apiKey")
+        val reqBuilder = Request.Builder()
+            .url(endpoint)
             .post(requestBody)
-            .build()
 
-        return executeTranscriptionRequest(request)
+        if (apiKey.isNotBlank()) {
+            reqBuilder.header("Authorization", "Bearer $apiKey")
+        }
+
+        return executeTranscriptionRequest(reqBuilder.build())
+    }
+
+    private fun transcribeGroq(wavBytes: ByteArray, language: String, apiKey: String): Result<String> {
+        return transcribeOpenAICompatible(
+            wavBytes,
+            language,
+            "https://api.groq.com/openai/v1/audio/transcriptions",
+            "whisper-large-v3-turbo",
+            apiKey
+        )
     }
 
     private fun transcribeOpenAI(wavBytes: ByteArray, language: String, apiKey: String): Result<String> {
-        val requestBody = MultipartBody.Builder()
-            .setType(MultipartBody.FORM)
-            .addFormDataPart("model", "whisper-1")
-            .addFormDataPart("response_format", "json")
-            .addFormDataPart("language", if (language.isNotEmpty()) language else "id")
-            .addFormDataPart(
-                "file",
-                "audio.wav",
-                wavBytes.toRequestBody("audio/wav".toMediaType())
-            )
-            .build()
-
-        val request = Request.Builder()
-            .url("https://api.openai.com/v1/audio/transcriptions")
-            .header("Authorization", "Bearer $apiKey")
-            .post(requestBody)
-            .build()
-
-        return executeTranscriptionRequest(request)
+        return transcribeOpenAICompatible(
+            wavBytes,
+            language,
+            "https://api.openai.com/v1/audio/transcriptions",
+            "whisper-1",
+            apiKey
+        )
     }
 
-    private fun transcribeGemini(wavBytes: ByteArray, language: String, apiKey: String): Result<String> {
+    private fun transcribeGemini(
+        wavBytes: ByteArray,
+        language: String,
+        apiKey: String,
+        endpoint: String = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    ): Result<String> {
         val base64Audio = Base64.encodeToString(wavBytes, Base64.NO_WRAP)
         val prompt = "Transkripsikan audio berikut secara akurat dalam bahasa $language. Berikan HANYA teks transkripsi tanpa basa-basi."
 
@@ -120,8 +141,13 @@ class DirectAIClient(
             }
         """.trimIndent()
 
+        val fullUrl = if (endpoint.contains("key=")) endpoint else {
+            val sep = if (endpoint.contains("?")) "&" else "?"
+            "$endpoint${sep}key=$apiKey"
+        }
+
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey")
+            .url(fullUrl)
             .post(json.toRequestBody("application/json".toMediaType()))
             .build()
 
@@ -157,12 +183,14 @@ class DirectAIClient(
     }
 
     /**
-     * Generates a structured executive summary directly via LLM.
+     * Generates a structured executive summary directly via LLM or universal endpoint.
      */
     suspend fun generateSummary(
         fullTranscript: String,
-        provider: String,
-        apiKey: String
+        provider: String = "groq",
+        apiKey: String,
+        customEndpoint: String? = null,
+        customModel: String? = null
     ): Result<SummaryResult> = withContext(Dispatchers.IO) {
         if (fullTranscript.isBlank()) {
             return@withContext Result.success(SummaryResult("Tidak ada transkrip untuk dirangkum.", emptyList(), emptyList()))
@@ -182,6 +210,14 @@ class DirectAIClient(
         """.trimIndent()
 
         try {
+            if (!customEndpoint.isNullOrBlank()) {
+                if (customEndpoint.contains("generativelanguage.googleapis.com")) {
+                    return@withContext completeChatGemini(systemPrompt, fullTranscript, apiKey, customEndpoint).map { parseSummaryJson(it) }
+                }
+                val model = if (!customModel.isNullOrBlank()) customModel else "llama-3.3-70b-versatile"
+                return@withContext completeChatOpenAICompatible(systemPrompt, fullTranscript, customEndpoint, model, apiKey).map { parseSummaryJson(it) }
+            }
+
             when (provider.lowercase()) {
                 "groq" -> completeChatGroq(systemPrompt, fullTranscript, "llama-3.3-70b-versatile", apiKey)
                 "openai" -> completeChatOpenAI(systemPrompt, fullTranscript, "gpt-4o-mini", apiKey)
@@ -201,8 +237,10 @@ class DirectAIClient(
     suspend fun suggestQuestions(
         transcriptContext: String,
         focusTopic: String,
-        provider: String,
-        apiKey: String
+        provider: String = "groq",
+        apiKey: String,
+        customEndpoint: String? = null,
+        customModel: String? = null
     ): Result<List<QuestionItem>> = withContext(Dispatchers.IO) {
         if (transcriptContext.isBlank()) {
             return@withContext Result.success(emptyList())
@@ -232,6 +270,14 @@ class DirectAIClient(
         }
 
         try {
+            if (!customEndpoint.isNullOrBlank()) {
+                if (customEndpoint.contains("generativelanguage.googleapis.com")) {
+                    return@withContext completeChatGemini(systemPrompt, userPrompt, apiKey, customEndpoint).map { parseQuestionsJson(it) }
+                }
+                val model = if (!customModel.isNullOrBlank()) customModel else "llama-3.3-70b-versatile"
+                return@withContext completeChatOpenAICompatible(systemPrompt, userPrompt, customEndpoint, model, apiKey, temperature = 0.2).map { parseQuestionsJson(it) }
+            }
+
             when (provider.lowercase()) {
                 "groq" -> completeChatGroq(systemPrompt, userPrompt, "llama-3.3-70b-versatile", apiKey, temperature = 0.2)
                 "openai" -> completeChatOpenAI(systemPrompt, userPrompt, "gpt-4o-mini", apiKey, temperature = 0.2)
@@ -245,9 +291,76 @@ class DirectAIClient(
         }
     }
 
-    private fun completeChatGroq(
+    /**
+     * Auto-detects models from any standard /models endpoint.
+     */
+    suspend fun fetchModels(endpointOrBaseUrl: String, apiKey: String): Result<List<String>> = withContext(Dispatchers.IO) {
+        try {
+            val url = resolveModelsUrl(endpointOrBaseUrl, apiKey)
+            val reqBuilder = Request.Builder().url(url)
+            if (apiKey.isNotBlank() && !url.contains("key=")) {
+                reqBuilder.header("Authorization", "Bearer $apiKey")
+            }
+
+            client.newCall(reqBuilder.build()).execute().use { response ->
+                if (!response.isSuccessful) {
+                    val err = response.body?.string() ?: ""
+                    return@withContext Result.failure(IOException("Gagal deteksi model (${response.code}): $err"))
+                }
+                val body = response.body?.string() ?: ""
+                val models = parseModelsList(body)
+                if (models.isEmpty()) {
+                    return@withContext Result.failure(IOException("Tidak ada model yang ditemukan di endpoint."))
+                }
+                Result.success(models)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private fun resolveModelsUrl(inputUrl: String, apiKey: String): String {
+        var base = inputUrl.trim().trimEnd('/')
+        if (base.contains("generativelanguage.googleapis.com")) {
+            val cleanBase = "https://generativelanguage.googleapis.com/v1beta/models"
+            return if (apiKey.isNotBlank()) "$cleanBase?key=$apiKey" else cleanBase
+        }
+
+        if (base.endsWith("/chat/completions")) {
+            base = base.removeSuffix("/chat/completions")
+        } else if (base.endsWith("/audio/transcriptions")) {
+            base = base.removeSuffix("/audio/transcriptions")
+        }
+
+        return if (base.endsWith("/models")) base else "$base/models"
+    }
+
+    private fun parseModelsList(body: String): List<String> {
+        val list = mutableListOf<String>()
+        try {
+            val root = gson.fromJson(body, JsonObject::class.java)
+            if (root.has("data") && root.get("data").isJsonArray) {
+                for (item in root.getAsJsonArray("data")) {
+                    val id = item.asJsonObject.get("id")?.asString
+                    if (!id.isNullOrBlank()) list.add(id)
+                }
+            } else if (root.has("models") && root.get("models").isJsonArray) {
+                for (item in root.getAsJsonArray("models")) {
+                    val obj = item.asJsonObject
+                    val name = obj.get("name")?.asString ?: obj.get("id")?.asString
+                    if (!name.isNullOrBlank()) {
+                        list.add(name.removePrefix("models/"))
+                    }
+                }
+            }
+        } catch (_: Exception) {}
+        return list.sorted()
+    }
+
+    private fun completeChatOpenAICompatible(
         systemPrompt: String,
         userPrompt: String,
+        endpoint: String,
         model: String,
         apiKey: String,
         temperature: Double = 0.5
@@ -262,15 +375,17 @@ class DirectAIClient(
             "temperature" to temperature
         )
 
-        val request = Request.Builder()
-            .url("https://api.groq.com/openai/v1/chat/completions")
-            .header("Authorization", "Bearer $apiKey")
+        val reqBuilder = Request.Builder()
+            .url(endpoint)
             .post(gson.toJson(payload).toRequestBody("application/json".toMediaType()))
-            .build()
 
-        client.newCall(request).execute().use { response ->
+        if (apiKey.isNotBlank()) {
+            reqBuilder.header("Authorization", "Bearer $apiKey")
+        }
+
+        client.newCall(reqBuilder.build()).execute().use { response ->
             if (!response.isSuccessful) {
-                return Result.failure(IOException("Groq Chat failed (${response.code}): ${response.body?.string()}"))
+                return Result.failure(IOException("Chat completion failed (${response.code}): ${response.body?.string()}"))
             }
             val body = response.body?.string() ?: ""
             val jsonObject = gson.fromJson(body, JsonObject::class.java)
@@ -279,6 +394,23 @@ class DirectAIClient(
                 .get("content").asString
             return Result.success(content)
         }
+    }
+
+    private fun completeChatGroq(
+        systemPrompt: String,
+        userPrompt: String,
+        model: String,
+        apiKey: String,
+        temperature: Double = 0.5
+    ): Result<String> {
+        return completeChatOpenAICompatible(
+            systemPrompt,
+            userPrompt,
+            "https://api.groq.com/openai/v1/chat/completions",
+            model,
+            apiKey,
+            temperature
+        )
     }
 
     private fun completeChatOpenAI(
@@ -288,36 +420,22 @@ class DirectAIClient(
         apiKey: String,
         temperature: Double = 0.5
     ): Result<String> {
-        val messages = listOf(
-            mapOf("role" to "system", "content" to systemPrompt),
-            mapOf("role" to "user", "content" to userPrompt)
+        return completeChatOpenAICompatible(
+            systemPrompt,
+            userPrompt,
+            "https://api.openai.com/v1/chat/completions",
+            model,
+            apiKey,
+            temperature
         )
-        val payload = mapOf(
-            "model" to model,
-            "messages" to messages,
-            "temperature" to temperature
-        )
-
-        val request = Request.Builder()
-            .url("https://api.openai.com/v1/chat/completions")
-            .header("Authorization", "Bearer $apiKey")
-            .post(gson.toJson(payload).toRequestBody("application/json".toMediaType()))
-            .build()
-
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                return Result.failure(IOException("OpenAI Chat failed (${response.code}): ${response.body?.string()}"))
-            }
-            val body = response.body?.string() ?: ""
-            val jsonObject = gson.fromJson(body, JsonObject::class.java)
-            val content = jsonObject.getAsJsonArray("choices")[0].asJsonObject
-                .getAsJsonObject("message")
-                .get("content").asString
-            return Result.success(content)
-        }
     }
 
-    private fun completeChatGemini(systemPrompt: String, userPrompt: String, apiKey: String): Result<String> {
+    private fun completeChatGemini(
+        systemPrompt: String,
+        userPrompt: String,
+        apiKey: String,
+        endpoint: String = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    ): Result<String> {
         val payload = mapOf(
             "system_instruction" to mapOf("parts" to listOf(mapOf("text" to systemPrompt))),
             "contents" to listOf(
@@ -325,8 +443,13 @@ class DirectAIClient(
             )
         )
 
+        val fullUrl = if (endpoint.contains("key=")) endpoint else {
+            val sep = if (endpoint.contains("?")) "&" else "?"
+            "$endpoint${sep}key=$apiKey"
+        }
+
         val request = Request.Builder()
-            .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey")
+            .url(fullUrl)
             .post(gson.toJson(payload).toRequestBody("application/json".toMediaType()))
             .build()
 

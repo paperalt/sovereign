@@ -26,6 +26,8 @@ Di saat layanan transkripsi komersial (seperti Otter.ai atau Fireflies.ai) membe
 * **Ingesti & Encoding Audio Langsung di Android:** Sinyal mentah 16kHz 16-bit Mono Linear PCM dari `AudioRecord` dipotong dan dikemas menjadi kontainer biner standar RIFF/WAVE (RFC 2361) secara in-memory menggunakan enkoder bawaan Kotlin (`WavEncoder.kt`).
 * **Client-Side VAD Streaming Chunker:** Voice Activity Detection (supresi hening < 50 RMS, pemotongan jeda bicara < 280 RMS, jendela durasi 2,5s–12,0s) dieksekusi langsung menggunakan coroutine Kotlin di ponsel.
 * **Routing AI Langsung Ponsel-ke-Penyedia (Direct HTTPS):** Ponsel terhubung langsung ke API penyedia AI (Groq LPU Whisper Large Turbo, Google AI Studio Gemini 2.0 Flash, atau OpenAI Whisper-1) melalui protokol HTTPS standar menggunakan API key pribadi pengguna tanpa perantara proxy.
+* **Konfigurasi Universal Multi-Endpoint & Auto-Deteksi Model:** Pengguna dapat memasukkan endpoint API dan model kustom apa pun secara mandiri untuk Voice (STT) dan LLM (Nalar/Ide Tanya). Tombol `[DETEKSI]` melakukan panggilan otomatis ke `GET /models` untuk mendeteksi daftar model yang tersedia di server target.
+* **Preset Terkonfigurasi via GitHub Raw JSON:** Profil penyedia populer (Groq, Google Gemini, OpenAI, DeepSeek, OpenRouter, Ollama) ditarik otomatis dari berkas `config/providers.json` di GitHub (dengan fallback lokal), sehingga pengguna cukup menempelkan API key dari penyedia.
 * **Brankas Kunci Keras Android Keystore:** Kunci API pengguna disimpan secara terenkripsi menggunakan **Android Keystore (AES-256-GCM)** via `EncryptedSharedPreferences`. Kunci tidak pernah terekspos ke penyimpanan eksternal atau teks biasa.
 * **100% Bebas & Terbuka:** Berlisensi resmi di bawah **MIT License**.
 

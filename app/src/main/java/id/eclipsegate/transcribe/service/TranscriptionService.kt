@@ -228,15 +228,24 @@ class TranscriptionService : Service() {
         val wavBytes = WavEncoder.encodePcmToWav(chunk.pcmData)
 
         val job = serviceScope.launch {
-            val provider = tokenStorage.getSTTProvider().ifBlank { "groq" }
-            val apiKey = tokenStorage.getProviderApiKey(provider) ?: tokenStorage.getCustomApiKey() ?: ""
+            val provider = tokenStorage.getSelectedPreset().ifBlank { "groq" }
+            val sttEndpoint = tokenStorage.getSTTEndpoint()
+            val sttModel = tokenStorage.getSTTModel()
+            val apiKey = tokenStorage.getSTTKey()
 
-            if (apiKey.isBlank()) {
+            if (apiKey.isBlank() && !sttEndpoint.contains("localhost") && !sttEndpoint.contains("10.0.2.2")) {
                 _events.emit(StreamEvent.Error("Kunci API belum diatur. Masukkan kunci API di pengaturan."))
                 return@launch
             }
 
-            val res = directAIClient.transcribeAudio(wavBytes, language, provider, apiKey)
+            val res = directAIClient.transcribeAudio(
+                wavBytes = wavBytes,
+                language = language,
+                provider = provider,
+                apiKey = apiKey,
+                customEndpoint = sttEndpoint.ifBlank { null },
+                customModel = sttModel.ifBlank { null }
+            )
             if (res.isSuccess) {
                 val text = res.getOrThrow()
                 if (text.isNotBlank()) {
