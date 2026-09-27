@@ -49,6 +49,7 @@ fun LLMEndpointsDialog(
     var configs by remember { mutableStateOf(EndpointConfigStore.loadLLMConfigs(tokenStorage)) }
     var activeId by remember { mutableStateOf(tokenStorage.getActiveLLMConfigId().ifBlank { configs.firstOrNull()?.id ?: "" }) }
     var editingConfig by remember { mutableStateOf<LLMEndpointConfig?>(null) }
+    var endpointToDelete by remember { mutableStateOf<LLMEndpointConfig?>(null) }
     var isCreating by remember { mutableStateOf(false) }
 
     Dialog(
@@ -159,20 +160,7 @@ fun LLMEndpointsDialog(
                                 Toast.makeText(context, "Active LLM: ${item.name}", Toast.LENGTH_SHORT).show()
                             },
                             onEdit = { editingConfig = item },
-                            onDelete = {
-                                val updated = configs.filterNot { it.id == item.id }
-                                configs = updated
-                                EndpointConfigStore.saveLLMConfigs(tokenStorage, updated)
-                                if (activeId == item.id) {
-                                    val nextActive = updated.firstOrNull()
-                                    if (nextActive != null) {
-                                        activeId = nextActive.id
-                                        EndpointConfigStore.applyLLM(tokenStorage, nextActive)
-                                        onActiveChanged(nextActive)
-                                    }
-                                }
-                                Toast.makeText(context, "Endpoint deleted", Toast.LENGTH_SHORT).show()
-                            }
+                            onDelete = { endpointToDelete = item }
                         )
                     }
                 }
@@ -238,6 +226,68 @@ fun LLMEndpointsDialog(
                 EndpointConfigStore.saveLLMConfigs(tokenStorage, list)
                 isCreating = false
                 Toast.makeText(context, "Added new LLM endpoint", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    if (endpointToDelete != null) {
+        val target = endpointToDelete!!
+        AlertDialog(
+            onDismissRequest = { endpointToDelete = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            containerColor = EngineColors.DarkSlate,
+            shape = RoundedCornerShape(8.dp),
+            title = {
+                Text(
+                    text = "DELETE LLM ENDPOINT?",
+                    color = EngineColors.CrimsonAlert,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete \"${target.name}\"? This configuration and stored endpoint details will be removed.",
+                    color = EngineColors.TextPrimary,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val updated = configs.filterNot { it.id == target.id }
+                        configs = updated
+                        EndpointConfigStore.saveLLMConfigs(tokenStorage, updated)
+                        if (activeId == target.id) {
+                            val nextActive = updated.firstOrNull()
+                            if (nextActive != null) {
+                                activeId = nextActive.id
+                                EndpointConfigStore.applyLLM(tokenStorage, nextActive)
+                                onActiveChanged(nextActive)
+                            }
+                        }
+                        endpointToDelete = null
+                        Toast.makeText(context, "Endpoint deleted", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = EngineColors.CrimsonAlert),
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text("DELETE", color = androidx.compose.ui.graphics.Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { endpointToDelete = null },
+                    border = BorderStroke(1.dp, EngineColors.SteelBorder),
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text("CANCEL", color = EngineColors.TextSecondary, fontSize = 12.sp)
+                }
             }
         )
     }

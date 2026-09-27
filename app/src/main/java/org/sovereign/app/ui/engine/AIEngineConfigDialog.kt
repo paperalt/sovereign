@@ -66,6 +66,7 @@ fun AIEngineConfigDialog(
     var showSTTManager by remember { mutableStateOf(false) }
     var showLLMManager by remember { mutableStateOf(false) }
     var showSavePresetDialog by remember { mutableStateOf(false) }
+    var presetToDelete by remember { mutableStateOf<EnginePreset?>(null) }
     var isTestingPipeline by remember { mutableStateOf(false) }
     var testResultText by remember { mutableStateOf<String?>(null) }
 
@@ -466,11 +467,7 @@ fun AIEngineConfigDialog(
                                             }
                                             Spacer(modifier = Modifier.width(6.dp))
                                             IconButton(
-                                                onClick = {
-                                                    val updated = savedPresets.filterNot { it.id == preset.id }
-                                                    savedPresets = updated
-                                                    EnginePresetStore.saveAll(tokenStorage, updated)
-                                                },
+                                                onClick = { presetToDelete = preset },
                                                 modifier = Modifier.size(34.dp)
                                             ) {
                                                 Icon(Icons.Default.Delete, contentDescription = "Delete", tint = EngineColors.CrimsonAlert, modifier = Modifier.size(16.dp))
@@ -588,6 +585,60 @@ fun AIEngineConfigDialog(
                 savedPresets = updated
                 EnginePresetStore.saveAll(tokenStorage, updated)
                 Toast.makeText(context, "Preset \"$name\" saved", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    if (presetToDelete != null) {
+        val target = presetToDelete!!
+        AlertDialog(
+            onDismissRequest = { presetToDelete = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            containerColor = EngineColors.DarkSlate,
+            shape = RoundedCornerShape(8.dp),
+            title = {
+                Text(
+                    text = "DELETE COMBINATION PRESET?",
+                    color = EngineColors.CrimsonAlert,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete preset \"${target.name}\"? This preset configuration will be removed.",
+                    color = EngineColors.TextPrimary,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val updated = savedPresets.filterNot { it.id == target.id }
+                        savedPresets = updated
+                        EnginePresetStore.saveAll(tokenStorage, updated)
+                        presetToDelete = null
+                        Toast.makeText(context, "Preset deleted", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = EngineColors.CrimsonAlert),
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text("DELETE", color = androidx.compose.ui.graphics.Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { presetToDelete = null },
+                    border = BorderStroke(1.dp, EngineColors.SteelBorder),
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text("CANCEL", color = EngineColors.TextSecondary, fontSize = 12.sp)
+                }
             }
         )
     }

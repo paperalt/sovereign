@@ -62,6 +62,7 @@ fun CombinedEngineCard(
     var isTestingPipeline by remember { mutableStateOf(false) }
     var testResultText by remember { mutableStateOf<String?>(null) }
     var showSaveProfileDialog by remember { mutableStateOf(false) }
+    var profileToDelete by remember { mutableStateOf<EnginePreset?>(null) }
 
     val sttPreset = presets.firstOrNull { it.id == sttPresetId }
     val llmPreset = presets.firstOrNull { it.id == llmPresetId }
@@ -442,10 +443,7 @@ fun CombinedEngineCard(
                             onApplyProfile(profile)
                             Toast.makeText(context, "Activated profile \"${profile.name}\"", Toast.LENGTH_SHORT).show()
                         },
-                        onDelete = {
-                            onDeleteProfile(profile.id)
-                            Toast.makeText(context, "Profile deleted", Toast.LENGTH_SHORT).show()
-                        }
+                        onDelete = { profileToDelete = profile }
                     )
                 }
             }
@@ -474,6 +472,58 @@ fun CombinedEngineCard(
                 )
                 onSaveProfile(newProfile)
                 Toast.makeText(context, "Profile \"$name\" saved", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    if (profileToDelete != null) {
+        val target = profileToDelete!!
+        AlertDialog(
+            onDismissRequest = { profileToDelete = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            containerColor = EngineColors.DarkSlate,
+            shape = RoundedCornerShape(8.dp),
+            title = {
+                Text(
+                    text = "DELETE SAVED PROFILE?",
+                    color = EngineColors.CrimsonAlert,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete profile \"${target.name}\"? This pipeline profile will be removed.",
+                    color = EngineColors.TextPrimary,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDeleteProfile(target.id)
+                        profileToDelete = null
+                        Toast.makeText(context, "Profile deleted", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = EngineColors.CrimsonAlert),
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text("DELETE", color = androidx.compose.ui.graphics.Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { profileToDelete = null },
+                    border = BorderStroke(1.dp, EngineColors.SteelBorder),
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text("CANCEL", color = EngineColors.TextSecondary, fontSize = 12.sp)
+                }
             }
         )
     }
