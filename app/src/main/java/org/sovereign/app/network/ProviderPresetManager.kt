@@ -142,6 +142,23 @@ object ProviderPresetManager {
             description = "Self-hosted inference on a local server or private network."
         ),
         ProviderPreset(
+            id = "xai",
+            name = "xAI (Grok)",
+            badge = "GROK",
+            stt = ModelEndpointConfig(
+                endpoint = "https://api.groq.com/openai/v1/audio/transcriptions",
+                defaultModel = "whisper-large-v3-turbo",
+                modelsEndpoint = "https://api.groq.com/openai/v1/models"
+            ),
+            llm = ModelEndpointConfig(
+                endpoint = "https://api.x.ai/v1/chat/completions",
+                defaultModel = "grok-2-1212",
+                modelsEndpoint = "https://api.x.ai/v1/models"
+            ),
+            apiKeyUrl = "https://console.x.ai",
+            description = "xAI Grok reasoning models paired with Groq Whisper transcription."
+        ),
+        ProviderPreset(
             id = "custom",
             name = "Custom Endpoint",
             badge = "CUSTOM",

@@ -105,6 +105,23 @@
       "description": "Self-hosted inference on a local server or private network."
     },
     {
+      "id": "xai",
+      "name": "xAI (Grok)",
+      "badge": "GROK",
+      "stt": {
+        "endpoint": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "default_model": "whisper-large-v3-turbo",
+        "models_endpoint": "https://api.groq.com/openai/v1/models"
+      },
+      "llm": {
+        "endpoint": "https://api.x.ai/v1/chat/completions",
+        "default_model": "grok-2-1212",
+        "models_endpoint": "https://api.x.ai/v1/models"
+      },
+      "api_key_url": "https://console.x.ai",
+      "description": "xAI Grok reasoning models paired with Groq Whisper transcription."
+    },
+    {
       "id": "custom",
       "name": "Custom Endpoint",
       "badge": "CUSTOM",

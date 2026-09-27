@@ -66,6 +66,16 @@ interface TokenStorage {
     fun setEnginePresetsJson(json: String)
     fun getActiveEnginePresetId(): String
     fun setActiveEnginePresetId(id: String)
+
+    fun getSTTConfigsJson(): String
+    fun setSTTConfigsJson(json: String)
+    fun getActiveSTTConfigId(): String
+    fun setActiveSTTConfigId(id: String)
+
+    fun getLLMConfigsJson(): String
+    fun setLLMConfigsJson(json: String)
+    fun getActiveLLMConfigId(): String
+    fun setActiveLLMConfigId(id: String)
 }
 
 class EncryptedTokenStorage(context: Context) : TokenStorage {
@@ -284,6 +294,38 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
         prefs.edit().putString(KEY_ACTIVE_ENGINE_PRESET_ID, id.trim()).apply()
     }
 
+    override fun getSTTConfigsJson(): String {
+        return prefs.getString(KEY_STT_CONFIGS_JSON, "") ?: ""
+    }
+
+    override fun setSTTConfigsJson(json: String) {
+        prefs.edit().putString(KEY_STT_CONFIGS_JSON, json).apply()
+    }
+
+    override fun getActiveSTTConfigId(): String {
+        return prefs.getString(KEY_ACTIVE_STT_CONFIG_ID, "") ?: ""
+    }
+
+    override fun setActiveSTTConfigId(id: String) {
+        prefs.edit().putString(KEY_ACTIVE_STT_CONFIG_ID, id.trim()).apply()
+    }
+
+    override fun getLLMConfigsJson(): String {
+        return prefs.getString(KEY_LLM_CONFIGS_JSON, "") ?: ""
+    }
+
+    override fun setLLMConfigsJson(json: String) {
+        prefs.edit().putString(KEY_LLM_CONFIGS_JSON, json).apply()
+    }
+
+    override fun getActiveLLMConfigId(): String {
+        return prefs.getString(KEY_ACTIVE_LLM_CONFIG_ID, "") ?: ""
+    }
+
+    override fun setActiveLLMConfigId(id: String) {
+        prefs.edit().putString(KEY_ACTIVE_LLM_CONFIG_ID, id.trim()).apply()
+    }
+
     override fun hasValidSession(): Boolean {
         return !getAccessToken().isNullOrBlank() && !getRefreshToken().isNullOrBlank()
     }
@@ -311,5 +353,9 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
         private const val KEY_CUSTOM_PRESETS_URL = "custom_presets_url"
         private const val KEY_ENGINE_PRESETS_JSON = "engine_presets_json"
         private const val KEY_ACTIVE_ENGINE_PRESET_ID = "active_engine_preset_id"
+        private const val KEY_STT_CONFIGS_JSON = "stt_configs_json"
+        private const val KEY_ACTIVE_STT_CONFIG_ID = "active_stt_config_id"
+        private const val KEY_LLM_CONFIGS_JSON = "llm_configs_json"
+        private const val KEY_ACTIVE_LLM_CONFIG_ID = "active_llm_config_id"
     }
 }

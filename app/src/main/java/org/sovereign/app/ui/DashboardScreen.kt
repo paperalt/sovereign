@@ -34,12 +34,17 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import org.sovereign.app.ui.engine.STTEndpointsDialog
+import org.sovereign.app.ui.engine.LLMEndpointsDialog
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -86,6 +91,8 @@ fun DashboardScreen(
     val tokenStorage = remember { EncryptedTokenStorage(context) }
     var currentAIProvider by remember { mutableStateOf(tokenStorage.getAIProvider()) }
     var showAIEngineDialog by remember { mutableStateOf(false) }
+    var showSTTDialog by remember { mutableStateOf(false) }
+    var showLLMDialog by remember { mutableStateOf(false) }
     var showInfoDialog by remember { mutableStateOf(false) }
     var showGuideDialog by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -568,6 +575,28 @@ fun DashboardScreen(
         )
     }
 
+    // Dedicated Voice (STT) Endpoints Setup Dialog
+    if (showSTTDialog) {
+        STTEndpointsDialog(
+            tokenStorage = tokenStorage,
+            onDismiss = { showSTTDialog = false },
+            onActiveChanged = { newConfig ->
+                currentAIProvider = "${newConfig.name} + ${tokenStorage.getLLMProvider()}"
+            }
+        )
+    }
+
+    // Dedicated Reasoning (LLM) Endpoints Setup Dialog
+    if (showLLMDialog) {
+        LLMEndpointsDialog(
+            tokenStorage = tokenStorage,
+            onDismiss = { showLLMDialog = false },
+            onActiveChanged = { newConfig ->
+                currentAIProvider = "${tokenStorage.getSTTProvider()} + ${newConfig.name}"
+            }
+        )
+    }
+
     // System Info Dialog
     if (showInfoDialog) {
         SystemInfoDialog(
@@ -710,15 +739,37 @@ fun DashboardScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Menu Item 1: Konfigurasi AI Engine
+                    // Menu Item 1: AI Engine Pipeline & Combine
                     DrawerNavRow(
-                        icon = Icons.Default.Settings,
-                        title = "AI Engine Settings",
-                        subtitle = "Endpoints, models, and API keys",
+                        icon = Icons.Default.Tune,
+                        title = "AI Engine Pipeline",
+                        subtitle = "Combine STT + LLM & presets",
                         badge = currentAIProvider,
                         onClick = {
                             scope.launch { drawerState.close() }
                             showAIEngineDialog = true
+                        }
+                    )
+
+                    // Menu Item 2: Voice (STT) Endpoints Setup
+                    DrawerNavRow(
+                        icon = Icons.Default.Mic,
+                        title = "Voice (STT) Endpoints",
+                        subtitle = "Setup speech-to-text providers",
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            showSTTDialog = true
+                        }
+                    )
+
+                    // Menu Item 3: Reasoning (LLM) Endpoints Setup
+                    DrawerNavRow(
+                        icon = Icons.Default.Psychology,
+                        title = "Reasoning (LLM) Endpoints",
+                        subtitle = "Setup intelligence & summary models",
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            showLLMDialog = true
                         }
                     )
 
