@@ -1,21 +1,27 @@
 package org.sovereign.app.ui
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,6 +44,8 @@ fun SystemInfoDialog(
     currentVersionName: String,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -51,8 +59,8 @@ fun SystemInfoDialog(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .heightIn(max = 600.dp),
+                    .padding(horizontal = 20.dp, vertical = 24.dp)
+                    .heightIn(max = 640.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = OnyxBlack),
                 border = BorderStroke(1.dp, SteelBorder)
@@ -61,7 +69,8 @@ fun SystemInfoDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(20.dp)
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     // Header
                     Row(
@@ -71,7 +80,7 @@ fun SystemInfoDialog(
                     ) {
                         Column {
                             Text(
-                                text = "SYSTEM INFORMATION",
+                                text = "ABOUT SOVEREIGN",
                                 color = TextPrimary,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
@@ -79,83 +88,105 @@ fun SystemInfoDialog(
                                 letterSpacing = 0.5.sp
                             )
                             Text(
-                                text = "Sovereign Core Architecture v$currentVersionName",
+                                text = "Private On-Device Speech Intelligence",
                                 color = TextSecondary,
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace
                             )
                         }
                         IconButton(onClick = onDismiss, modifier = Modifier.size(34.dp)) {
-                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondary)
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondary, modifier = Modifier.size(18.dp))
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = SteelBorder.copy(alpha = 0.5f))
 
-                    // Architecture Overview
+                    // App Identity Card
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
                         colors = CardDefaults.cardColors(containerColor = CardBackground),
                         border = BorderStroke(1.dp, SteelBorder)
                     ) {
-                        Column(modifier = Modifier.padding(14.dp)) {
+                        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = "CORE ARCHITECTURE",
-                                    color = AccentPrimary,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = FontFamily.Monospace
-                                )
+                                Text("APPLICATION", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                                 Box(
                                     modifier = Modifier
                                         .background(EmeraldSuccess.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
                                         .border(1.dp, EmeraldSuccess, RoundedCornerShape(4.dp))
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
-                                    Text(
-                                        text = "STANDALONE",
-                                        color = EmeraldSuccess,
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = FontFamily.Monospace
-                                    )
+                                    Text("OPEN SOURCE", color = EmeraldSuccess, fontSize = 9.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                                 }
                             }
-                            Spacer(modifier = Modifier.height(10.dp))
-                            InfoRow(label = "Platform", value = "100% On-Device Standalone Android")
-                            InfoRow(label = "Database", value = "Embedded SQLite 3 (App Sandbox)")
-                            InfoRow(label = "Audio Ingestion", value = "16kHz Mono Linear PCM -> In-Memory WAV")
-                            InfoRow(label = "Audio Chunker", value = "Client-Side RMS Energy VAD Gating")
-                            InfoRow(label = "AI Routing", value = "Direct HTTPS to User-Configured Endpoints")
+                            Spacer(modifier = Modifier.height(2.dp))
+                            InfoRow(label = "Application Name", value = "Sovereign")
+                            InfoRow(label = "Version", value = "v$currentVersionName")
+                            InfoRow(label = "Package Name", value = "org.sovereign.app")
+                            InfoRow(label = "License", value = "MIT Open Source License")
+                            InfoRow(label = "Author", value = "@paperalt")
+
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/paperalt/sovereign"))
+                                        context.startActivity(intent)
+                                    }
+                                    .padding(vertical = 4.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("GitHub Repository", color = TextSecondary, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("github.com/paperalt/sovereign", color = AccentPrimary, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = AccentPrimary, modifier = Modifier.size(12.dp))
+                                }
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // Security & Privacy Card
+                    // Architecture Specifications
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
                         colors = CardDefaults.cardColors(containerColor = CardBackground),
                         border = BorderStroke(1.dp, SteelBorder)
                     ) {
-                        Column(modifier = Modifier.padding(14.dp)) {
+                        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("CORE ARCHITECTURE", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                            Spacer(modifier = Modifier.height(2.dp))
+                            InfoRow(label = "Runtime", value = "100% On-Device Standalone (Zero-Backend)")
+                            InfoRow(label = "Persistence", value = "Embedded SQLite 3 (App Sandbox)")
+                            InfoRow(label = "Audio Ingestion", value = "16kHz Mono PCM -> In-Memory WAV Container")
+                            InfoRow(label = "Audio VAD", value = "Client-Side RMS Energy Gating (~78% Savings)")
+                            InfoRow(label = "AI Routing", value = "Direct Client-to-Provider HTTPS (Zero Relay)")
+                        }
+                    }
+
+                    // Zero-Knowledge Security Card
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBackground),
+                        border = BorderStroke(1.dp, SteelBorder)
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Security, contentDescription = null, tint = AccentPrimary, modifier = Modifier.size(14.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("ZERO-KNOWLEDGE PRIVACY", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "SECURITY & PRIVACY",
-                                color = AccentPrimary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.Monospace
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "• Hardware Keystore: API keys are encrypted at rest using AES-256-GCM.\n• Zero Intermediary Server: Audio and transcripts are stored strictly in local SQLite.\n• Direct HTTPS: Network calls travel directly from the device to your AI provider.",
+                                text = "• Hardware Keystore: All user API keys (Groq, Gemini, OpenAI, DeepSeek, xAI) are stored strictly on-device using AES-256-GCM encryption.\n• Zero Intermediary Servers: There is no proprietary cloud backend, telemetry server, or intermediary proxy capturing your meeting audio or transcripts.\n• Data Sovereignty: You own 100% of your data, models, and execution.",
                                 color = TextSecondary,
                                 fontSize = 11.sp,
                                 lineHeight = 16.sp
@@ -163,17 +194,15 @@ fun SystemInfoDialog(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(20.dp))
-
                     Button(
                         onClick = onDismiss,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(44.dp),
+                            .height(42.dp),
                         shape = RoundedCornerShape(6.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary)
                     ) {
-                        Text(text = "[CLOSE]", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                        Text("Close", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                     }
                 }
             }
@@ -198,8 +227,8 @@ fun GuideDialog(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .heightIn(max = 620.dp),
+                    .padding(horizontal = 20.dp, vertical = 24.dp)
+                    .heightIn(max = 660.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = OnyxBlack),
                 border = BorderStroke(1.dp, SteelBorder)
@@ -208,7 +237,8 @@ fun GuideDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(20.dp)
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     // Header
                     Row(
@@ -218,7 +248,7 @@ fun GuideDialog(
                     ) {
                         Column {
                             Text(
-                                text = "GUIDE & DOCUMENTATION",
+                                text = "USER GUIDE & MANUAL",
                                 color = TextPrimary,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
@@ -226,56 +256,58 @@ fun GuideDialog(
                                 letterSpacing = 0.5.sp
                             )
                             Text(
-                                text = "Usage & Configuration Guidelines",
+                                text = "Endpoints, API Keys, and Operations",
                                 color = TextSecondary,
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace
                             )
                         }
                         IconButton(onClick = onDismiss, modifier = Modifier.size(34.dp)) {
-                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondary)
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondary, modifier = Modifier.size(18.dp))
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = SteelBorder.copy(alpha = 0.5f))
 
                     GuideItem(
-                        title = "1. Obtaining a Groq API Key (Recommended)",
-                        description = "1. Navigate to console.groq.com.\n2. Sign in with Google or GitHub.\n3. Create an API Key in the 'API Keys' section.\n4. Paste the key (starts with 'gsk_') in AI Model Settings.\n5. Includes generous free daily tier with ultra-fast ~300ms Whisper Turbo transcription."
+                        title = "1. Obtaining Free Tier API Keys",
+                        description = "• Groq Cloud (Recommended Default STT & LLM):\n  1. Go to console.groq.com and sign up for free (no credit card required).\n  2. Create an API Key in the 'API Keys' tab.\n  3. Generous free tier: 30 RPM, 14,400 requests/day with ultra-fast Whisper Large V3 Turbo and Llama 3.3 70B.\n\n• Google AI Studio (Gemini 2.0 Flash):\n  1. Visit aistudio.google.com/apikey.\n  2. Generates free API key with 1,000,000 token context window.\n\n• OpenRouter (Free Tier):\n  1. Visit openrouter.ai/keys to generate an API key.\n  2. Select models with ':free' suffix to use free subsidized models."
                     )
-
-                    Spacer(modifier = Modifier.height(12.dp))
 
                     GuideItem(
-                        title = "2. Obtaining a Google Gemini API Key",
-                        description = "1. Visit aistudio.google.com/apikey in your browser.\n2. Generate a key and paste it into the Gemini configuration.\n3. Ideal for extensive discussions requiring up to 1 million tokens of context."
+                        title = "2. Setting Up STT & LLM via Hamburger Menu",
+                        description = "• Voice (STT) Endpoints:\n  Tap Menu -> 'Voice (STT) Endpoints' to add, configure, or test speech-to-text endpoints. Set default model, endpoint URL, and API key.\n\n• Reasoning (LLM) Endpoints:\n  Tap Menu -> 'Reasoning (LLM) Endpoints' to configure intelligence models. Tap '[Detect /models]' to automatically fetch all live models from the provider."
                     )
-
-                    Spacer(modifier = Modifier.height(12.dp))
 
                     GuideItem(
-                        title = "3. Background Recording & Always On Display",
-                        description = "• Audio recording runs seamlessly in the background via Android Foreground Service and CPU WakeLock.\n• To keep the screen awake on your desk during lectures or meetings, toggle [ AOD ON ] on the top right of the recording screen."
+                        title = "3. AI Engine Pipeline: Combine & Presets",
+                        description = "• Tap Menu -> 'AI Engine Pipeline' to combine any STT with any LLM.\n• Tap '[Test Pipeline Latency]' to run a live diagnostic ping on both endpoints.\n• Save your favorite combination as a Preset for 1-tap switching."
                     )
-
-                    Spacer(modifier = Modifier.height(12.dp))
 
                     GuideItem(
-                        title = "4. In-Meeting Inquiry Recommendation",
-                        description = "During live discussions, tap [ INQUIRY ] to formulate 3 context-grounded critical questions based on recent speaker statements without waiting for the session to finish."
+                        title = "4. Offline & Local Network Inference (Ollama)",
+                        description = "• Run Ollama on your PC/Mac or home server:\n  ollama run whisper\n  ollama run llama3.2\n• Set endpoint to your machine's LAN IP (or http://10.0.2.2:11434 in Android emulator).\n• API key is completely optional for local endpoints."
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    GuideItem(
+                        title = "5. Live Recording & In-Meeting Inquiry",
+                        description = "• Background Service: Audio recording runs smoothly in the background with CPU WakeLock protection.\n• Always On Display: Toggle [ AOD ON ] on the recording screen to keep the screen active on your desk during meetings.\n• In-Meeting Inquiry: Tap [ INQUIRY ] during a live discussion to formulate 3 targeted critical questions based on recent speaker statements without stopping the recording."
+                    )
+
+                    GuideItem(
+                        title = "6. Data Privacy & Local Storage",
+                        description = "• All audio recordings, transcripts, summaries, and meeting groups are stored strictly in local SQLite on this device.\n• No intermediate server or third party ever receives your data."
+                    )
 
                     Button(
                         onClick = onDismiss,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(44.dp),
+                            .height(42.dp),
                         shape = RoundedCornerShape(6.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary)
                     ) {
-                        Text(text = "[CLOSE]", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                        Text("Close", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                     }
                 }
             }
@@ -288,7 +320,7 @@ private fun InfoRow(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 3.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -317,7 +349,7 @@ private fun GuideItem(title: String, description: String) {
         colors = CardDefaults.cardColors(containerColor = CardBackground),
         border = BorderStroke(1.dp, SteelBorder)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
                 text = title,
                 color = AccentPrimary,
@@ -325,7 +357,6 @@ private fun GuideItem(title: String, description: String) {
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Monospace
             )
-            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = description,
                 color = TextSecondary,

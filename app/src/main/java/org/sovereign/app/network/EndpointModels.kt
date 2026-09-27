@@ -192,6 +192,9 @@ object EndpointConfigStore {
         tokenStorage.setSTTEndpoint(config.endpoint.trim())
         tokenStorage.setSTTModel(config.model.trim())
         tokenStorage.setSTTKey(config.apiKey.trim())
+        if (config.apiKey.isNotBlank()) {
+            tokenStorage.setProviderApiKey(config.providerId, config.apiKey.trim())
+        }
         tokenStorage.setSTTProvider(config.name)
         tokenStorage.setAdaptiveStreamingBetaEnabled(config.adaptiveStreaming)
     }
@@ -202,6 +205,9 @@ object EndpointConfigStore {
         tokenStorage.setLLMEndpoint(config.endpoint.trim())
         tokenStorage.setLLMModel(config.model.trim())
         tokenStorage.setLLMKey(config.apiKey.trim())
+        if (config.apiKey.isNotBlank()) {
+            tokenStorage.setProviderApiKey(config.providerId, config.apiKey.trim())
+        }
         tokenStorage.setLLMProvider(config.name)
     }
 }

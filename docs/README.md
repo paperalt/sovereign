@@ -1,10 +1,10 @@
 # Technical Documentation Index
-**Transcribe Core — Enterprise Real-Time Speech Intelligence Stack**
+**Sovereign — Standalone On-Device Android Speech Intelligence**
 
-[![Release Version](https://img.shields.io/badge/Release-v2.1.0%20(Build%2042)-38BDF8?style=flat-square)](https://gate.eclipsegate.my.id/downloads/transcribe-core.apk)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](../LICENSE)
 [![Security Vault](https://img.shields.io/badge/Security-Android%20Keystore%20AES--256--GCM-10B981?style=flat-square)]()
-[![Go Backend](https://img.shields.io/badge/Go-1.22%2B-00ADD8?style=flat-square&logo=go)](https://go.dev/)
-[![Android Client](https://img.shields.io/badge/Android-Kotlin%202.0%20%7C%20Jetpack%20Compose-3DDC84?style=flat-square&logo=android)](https://developer.android.com/jetpack/compose)
+[![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B%20%28API%2026%2B%29-3DDC84?style=flat-square&logo=android)](https://developer.android.com/)
+[![Android Client](https://img.shields.io/badge/Kotlin-2.0%20%7C%20Jetpack%20Compose-7F52FF?style=flat-square&logo=kotlin)](https://developer.android.com/jetpack/compose)
 
 ---
 
@@ -14,7 +14,7 @@
 
 ## Technical Overview
 
-This directory contains the comprehensive technical specifications, engineering blueprints, database architectures, market analyses, and operational runbooks for the **Transcribe Core** platform. Each document details a core subsystem of the distributed heterogeneous speech-to-intelligence ecosystem.
+This directory contains the architecture specifications, design systems, and engineering analyses for the **Sovereign** mobile platform. The application is completely standalone, running 100% on-device without any centralized backend server or intermediate proxy.
 
 ---
 
@@ -22,17 +22,14 @@ This directory contains the comprehensive technical specifications, engineering 
 
 | Document | Technical Scope & Topics |
 | :--- | :--- |
-| **[`BLUEPRINT.md`](./BLUEPRINT.md)** | **System Architecture Blueprint:** Detailed Go 1.22+ backend specs, adaptive audio streaming, isolated FIFO queue, heterogeneous model routing, and Android Keystore vault. |
-| **[`DATABASE_DESIGN.md`](./DATABASE_DESIGN.md)** | **Production Database Design:** PostgreSQL 16 & SQLite 3 schemas, GIN Full-Text Search tsvector index, composite pagination indexes, and anti-IDOR tenant isolation. |
-| **[`FRONTEND_ARCHITECTURE.md`](./FRONTEND_ARCHITECTURE.md)** | **Android Client Architecture:** Jetpack Compose MVI pattern, visual defect mitigations, FSM Scroll Anchor, 60 FPS canvas isolation, and AudioRecord Foreground Service. |
-| **[`UI_DESIGN.md`](./UI_DESIGN.md)** | **Industrial UI Design Standards:** Monochromatic dark theme (`#0A0D12`), WCAG AAA contrast, safe-area protection, OEM emoji elimination, and zero-collision layouts. |
+| **[`FRONTEND_ARCHITECTURE.md`](./FRONTEND_ARCHITECTURE.md)** | **Android Client Architecture:** Jetpack Compose MVI pattern, native SQLite 3 persistence, FSM Scroll Anchor, 60 FPS canvas waveform, and AudioRecord Foreground Service. |
+| **[`UI_DESIGN.md`](./UI_DESIGN.md)** | **Industrial UI Design Standards:** Monochromatic dark theme (`#0A0D12`), WCAG AAA contrast, safe-area protection, OEM emoji elimination, and responsive segmented controls. |
 | **[`AUTO_QUESTION_SUGGESTION_ENGINE.md`](./AUTO_QUESTION_SUGGESTION_ENGINE.md)** | **In-Meeting Inquiry Engine:** Live sliding window analysis, zero-hallucination temperature 0.2 guardrails, verbatim `context_ref` quotes, and $\ge 35$ word threshold. |
 | **[`BYOK_ARCHITECTURE_AND_MARKET_ANALYSIS.md`](./BYOK_ARCHITECTURE_AND_MARKET_ANALYSIS.md)** | **BYOK Architecture & Market Analysis:** AI rate limits benchmark (Groq LPU Llama 3.3 70B & Whisper Turbo, Google Gemini 2.0 Flash, OpenAI), competitor comparison, and zero-knowledge vault. |
-| **[`MIGRATION_GUIDE.md`](./MIGRATION_GUIDE.md)** | **Cloud-Agnostic Migration Guide:** SOP for cross-server migrations, encrypted AES-256-CBC snapshots, multi-stage Docker builds, and Docker Compose orchestration. |
-| **[`DISASTER_RECOVERY.md`](./DISASTER_RECOVERY.md)** | **Disaster Recovery Runbook:** Scheduled daily backups (02:00 UTC), PBKDF2/AES-256 encryption, SHA-256 verification, and multi-target delivery (Local mounts, Remote SSH, Rclone Multi-Cloud). |
+| **[`MIGRATION_GUIDE.md`](./MIGRATION_GUIDE.md)** | **Architecture Evolution Guide:** Architectural journey from server-managed pipeline to 100% on-device standalone deployment. |
 
 ---
 
 ### Additional References
-* **[`../README.md`](../README.md)** — Main Project README & API Specifications (English).
-* **[`../test/README.md`](../test/README.md)** — Automated QA Test Harness & AI Evaluation Guide.
+* **[`../README.md`](../README.md)** — Main Project Overview & Architecture Guide (English).
+* **[`../README_ID.md`](../README_ID.md)** — Dokumentasi Utama Proyek (Bahasa Indonesia).

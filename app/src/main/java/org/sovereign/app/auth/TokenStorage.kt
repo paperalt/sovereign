@@ -237,12 +237,19 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
     }
 
     override fun getSTTKey(): String {
-        return prefs.getString(KEY_STT_KEY, null) ?: getProviderApiKey("groq") ?: ""
+        val sttProvider = getSTTPresetId().ifBlank { "groq" }
+        return prefs.getString(KEY_STT_KEY, null)?.ifBlank { null }
+            ?: getProviderApiKey(sttProvider)
+            ?: getProviderApiKey("groq")
+            ?: ""
     }
 
     override fun setSTTKey(key: String) {
         prefs.edit().putString(KEY_STT_KEY, key.trim()).apply()
-        setProviderApiKey("groq", key.trim())
+        val sttProvider = getSTTPresetId().ifBlank { "groq" }
+        if (key.isNotBlank()) {
+            setProviderApiKey(sttProvider, key.trim())
+        }
     }
 
     override fun getLLMEndpoint(): String {
@@ -262,11 +269,18 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
     }
 
     override fun getLLMKey(): String {
-        return prefs.getString(KEY_LLM_KEY, null) ?: getSTTKey()
+        val llmProvider = getLLMPresetId().ifBlank { "groq" }
+        return prefs.getString(KEY_LLM_KEY, null)?.ifBlank { null }
+            ?: getProviderApiKey(llmProvider)
+            ?: getSTTKey()
     }
 
     override fun setLLMKey(key: String) {
         prefs.edit().putString(KEY_LLM_KEY, key.trim()).apply()
+        val llmProvider = getLLMPresetId().ifBlank { "groq" }
+        if (key.isNotBlank()) {
+            setProviderApiKey(llmProvider, key.trim())
+        }
     }
 
     override fun getCustomPresetsUrl(): String {

@@ -1,0 +1,8 @@
+{
+  "version_code": 1,
+  "version_name": "0.1.0",
+  "min_supported_version_code": 1,
+  "download_url": "https://github.com/paperalt/sovereign/releases/latest",
+  "release_notes": "Sovereign v0.1.0: Pure on-device standalone speech intelligence, decoupled STT/LLM endpoints, combine pipeline, zero-knowledge architecture.",
+  "is_critical": false
+}

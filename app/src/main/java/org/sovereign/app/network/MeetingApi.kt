@@ -141,8 +141,8 @@ data class AppVersionDto(
     @SerializedName("min_supported_version_code") val minSupportedVersionCode: Long,
     @SerializedName("download_url") val downloadUrl: String,
     @SerializedName("release_notes") val releaseNotes: String,
-    @SerializedName("is_critical") val isCritical: Boolean,
-    @SerializedName("sha256") val sha256: String?
+    @SerializedName("is_critical") val isCritical: Boolean = false,
+    @SerializedName("sha256") val sha256: String? = null
 )
 
 data class QuestionSuggestionDto(

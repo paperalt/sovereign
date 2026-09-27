@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import com.google.gson.Gson
+import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import org.sovereign.app.auth.EncryptedTokenStorage
 import org.sovereign.app.auth.TokenStorage
@@ -11,8 +12,11 @@ import org.sovereign.app.data.local.AppDatabaseHelper
 import org.sovereign.app.network.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class LocalMeetingRepository(
     private val context: Context,
@@ -430,13 +434,80 @@ class LocalMeetingRepository(
     }
 
     override suspend fun checkAppVersion(): Result<AppVersionDto> = withContext(Dispatchers.IO) {
+        try {
+            val client = OkHttpClient.Builder()
+                .connectTimeout(8, TimeUnit.SECONDS)
+                .readTimeout(8, TimeUnit.SECONDS)
+                .build()
+
+            // 1. Try GitHub Releases API first
+            val ghReq = Request.Builder()
+                .url("https://api.github.com/repos/paperalt/sovereign/releases/latest")
+                .header("Accept", "application/vnd.github.v3+json")
+                .header("User-Agent", "Sovereign-Android")
+                .build()
+
+            client.newCall(ghReq).execute().use { resp ->
+                if (resp.isSuccessful) {
+                    val body = resp.body?.string() ?: ""
+                    val json = JsonParser.parseString(body).asJsonObject
+                    val tag = json.get("tag_name")?.asString ?: "v0.1.0"
+                    val vName = tag.removePrefix("v").trim()
+                    val notes = json.get("body")?.asString ?: "New release available on GitHub."
+                    val htmlUrl = json.get("html_url")?.asString ?: "https://github.com/paperalt/sovereign/releases/latest"
+
+                    val parts = vName.split('.').mapNotNull { it.toIntOrNull() }
+                    val vCode = if (parts.size >= 3) {
+                        (parts[0] * 10000 + parts[1] * 100 + parts[2]).toLong()
+                    } else 1L
+
+                    return@withContext Result.success(
+                        AppVersionDto(
+                            latestVersionCode = vCode,
+                            latestVersionName = vName,
+                            minSupportedVersionCode = 1,
+                            downloadUrl = htmlUrl,
+                            releaseNotes = notes,
+                            isCritical = false,
+                            sha256 = null
+                        )
+                    )
+                }
+            }
+
+            // 2. Fallback to raw version.json
+            val rawReq = Request.Builder()
+                .url("https://raw.githubusercontent.com/paperalt/sovereign/master/config/version.json")
+                .header("User-Agent", "Sovereign-Android")
+                .build()
+
+            client.newCall(rawReq).execute().use { resp ->
+                if (resp.isSuccessful) {
+                    val body = resp.body?.string() ?: ""
+                    val json = JsonParser.parseString(body).asJsonObject
+                    return@withContext Result.success(
+                        AppVersionDto(
+                            latestVersionCode = json.get("version_code")?.asLong ?: 1L,
+                            latestVersionName = json.get("version_name")?.asString ?: "0.1.0",
+                            minSupportedVersionCode = json.get("min_supported_version_code")?.asLong ?: 1L,
+                            downloadUrl = json.get("download_url")?.asString ?: "https://github.com/paperalt/sovereign/releases/latest",
+                            releaseNotes = json.get("release_notes")?.asString ?: "Sovereign: Private On-Device Transcription",
+                            isCritical = json.get("is_critical")?.asBoolean ?: false,
+                            sha256 = json.get("sha256")?.asString
+                        )
+                    )
+                }
+            }
+        } catch (_: Exception) {}
+
+        // Fallback to current version when offline
         Result.success(
             AppVersionDto(
-                latestVersionCode = 42,
-                latestVersionName = "2.1.0",
+                latestVersionCode = 1,
+                latestVersionName = "0.1.0",
                 minSupportedVersionCode = 1,
-                downloadUrl = "https://github.com/paperalt/sovereign/releases",
-                releaseNotes = "Sovereign: Private On-Device Transcription & Intelligence",
+                downloadUrl = "https://github.com/paperalt/sovereign/releases/latest",
+                releaseNotes = "Sovereign v0.1.0: You are on the latest release.",
                 isCritical = false,
                 sha256 = null
             )
