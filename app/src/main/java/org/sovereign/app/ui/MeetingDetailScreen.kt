@@ -874,7 +874,7 @@ private fun QuestionSuggestionTabContent(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(color = AccentPrimary, modifier = Modifier.size(28.dp), strokeWidth = 2.dp)
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text("Merumuskan ide pertanyaan berbasis materi...", color = TextMuted, fontSize = 12.sp)
+                    Text("Formulating inquiry based on discussion...", color = TextMuted, fontSize = 12.sp)
                 }
             }
         } else if (errorMessage != null) {
@@ -903,7 +903,7 @@ private fun QuestionSuggestionTabContent(
                 ) {
                     Column {
                         Text(
-                            text = "KONTEKS MATERI BELUM CUKUP",
+                            text = "INSUFFICIENT CONTEXT",
                             color = Color(0xFFF59E0B),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
@@ -932,7 +932,7 @@ private fun QuestionSuggestionTabContent(
                             onCopy = { q ->
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 clipboard.setPrimaryClip(ClipData.newPlainText("Meeting Questions", q))
-                                Toast.makeText(context, "Pertanyaan disalin ke clipboard", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Question copied to clipboard", Toast.LENGTH_SHORT).show()
                             }
                         )
                     }
@@ -952,7 +952,7 @@ private fun formatSeconds(seconds: Double): String {
 private fun buildMarkdown(data: FullTranscriptDto): String {
     val sb = StringBuilder()
     sb.append("# ${data.title}\n\n")
-    sb.append("**Tanggal:** ${data.startedAt.take(10)} | **Durasi:** ${data.durationSec.toInt()}s | **Bahasa:** ${data.language.uppercase()}\n\n")
+    sb.append("**Date:** ${data.startedAt.take(10)} | **Duration:** ${data.durationSec.toInt()}s | **Language:** ${data.language.uppercase()}\n\n")
 
     if (!data.summary.isNullOrBlank()) {
         sb.append("## Executive Summary\n")
