@@ -20,10 +20,6 @@ object BackupManager {
 
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
-    private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
-        timeZone = TimeZone.getTimeZone("UTC")
-    }
-
     /**
      * Inspects current on-device data count for preview before exporting.
      */
@@ -195,7 +191,7 @@ object BackupManager {
                 appName = "Sovereign",
                 appVersion = "0.1.0",
                 schemaVersion = 1,
-                exportedAt = isoFormat.format(Date()),
+                exportedAt = java.time.Instant.now().toString(),
                 deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}",
                 includesApiKeys = includeApiKeys
             )

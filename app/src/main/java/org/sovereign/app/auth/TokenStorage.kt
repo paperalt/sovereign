@@ -83,17 +83,16 @@ interface TokenStorage {
 
 class EncryptedTokenStorage(context: Context) : TokenStorage {
 
-    private val masterKey: MasterKey = MasterKey.Builder(context)
-        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-        .build()
-
-    private val prefs: SharedPreferences = EncryptedSharedPreferences.create(
-        context,
-        PREFS_FILENAME,
-        masterKey,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
+    private val prefs: SharedPreferences = try {
+        createEncryptedPrefs(context)
+    } catch (_: Exception) {
+        try {
+            context.deleteSharedPreferences(PREFS_FILENAME)
+            createEncryptedPrefs(context)
+        } catch (_: Exception) {
+            context.getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
+        }
+    }
 
     override fun saveTokens(accessToken: String, refreshToken: String) {
         prefs.edit()
@@ -398,5 +397,18 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
         private const val KEY_ACTIVE_STT_CONFIG_ID = "active_stt_config_id"
         private const val KEY_LLM_CONFIGS_JSON = "llm_configs_json"
         private const val KEY_ACTIVE_LLM_CONFIG_ID = "active_llm_config_id"
+
+        private fun createEncryptedPrefs(context: Context): SharedPreferences {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            return EncryptedSharedPreferences.create(
+                context,
+                PREFS_FILENAME,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        }
     }
 }

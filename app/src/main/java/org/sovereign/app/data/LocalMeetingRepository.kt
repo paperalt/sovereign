@@ -26,11 +26,7 @@ class LocalMeetingRepository(
     private val gson: Gson = Gson()
 ) : MeetingRepository {
 
-    private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
-        timeZone = TimeZone.getTimeZone("UTC")
-    }
-
-    private fun nowIso(): String = isoFormat.format(Date())
+    private fun nowIso(): String = java.time.Instant.now().toString()
 
     override suspend fun createMeeting(
         title: String,
@@ -258,6 +254,19 @@ class LocalMeetingRepository(
             db.rawQuery("SELECT MAX(end_time_sec) FROM transcript_chunks WHERE meeting_id = ?", arrayOf(meetingId)).use {
                 if (it.moveToNext()) {
                     maxEndSec = it.getDouble(0)
+                }
+            }
+            if (maxEndSec <= 0.0) {
+                db.rawQuery("SELECT started_at FROM meetings WHERE id = ?", arrayOf(meetingId)).use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val startedAtStr = cursor.getString(0)
+                        try {
+                            val startInstant = java.time.Instant.parse(startedAtStr)
+                            val endInstant = java.time.Instant.parse(now)
+                            val diff = java.time.Duration.between(startInstant, endInstant).seconds.toDouble()
+                            if (diff > 0.0) maxEndSec = diff
+                        } catch (_: Exception) {}
+                    }
                 }
             }
 
@@ -1128,9 +1137,15 @@ class LocalMeetingRepository(
             }
             db.insert("transcript_chunks", null, values)
 
+            val currentDuration = db.rawQuery("SELECT duration_sec FROM meetings WHERE id = ?", arrayOf(meetingId)).use {
+                if (it.moveToFirst()) it.getDouble(0) else 0.0
+            }
+
             val mValues = ContentValues().apply {
                 put("updated_at", now)
-                put("duration_sec", endTimeSec)
+                if (endTimeSec > currentDuration) {
+                    put("duration_sec", endTimeSec)
+                }
             }
             db.update("meetings", mValues, "id = ?", arrayOf(meetingId))
         } catch (_: Exception) {}

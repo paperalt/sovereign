@@ -801,7 +801,7 @@ fun DashboardScreen(
                                         selectedMeetingIds = emptySet()
                                         selectedGroupDetail = null
                                     },
-                                    modifier = Modifier.size(32.dp)
+                                    modifier = Modifier.size(34.dp)
                                 ) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowBack,
@@ -1091,7 +1091,7 @@ fun DashboardScreen(
                                 colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
                                 shape = RoundedCornerShape(4.dp),
                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                modifier = Modifier.height(28.dp)
+                                modifier = Modifier.height(34.dp)
                             ) {
                                 Text(
                                     text = "+ NEW GROUP",

@@ -59,10 +59,11 @@ class TranscriptionService : Service() {
     private var pauseStartTime = 0L
     private var totalPausedDuration = 0L
     private var isStopping = false
+    private var isCancelled = false
     private var isManuallyPaused = false
 
     private val chunkIndexCounter = AtomicInteger(0)
-    private val activeTranscribeJobs = mutableListOf<Job>()
+    private val activeTranscribeJobs = java.util.concurrent.CopyOnWriteArrayList<Job>()
 
     override fun onCreate() {
         super.onCreate()
@@ -121,10 +122,12 @@ class TranscriptionService : Service() {
         _isRecording.value = true
         _isPaused.value = false
         isStopping = false
+        isCancelled = false
         isManuallyPaused = false
         recordStartTime = System.currentTimeMillis()
         totalPausedDuration = 0L
         chunkIndexCounter.set(0)
+        activeTranscribeJobs.clear()
 
         startTimerJob()
 
@@ -208,11 +211,15 @@ class TranscriptionService : Service() {
             }
         }
 
+        if (isCancelled) return@withContext
+
         // Recording loop ended. Flush any remaining audio
         val finalChunk = chunker.flush()
-        if (finalChunk != null) {
+        if (finalChunk != null && !isCancelled) {
             dispatchChunkToAI(finalChunk)
         }
+
+        if (isCancelled) return@withContext
 
         if (isStopping) {
             _events.emit(StreamEvent.Status("FINALIZING", "Processing final audio & generating executive summary..."))
@@ -220,6 +227,8 @@ class TranscriptionService : Service() {
 
         // Wait for active transcription calls to finish
         activeTranscribeJobs.forEach { it.join() }
+
+        if (isCancelled) return@withContext
 
         // Finalize meeting in local database
         if (!isStopping) return@withContext
@@ -324,19 +333,26 @@ class TranscriptionService : Service() {
     }
 
     private fun stopRecording(cancel: Boolean) {
-        isStopping = true
-        _isRecording.value = false
-        _isPaused.value = false
+        if (cancel) {
+            isCancelled = true
+            isStopping = true
+            _isRecording.value = false
+            _isPaused.value = false
+            activeTranscribeJobs.forEach { it.cancel() }
+            activeTranscribeJobs.clear()
 
-        serviceScope.launch {
-            if (cancel) {
+            serviceScope.launch {
                 localRepo.cancelMeeting(meetingId)
                 _events.emit(StreamEvent.Status("DISCARDED", "Session discarded."))
                 cleanup()
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
-            // If not cancel, runAudioLoop will handle flush & finalizeMeetingLocally()
+        } else {
+            isStopping = true
+            _isRecording.value = false
+            _isPaused.value = false
+            // runAudioLoop will handle flush & finalizeMeetingLocally()
         }
     }
 
