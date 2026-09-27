@@ -197,7 +197,7 @@ class MainActivity : ComponentActivity() {
                                                 navController.navigate(Screen.MeetingDetail.createRoute(meetingId)) {
                                                     popUpTo(Screen.Dashboard.route)
                                                 }
-                                            } else if (event.status == "CANCELLED") {
+                                            } else if (event.status == "CANCELLED" || event.status == "DISCARDED") {
                                                 isFinalizing = false
                                                 navController.navigate(Screen.Dashboard.route) {
                                                     popUpTo(Screen.Dashboard.route) { inclusive = true }

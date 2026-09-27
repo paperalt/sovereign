@@ -157,7 +157,7 @@ class TranscriptionService : Service() {
             stopSelf()
             return@withContext
         } catch (e: Exception) {
-            _events.emit(StreamEvent.Error("Inisialisasi audio gagal: ${e.message}"))
+            _events.emit(StreamEvent.Error("Audio initialization failed: ${e.message}"))
             stopSelf()
             return@withContext
         }
@@ -212,6 +212,10 @@ class TranscriptionService : Service() {
         val finalChunk = chunker.flush()
         if (finalChunk != null) {
             dispatchChunkToAI(finalChunk)
+        }
+
+        if (isStopping) {
+            _events.emit(StreamEvent.Status("FINALIZING", "Processing final audio & generating executive summary..."))
         }
 
         // Wait for active transcription calls to finish
@@ -280,14 +284,21 @@ class TranscriptionService : Service() {
     private suspend fun finalizeMeetingLocally() = withContext(Dispatchers.IO) {
         // 1. Stop meeting status in local SQLite
         localRepo.stopMeeting(meetingId)
-        _events.emit(StreamEvent.Status("COMPLETED", "Recording processed."))
 
-        // 2. Generate executive summary locally
+        // 2. Generate executive summary locally before signaling completion
         val summaryRes = localRepo.summarizeMeeting(meetingId)
         if (summaryRes.isSuccess) {
             val summary = summaryRes.getOrThrow()
             _events.emit(StreamEvent.Summary(summary.executiveSummary))
+        } else {
+            val err = summaryRes.exceptionOrNull()?.message
+            if (!err.isNullOrBlank()) {
+                _events.emit(StreamEvent.Error(err))
+            }
         }
+
+        // 3. Signal completed only after database write finishes
+        _events.emit(StreamEvent.Status("COMPLETED", "Recording processed."))
 
         cleanup()
         stopForeground(STOP_FOREGROUND_REMOVE)

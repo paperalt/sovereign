@@ -276,6 +276,12 @@ object BackupManager {
 
             // 2. Restore Meetings
             for (m in payload.meetings) {
+                val validGroupId = if (m.groupId.isNullOrBlank()) null else {
+                    val cursor = db.rawQuery("SELECT 1 FROM transcript_groups WHERE id = ?", arrayOf(m.groupId))
+                    val exists = cursor.use { it.moveToFirst() }
+                    if (exists) m.groupId else null
+                }
+
                 val cv = ContentValues().apply {
                     put("id", m.id)
                     put("title", m.title)
@@ -285,7 +291,7 @@ object BackupManager {
                     put("duration_sec", m.durationSec)
                     put("started_at", m.startedAt)
                     put("ended_at", m.endedAt)
-                    put("group_id", m.groupId)
+                    put("group_id", validGroupId)
                     put("updated_at", m.updatedAt)
                 }
                 val rowId = db.insertWithOnConflict("meetings", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
@@ -294,6 +300,9 @@ object BackupManager {
 
             // 3. Restore Chunks
             for (c in payload.chunks) {
+                val meetingExists = db.rawQuery("SELECT 1 FROM meetings WHERE id = ?", arrayOf(c.meetingId)).use { it.moveToFirst() }
+                if (!meetingExists) continue
+
                 val cv = ContentValues().apply {
                     put("id", c.id)
                     put("meeting_id", c.meetingId)
@@ -310,6 +319,9 @@ object BackupManager {
 
             // 4. Restore Summaries
             for (s in payload.summaries) {
+                val meetingExists = db.rawQuery("SELECT 1 FROM meetings WHERE id = ?", arrayOf(s.meetingId)).use { it.moveToFirst() }
+                if (!meetingExists) continue
+
                 val cv = ContentValues().apply {
                     put("id", s.id)
                     put("meeting_id", s.meetingId)

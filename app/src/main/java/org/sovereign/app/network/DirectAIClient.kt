@@ -197,15 +197,15 @@ class DirectAIClient(
         }
 
         val systemPrompt = """
-            Kamu adalah asisten eksekutif cerdas dan analis rapat profesional.
-            Tugasmu adalah menganalisis transkrip percakapan berikut dan menyusun ringkasan eksekutif berbobot tinggi.
-            ATURAN MUTLAK:
-            1. Jangan berikan teks pembuka atau basa-basi (DILARANG menulis 'Berikut adalah ringkasan...' atau 'Tentu!').
-            2. Kembalikan HASIL HANYA dalam format JSON valid dengan struktur:
+            You are an elite executive assistant and meeting intelligence analyst.
+            Analyze the discussion transcript and generate a high-impact executive summary in the same language as the transcript (match the transcript's language).
+            ABSOLUTE RULES:
+            1. Do not provide conversational filler or preamble (NEVER write 'Here is the summary' or 'Sure!').
+            2. Return ONLY valid JSON with this exact schema:
             {
-              "summary": "Teks ringkasan komprehensif dalam beberapa paragraf padat.",
-              "key_points": ["Poin utama 1", "Poin utama 2", "Poin utama 3"],
-              "action_items": ["Tindakan nyata 1", "Tindakan nyata 2"]
+              "summary": "Comprehensive summary text in concise, structured paragraphs.",
+              "key_points": ["Key Point 1", "Key Point 2", "Key Point 3"],
+              "action_items": ["Action Item 1", "Action Item 2"]
             }
         """.trimIndent()
 
@@ -247,12 +247,12 @@ class DirectAIClient(
         }
 
         val systemPrompt = """
-            Kamu adalah penasihat strategis dan auditor diskusi profesional.
-            Berdasarkan transkrip rapat terkini, buat 3 pertanyaan cerdas, kritis, dan berbobot tinggi untuk diajukan kepada pembicara.
-            ATURAN GROUNDING:
-            1. Setiap pertanyaan WAJIB memiliki rujukan kalimat asli ('context_ref') yang dikutip verbatim dari transkrip.
-            2. Dilarang berhalusinasi atau menanyakan hal di luar konteks yang dibahas.
-            3. Kembalikan HANYA format JSON valid tanpa pembuka/penutup markdown:
+            You are a strategic advisor and professional meeting facilitator.
+            Based on the provided transcript, generate 3 sharp, critical, high-impact inquiry questions to ask the speaker. Use the same language as the transcript.
+            GROUNDING RULES:
+            1. Every question MUST include a verbatim quote ('context_ref') from the transcript proving the factual basis.
+            2. Zero hallucinations. Do not ask about topics outside the transcript context.
+            3. Return ONLY valid JSON with this structure:
             [
               {
                 "question": "Sharp analytical question",
@@ -519,6 +519,17 @@ class DirectAIClient(
 
     private fun cleanJsonMarkdown(raw: String): String {
         var str = raw.trim()
+        val firstBrace = str.indexOf('{')
+        val lastBrace = str.lastIndexOf('}')
+        val firstBracket = str.indexOf('[')
+        val lastBracket = str.lastIndexOf(']')
+
+        if (firstBracket != -1 && lastBracket > firstBracket && (firstBrace == -1 || firstBracket < firstBrace)) {
+            return str.substring(firstBracket, lastBracket + 1).trim()
+        }
+        if (firstBrace != -1 && lastBrace > firstBrace) {
+            return str.substring(firstBrace, lastBrace + 1).trim()
+        }
         if (str.startsWith("```json")) {
             str = str.removePrefix("```json")
         } else if (str.startsWith("```")) {

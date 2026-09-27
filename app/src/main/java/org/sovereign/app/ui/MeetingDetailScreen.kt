@@ -980,8 +980,8 @@ private fun buildMarkdown(data: FullTranscriptDto): String {
 internal fun cleanExecutiveSummaryText(raw: String?): String {
     if (raw.isNullOrBlank()) return "No summary yet."
     var text = raw.trim()
-    val preambleRegex = Regex("""(?is)^[\s*#_\-]*(?:(?:tentu[,!]?\s*)?(?:berikut\s+(?:ini\s+)?(?:adalah\s+)?|ini\s+adalah\s+|berdasarkan\s+[^\n:]*|dari\s+[^\n:]*)(?:ringkasan|rangkuman|kesimpulan|poin|ulasan|hasil|analisis|laporan|executive\s+summary)[^\n:]*[:\n\-]+)\s*""")
-    val headingRegex = Regex("""(?i)^[\s*#_\-]*(?:ringkasan(?:\s+eksekutif)?|executive\s+summary)\s*(?:\([^\)]*\))?\s*[:*#_\-\s]*\s*""")
+    val preambleRegex = Regex("""(?is)^[\s*#_\-]*(?:(?:sure[,!]?\s*|certainly[,!]?\s*|here\s+is\s+|below\s+is\s+|this\s+is\s+|tentu[,!]?\s*|berikut\s+(?:ini\s+)?(?:adalah\s+)?|ini\s+adalah\s+|berdasarkan\s+[^\n:]*|dari\s+[^\n:]*)[^\n:]*(?:summary|overview|analysis|ringkasan|rangkuman|kesimpulan|poin|ulasan|hasil|analisis|laporan|executive\s+summary)[^\n:]*[:\n\-]+)\s*""")
+    val headingRegex = Regex("""(?i)^[\s*#_\-]*(?:ringkasan(?:\s+eksekutif)?|executive\s+summary|summary)\s*(?:\([^\)]*\))?\s*[:*#_\-\s]*\s*""")
 
     var changed = true
     while (changed) {

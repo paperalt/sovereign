@@ -85,9 +85,11 @@ class LocalMeetingRepository(
             val query = """
                 SELECT m.id, m.title, m.language, m.target_language, m.status, m.duration_sec,
                        m.started_at, m.ended_at, m.group_id, m.updated_at,
-                       g.name AS group_name
+                       g.name AS group_name,
+                       s.summary_text AS summary
                 FROM meetings m
                 LEFT JOIN transcript_groups g ON m.group_id = g.id
+                LEFT JOIN meeting_summaries s ON s.meeting_id = m.id
                 ORDER BY m.updated_at DESC
                 LIMIT ? OFFSET ?
             """.trimIndent()
@@ -385,7 +387,29 @@ class LocalMeetingRepository(
 
     override suspend fun searchFull(query: String): Result<SearchResponse> = withContext(Dispatchers.IO) {
         search(query).map { list ->
-            SearchResponse(query = query, results = list, total = list.size)
+            val meetingIds = list.map { it.meetingId }.distinct()
+            val matchedMeetings = mutableListOf<MeetingDto>()
+            if (meetingIds.isNotEmpty()) {
+                val db = dbHelper.readableDatabase
+                val placeholders = meetingIds.joinToString(",") { "?" }
+                val querySql = """
+                    SELECT m.id, m.title, m.language, m.target_language, m.status, m.duration_sec,
+                           m.started_at, m.ended_at, m.group_id, m.updated_at,
+                           g.name AS group_name,
+                           s.summary_text AS summary
+                    FROM meetings m
+                    LEFT JOIN transcript_groups g ON m.group_id = g.id
+                    LEFT JOIN meeting_summaries s ON s.meeting_id = m.id
+                    WHERE m.id IN ($placeholders)
+                    ORDER BY m.updated_at DESC
+                """.trimIndent()
+                db.rawQuery(querySql, meetingIds.toTypedArray()).use { cursor ->
+                    while (cursor.moveToNext()) {
+                        matchedMeetings.add(cursorToMeetingDto(cursor))
+                    }
+                }
+            }
+            SearchResponse(query = query, results = list, meetings = matchedMeetings, total = list.size)
         }
     }
 
@@ -736,9 +760,11 @@ class LocalMeetingRepository(
             val meetingsQuery = """
                 SELECT m.id, m.title, m.language, m.target_language, m.status, m.duration_sec,
                        m.started_at, m.ended_at, m.group_id, m.updated_at,
-                       g.name AS group_name
+                       g.name AS group_name,
+                       s.summary_text AS summary
                 FROM meetings m
                 JOIN transcript_groups g ON m.group_id = g.id
+                LEFT JOIN meeting_summaries s ON s.meeting_id = m.id
                 WHERE m.group_id = ?
                 ORDER BY m.updated_at DESC
             """.trimIndent()
@@ -1045,6 +1071,9 @@ class LocalMeetingRepository(
     }
 
     private fun cursorToMeetingDto(cursor: Cursor): MeetingDto {
+        val summaryIdx = cursor.getColumnIndex("summary")
+        val summaryText = if (summaryIdx != -1 && !cursor.isNull(summaryIdx)) cursor.getString(summaryIdx) else null
+
         return MeetingDto(
             id = cursor.getString(cursor.getColumnIndexOrThrow("id")),
             userId = "sovereign-user",
@@ -1057,7 +1086,7 @@ class LocalMeetingRepository(
             startedAt = cursor.getString(cursor.getColumnIndexOrThrow("started_at")),
             endedAt = cursor.getString(cursor.getColumnIndexOrThrow("ended_at")),
             durationSec = cursor.getDouble(cursor.getColumnIndexOrThrow("duration_sec")),
-            summary = null,
+            summary = summaryText,
             createdAt = cursor.getString(cursor.getColumnIndexOrThrow("started_at"))
         )
     }
