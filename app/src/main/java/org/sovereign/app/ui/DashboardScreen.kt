@@ -490,7 +490,7 @@ fun DashboardScreen(
             shape = RoundedCornerShape(8.dp),
             title = {
                 Text(
-                    text = "GANTI NAMA GRUP",
+                    text = "RENAME GROUP",
                     color = TextPrimary,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
@@ -1068,32 +1068,31 @@ fun DashboardScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Left Section: Hamburger Menu + Title + Version Tag (Always Visible, Never squashed)
                         Row(
-                            modifier = Modifier.weight(1f, fill = false),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(
                                 onClick = { scope.launch { drawerState.open() } },
-                                modifier = Modifier.size(36.dp)
+                                modifier = Modifier.size(38.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Menu,
-                                    contentDescription = "Buka Menu",
-                                    tint = TextPrimary
+                                    contentDescription = "Open Menu",
+                                    tint = TextPrimary,
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = "SOVEREIGN",
                                 color = TextPrimary,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 0.5.sp,
-                                maxLines = 1,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f, fill = false)
+                                maxLines = 1
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Box(
                                 modifier = Modifier
                                     .background(Color(0xFF1E2632), RoundedCornerShape(3.dp))
@@ -1110,10 +1109,16 @@ fun DashboardScreen(
                             }
                         }
 
-                        // Clickable AI Engine badge
-                        val isBYOKActive = (currentAIProvider != "DEFAULT")
+                        // Right Section: Clickable AI Engine badge (Capped width with Ellipsis so it NEVER pushes the menu)
+                        val isBYOKActive = (currentAIProvider != "DEFAULT" && currentAIProvider.isNotBlank())
+                        val compactAIProvider = remember(currentAIProvider) {
+                            formatCompactAIProvider(currentAIProvider)
+                        }
                         Box(
                             modifier = Modifier
+                                .weight(1f, fill = false)
+                                .padding(start = 8.dp)
+                                .widthIn(max = 160.dp)
                                 .background(
                                     if (isBYOKActive) Color(0xFF0E2A3B) else Color(0xFF1E2632),
                                     RoundedCornerShape(4.dp)
@@ -1137,11 +1142,13 @@ fun DashboardScreen(
                                 )
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Text(
-                                    text = if (isBYOKActive) "AI: $currentAIProvider" else "AI: NOT CONFIGURED",
+                                    text = compactAIProvider,
                                     color = if (isBYOKActive) AccentPrimary else TextPrimary,
                                     fontSize = 10.sp,
                                     fontFamily = FontFamily.Monospace,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
@@ -1407,7 +1414,7 @@ fun DashboardScreen(
                                     .height(36.dp)
                             ) {
                                 Text(
-                                    text = "+ REKAM DI GRUP INI",
+                                    text = "+ RECORD IN THIS GROUP",
                                     color = OnyxBlack,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
@@ -1462,7 +1469,7 @@ fun DashboardScreen(
                                         shape = RoundedCornerShape(4.dp),
                                         border = BorderStroke(1.dp, SteelBorder)
                                     ) {
-                                        Text("BERSIHKAN PENCARIAN", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Text("CLEAR SEARCH", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
@@ -1510,7 +1517,7 @@ fun DashboardScreen(
                             },
                             text = {
                                 Text(
-                                    text = "SEMUA SESI (${allMeetings.size})",
+                                    text = "ALL SESSIONS (${allMeetings.size})",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = FontFamily.Monospace,
@@ -1526,7 +1533,7 @@ fun DashboardScreen(
                             },
                             text = {
                                 Text(
-                                    text = "GRUP / FOLDER (${groups.size})",
+                                    text = "GROUPS (${groups.size})",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = FontFamily.Monospace,
@@ -1545,7 +1552,7 @@ fun DashboardScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = if (searchQuery.isNotBlank()) "HASIL PENCARIAN" else "RIWAYAT PERTEMUAN",
+                                text = if (searchQuery.isNotBlank()) "SEARCH RESULTS" else "MEETING SESSIONS",
                                 color = if (searchQuery.isNotBlank()) AccentPrimary else TextMuted,
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace,
@@ -1594,7 +1601,7 @@ fun DashboardScreen(
                                             shape = RoundedCornerShape(4.dp),
                                             border = BorderStroke(1.dp, SteelBorder)
                                         ) {
-                                            Text("BERSIHKAN PENCARIAN", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            Text("CLEAR SEARCH", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                         }
                                     }
                                 }
@@ -1643,7 +1650,7 @@ fun DashboardScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = if (searchQuery.isNotBlank()) "HASIL GRUP (${displayedGroups.size})" else "FOLDER & GRUP",
+                                text = if (searchQuery.isNotBlank()) "GROUP RESULTS (${displayedGroups.size})" else "FOLDERS & GROUPS",
                                 color = if (searchQuery.isNotBlank()) AccentPrimary else TextMuted,
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace,
@@ -1658,7 +1665,7 @@ fun DashboardScreen(
                                 modifier = Modifier.height(28.dp)
                             ) {
                                 Text(
-                                    text = "+ BUAT GRUP",
+                                    text = "+ NEW GROUP",
                                     color = OnyxBlack,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
@@ -1690,7 +1697,7 @@ fun DashboardScreen(
                                             shape = RoundedCornerShape(4.dp),
                                             border = BorderStroke(1.dp, SteelBorder)
                                         ) {
-                                            Text("BERSIHKAN PENCARIAN", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            Text("CLEAR SEARCH", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                         }
                                     } else {
                                         Button(
@@ -1698,7 +1705,7 @@ fun DashboardScreen(
                                             colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
                                             shape = RoundedCornerShape(4.dp)
                                         ) {
-                                            Text("+ BUAT GRUP PERDANA", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            Text("+ CREATE FIRST GROUP", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                         }
                                     }
                                 }
@@ -2108,7 +2115,7 @@ fun CreateGroupDialog(
         containerColor = DarkSlate,
         shape = RoundedCornerShape(8.dp),
         title = {
-            Text("BUAT GRUP / FOLDER BARU", color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text("CREATE NEW GROUP / FOLDER", color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
         },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -2116,7 +2123,7 @@ fun CreateGroupDialog(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Group Name", color = TextMuted, fontSize = 13.sp) },
-                    placeholder = { Text("Misal: Kuliah Kriptografi", color = TextMuted.copy(alpha = 0.5f), fontSize = 13.sp) },
+                    placeholder = { Text("e.g. Engineering Sync", color = TextMuted.copy(alpha = 0.5f), fontSize = 13.sp) },
                     trailingIcon = {
                         if (name.isNotEmpty()) {
                             IconButton(onClick = { name = "" }, modifier = Modifier.size(28.dp)) {
@@ -2780,7 +2787,7 @@ fun BatchAssignGroupDialog(
         shape = RoundedCornerShape(8.dp),
         title = {
             Text(
-                text = "PINDAHKAN KE GRUP ($selectedCount SESI)",
+                text = "MOVE TO GROUP ($selectedCount SESSIONS)",
                 color = TextPrimary,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
@@ -2919,7 +2926,7 @@ fun BatchDeleteMeetingsDialog(
         containerColor = DarkSlate,
         shape = RoundedCornerShape(8.dp),
         title = {
-            val titleText = if (count == 1) "HAPUS 1 SESI TRANSKRIP?" else "HAPUS $count REKAMAN TERPILIH?"
+            val titleText = if (count == 1) "DELETE 1 TRANSCRIPT SESSION?" else "DELETE $count SELECTED SESSIONS?"
             Text(titleText, color = CrimsonAlert, fontSize = 15.sp, fontWeight = FontWeight.Bold)
         },
         text = {
@@ -2941,7 +2948,7 @@ fun BatchDeleteMeetingsDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = CrimsonAlert),
                 shape = RoundedCornerShape(4.dp)
             ) {
-                Text(if (count == 1) "HAPUS" else "HAPUS SEMUA", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(if (count == 1) "DELETE" else "DELETE ALL", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
@@ -2950,7 +2957,7 @@ fun BatchDeleteMeetingsDialog(
                 border = BorderStroke(1.dp, SteelBorder),
                 shape = RoundedCornerShape(4.dp)
             ) {
-                Text("BATAL", color = TextSecondary, fontSize = 12.sp)
+                Text("CANCEL", color = TextSecondary, fontSize = 12.sp)
             }
         }
     )
@@ -2973,7 +2980,7 @@ fun BatchDeleteGroupsDialog(
         containerColor = DarkSlate,
         shape = RoundedCornerShape(8.dp),
         title = {
-            val titleText = if (count == 1) "HAPUS 1 GRUP / FOLDER?" else "HAPUS $count GRUP / FOLDER?"
+            val titleText = if (count == 1) "DELETE 1 GROUP / FOLDER?" else "DELETE $count GROUPS / FOLDERS?"
             Text(titleText, color = CrimsonAlert, fontSize = 15.sp, fontWeight = FontWeight.Bold)
         },
         text = {
@@ -3019,7 +3026,7 @@ fun BatchDeleteGroupsDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = CrimsonAlert),
                 shape = RoundedCornerShape(4.dp)
             ) {
-                Text(if (count == 1) "HAPUS GRUP" else "HAPUS $count GRUP", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(if (count == 1) "DELETE GROUP" else "DELETE $count GROUPS", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
@@ -3028,10 +3035,40 @@ fun BatchDeleteGroupsDialog(
                 border = BorderStroke(1.dp, SteelBorder),
                 shape = RoundedCornerShape(4.dp)
             ) {
-                Text("BATAL", color = TextSecondary, fontSize = 12.sp)
+                Text("CANCEL", color = TextSecondary, fontSize = 12.sp)
             }
         }
     )
+}
+
+private fun formatCompactAIProvider(raw: String): String {
+    if (raw.isBlank() || raw == "DEFAULT") return "AI: READY"
+    val clean = raw.replace("(Free Tier)", "", ignoreCase = true)
+        .replace("(Local)", "", ignoreCase = true)
+        .replace("(Custom)", "", ignoreCase = true)
+        .replace("Platform", "", ignoreCase = true)
+        .replace("Cloud", "", ignoreCase = true)
+        .replace("Studio", "", ignoreCase = true)
+        .replace("Whisper Turbo", "", ignoreCase = true)
+        .replace("Whisper-1", "", ignoreCase = true)
+        .replace("Whisper", "", ignoreCase = true)
+        .trim()
+
+    if (clean.contains("+")) {
+        val parts = clean.split("+").map { it.trim() }
+        val w1 = parts.getOrNull(0)?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
+        var w2 = parts.getOrNull(1)?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
+        val p1 = w1.firstOrNull()?.uppercase() ?: "STT"
+        if (w2.isNotEmpty() && w2[0].equals(p1, ignoreCase = true)) {
+            w2 = w2.drop(1)
+        }
+        val p2 = if (w2.size >= 2) "${w2[0]} ${w2[1]}".uppercase()
+                 else (w2.firstOrNull()?.uppercase() ?: p1)
+        return if (p1 == p2) "AI: $p1" else "AI: $p1 + $p2"
+    }
+
+    val firstTwo = clean.split(" ").filter { it.isNotBlank() }.take(2).joinToString(" ").uppercase()
+    return "AI: $firstTwo"
 }
 
 private fun getInstalledVersionInfo(context: Context): Pair<Long, String> {
