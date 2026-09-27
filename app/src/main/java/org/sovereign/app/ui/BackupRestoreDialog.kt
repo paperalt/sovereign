@@ -15,21 +15,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.Backup
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.FileDownload
-import androidx.compose.material.icons.filled.FileUpload
-import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +48,7 @@ private val TextMuted = Color(0xFF64748B)
 private val AccentPrimary = Color(0xFF38BDF8)
 private val EmeraldSuccess = Color(0xFF10B981)
 private val AmberWarning = Color(0xFFF59E0B)
+private val CrimsonAlert = Color(0xFFEF4444)
 
 @Composable
 fun BackupRestoreDialog(
@@ -122,7 +115,7 @@ fun BackupRestoreDialog(
                     parseError = null
                 } else {
                     parsedPayload = null
-                    parseError = parseRes.exceptionOrNull()?.message ?: "Invalid backup file"
+                    parseError = parseRes.exceptionOrNull()?.message ?: "Invalid backup file structure"
                 }
             } catch (e: Exception) {
                 parseError = "Read error: ${e.message}"
@@ -141,7 +134,7 @@ fun BackupRestoreDialog(
     ) {
         Card(
             shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = OnyxBlack),
+            colors = CardDefaults.cardColors(containerColor = DarkSlate),
             border = BorderStroke(1.dp, SteelBorder),
             modifier = Modifier
                 .fillMaxWidth()
@@ -151,7 +144,7 @@ fun BackupRestoreDialog(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(OnyxBlack)
+                    .background(DarkSlate)
             ) {
                 // Header
                 Row(
@@ -164,13 +157,13 @@ fun BackupRestoreDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(34.dp)
-                                .background(AccentPrimary.copy(alpha = 0.15f), RoundedCornerShape(6.dp)),
+                                .size(36.dp)
+                                .background(AccentPrimary.copy(alpha = 0.15f), RoundedCornerShape(8.dp)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Backup, contentDescription = null, tint = AccentPrimary, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Backup, contentDescription = null, tint = AccentPrimary, modifier = Modifier.size(20.dp))
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
                                 text = "BACKUP & RESTORE DATA",
@@ -180,7 +173,7 @@ fun BackupRestoreDialog(
                                 letterSpacing = 0.5.sp
                             )
                             Text(
-                                text = "Migrate or protect meetings, transcripts & keys",
+                                text = "Local database migration & endpoint protection",
                                 color = TextMuted,
                                 fontSize = 11.sp
                             )
@@ -198,15 +191,16 @@ fun BackupRestoreDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
                         .background(CardBackground, RoundedCornerShape(8.dp))
+                        .border(1.dp, SteelBorder.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                         .padding(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     BackupTabButton(
                         icon = Icons.Default.FileDownload,
-                        title = "EXPORT BACKUP",
-                        subtitle = "Save to file / cloud",
+                        title = "EXPORT DATA",
+                        subtitle = "Save to JSON / share",
                         isSelected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
                         modifier = Modifier.weight(1f)
@@ -214,7 +208,7 @@ fun BackupRestoreDialog(
                     BackupTabButton(
                         icon = Icons.Default.Restore,
                         title = "RESTORE DATA",
-                        subtitle = "Import from file",
+                        subtitle = "Import from JSON file",
                         isSelected = selectedTab == 1,
                         onClick = { selectedTab = 1 },
                         modifier = Modifier.weight(1f)
@@ -232,8 +226,8 @@ fun BackupRestoreDialog(
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
-                            .padding(vertical = 10.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                            .padding(vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         if (selectedTab == 0) {
                             // EXPORT TAB CONTENT
@@ -293,7 +287,7 @@ fun BackupRestoreDialog(
                                             res.onSuccess { summary ->
                                                 Toast.makeText(
                                                     context,
-                                                    "Restored ${summary.meetingsRestored} meetings & ${summary.chunksRestored} transcripts!",
+                                                    "Restored ${summary.meetingsRestored} meetings & ${summary.chunksRestored} transcripts",
                                                     Toast.LENGTH_LONG
                                                 ).show()
                                                 onDataRestored()
@@ -320,11 +314,11 @@ fun BackupRestoreDialog(
                 ) {
                     Button(
                         onClick = onDismiss,
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(6.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
                         modifier = Modifier.height(38.dp)
                     ) {
-                        Text("Done", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("DONE", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                     }
                 }
             }
@@ -344,41 +338,64 @@ private fun ExportTabSection(
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Current Inventory Card
         Card(
-            shape = RoundedCornerShape(10.dp),
+            shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(containerColor = CardBackground),
             border = BorderStroke(1.dp, SteelBorder),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = "DATA INVENTORY READY FOR EXPORT",
-                    color = AccentPrimary,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Monospace
-                )
+            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "LOCAL DATA INVENTORY",
+                        color = TextMuted,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace
+                    )
+                    Box(
+                        modifier = Modifier
+                            .background(AccentPrimary.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                            .border(1.dp, AccentPrimary.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text("READY TO EXPORT", color = AccentPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                    }
+                }
+
                 HorizontalDivider(color = SteelBorder.copy(alpha = 0.4f))
 
                 if (inventory != null) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        DataStatBadge("MEETINGS", "${inventory.meetingsCount}")
-                        DataStatBadge("TRANSCRIPTS", "${inventory.chunksCount}")
-                        DataStatBadge("SUMMARIES", "${inventory.summariesCount}")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DataStatBadge("MEETINGS", "${inventory.meetingsCount}", Modifier.weight(1f))
+                        DataStatBadge("TRANSCRIPTS", "${inventory.chunksCount}", Modifier.weight(1f))
+                        DataStatBadge("SUMMARIES", "${inventory.summariesCount}", Modifier.weight(1f))
                     }
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        DataStatBadge("GROUPS", "${inventory.groupsCount}")
-                        DataStatBadge("STT CONFIGS", "${inventory.sttConfigsCount}")
-                        DataStatBadge("LLM CONFIGS", "${inventory.llmConfigsCount}")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DataStatBadge("GROUPS", "${inventory.groupsCount}", Modifier.weight(1f))
+                        DataStatBadge("STT CONFIGS", "${inventory.sttConfigsCount}", Modifier.weight(1f))
+                        DataStatBadge("LLM CONFIGS", "${inventory.llmConfigsCount}", Modifier.weight(1f))
                     }
                 } else {
-                    CircularProgressIndicator(color = AccentPrimary, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    Box(modifier = Modifier.fillMaxWidth().height(64.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = AccentPrimary, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                    }
                 }
             }
         }
 
         // Include API Keys Switch
         Card(
-            shape = RoundedCornerShape(10.dp),
+            shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(containerColor = CardBackground),
             border = BorderStroke(1.dp, SteelBorder),
             modifier = Modifier.fillMaxWidth()
@@ -397,14 +414,15 @@ private fun ExportTabSection(
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
                     Text(
-                        text = "Exports saved Groq, Gemini, and OpenAI keys so you can switch phones without re-entering credentials.",
-                        color = TextMuted,
-                        fontSize = 11.sp
+                        text = "Package active provider credentials into the backup for seamless multi-device migration without re-entering keys.",
+                        color = TextSecondary,
+                        fontSize = 11.sp,
+                        lineHeight = 15.sp
                     )
                 }
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Switch(
                     checked = includeKeys,
                     onCheckedChange = onIncludeKeysChange,
@@ -426,7 +444,7 @@ private fun ExportTabSection(
             Button(
                 onClick = onExportToFile,
                 enabled = !isExporting,
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(6.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
                 modifier = Modifier
                     .weight(1f)
@@ -437,14 +455,14 @@ private fun ExportTabSection(
                 } else {
                     Icon(Icons.Default.Download, contentDescription = null, tint = OnyxBlack, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Export File", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("EXPORT TO FILE", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                 }
             }
 
             OutlinedButton(
                 onClick = onShareDirectly,
                 enabled = !isExporting,
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(6.dp),
                 border = BorderStroke(1.dp, SteelBorder),
                 modifier = Modifier
                     .weight(1f)
@@ -452,18 +470,31 @@ private fun ExportTabSection(
             ) {
                 Icon(Icons.Default.Share, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Share / Send", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Text("SHARE BACKUP", color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
             }
         }
 
-        // Info Note
-        Text(
-            text = "Tip: Save your backup JSON in Google Drive, local storage, or send it to your new device via messaging/email.",
-            color = TextMuted,
-            fontSize = 10.sp,
-            fontFamily = FontFamily.Monospace,
-            lineHeight = 14.sp
-        )
+        // Enterprise Info Card
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(containerColor = DarkSlate),
+            border = BorderStroke(1.dp, SteelBorder.copy(alpha = 0.5f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                Icon(Icons.Default.Info, contentDescription = null, tint = TextMuted, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Exported files contain your complete meeting history, transcript segments, and customized pipeline configurations in standard JSON format.",
+                    color = TextMuted,
+                    fontSize = 11.sp,
+                    lineHeight = 15.sp
+                )
+            }
+        }
     }
 }
 
@@ -483,7 +514,7 @@ private fun RestoreTabSection(
         if (parsedPayload == null) {
             // No file selected yet
             Card(
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = CardBackground),
                 border = BorderStroke(1.dp, SteelBorder),
                 modifier = Modifier.fillMaxWidth()
@@ -497,24 +528,27 @@ private fun RestoreTabSection(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(44.dp)
-                            .background(DarkSlate, RoundedCornerShape(8.dp)),
+                            .size(46.dp)
+                            .background(DarkSlate, RoundedCornerShape(8.dp))
+                            .border(1.dp, SteelBorder, RoundedCornerShape(8.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Default.FileUpload, contentDescription = null, tint = AccentPrimary, modifier = Modifier.size(22.dp))
                     }
                     Text(
-                        text = "SELECT BACKUP FILE TO RESTORE",
+                        text = "SELECT BACKUP JSON FILE",
                         color = TextPrimary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace
+                        fontFamily = FontFamily.Monospace,
+                        letterSpacing = 0.5.sp
                     )
                     Text(
-                        text = "Choose a previously exported sovereign_backup_*.json file from your device or cloud storage.",
+                        text = "Select a previously exported sovereign_backup_*.json file from your device storage or cloud drive to inspect and restore.",
                         color = TextMuted,
                         fontSize = 11.sp,
-                        lineHeight = 15.sp
+                        lineHeight = 15.sp,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -522,15 +556,17 @@ private fun RestoreTabSection(
                         onClick = onSelectFile,
                         shape = RoundedCornerShape(6.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
-                        modifier = Modifier.height(38.dp)
+                        modifier = Modifier.height(40.dp)
                     ) {
-                        Text("Select Backup JSON", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Icon(Icons.Default.FolderOpen, contentDescription = null, tint = OnyxBlack, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("BROWSE BACKUP FILE", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                     }
 
                     if (parseError != null) {
                         Text(
                             text = parseError,
-                            color = AmberWarning,
+                            color = CrimsonAlert,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -540,12 +576,12 @@ private fun RestoreTabSection(
         } else {
             // Backup File Verified Card
             Card(
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = CardBackground),
                 border = BorderStroke(1.dp, EmeraldSuccess),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -561,9 +597,10 @@ private fun RestoreTabSection(
                         Box(
                             modifier = Modifier
                                 .background(EmeraldSuccess.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                .border(1.dp, EmeraldSuccess.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
-                            Text("VALID FORMAT", color = EmeraldSuccess, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            Text("VALID SIGNATURE", color = EmeraldSuccess, fontSize = 9.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                         }
                     }
 
@@ -584,38 +621,43 @@ private fun RestoreTabSection(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        DataStatBadge("MEETINGS", "${parsedPayload.meetings.size}")
-                        DataStatBadge("CHUNKS", "${parsedPayload.chunks.size}")
-                        DataStatBadge("SUMMARIES", "${parsedPayload.summaries.size}")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DataStatBadge("MEETINGS", "${parsedPayload.meetings.size}", Modifier.weight(1f))
+                        DataStatBadge("CHUNKS", "${parsedPayload.chunks.size}", Modifier.weight(1f))
+                        DataStatBadge("SUMMARIES", "${parsedPayload.summaries.size}", Modifier.weight(1f))
                     }
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        DataStatBadge("GROUPS", "${parsedPayload.groups.size}")
-                        DataStatBadge("STT CONFIGS", "${parsedPayload.settings?.sttConfigs?.size ?: 0}")
-                        DataStatBadge("LLM CONFIGS", "${parsedPayload.settings?.llmConfigs?.size ?: 0}")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DataStatBadge("GROUPS", "${parsedPayload.groups.size}", Modifier.weight(1f))
+                        DataStatBadge("STT CONFIGS", "${parsedPayload.settings?.sttConfigs?.size ?: 0}", Modifier.weight(1f))
+                        DataStatBadge("LLM CONFIGS", "${parsedPayload.settings?.llmConfigs?.size ?: 0}", Modifier.weight(1f))
                     }
                 }
             }
 
-            // Restore Options
+            // Restore Strategy Card
             Card(
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = CardBackground),
                 border = BorderStroke(1.dp, SteelBorder),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(
                         text = "RESTORE STRATEGY",
-                        color = AccentPrimary,
-                        fontSize = 11.sp,
+                        color = TextMuted,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = FontFamily.Monospace
                     )
                     HorizontalDivider(color = SteelBorder.copy(alpha = 0.4f))
 
-                    // Wipe / Replace Option
+                    // Clean Replace Switch
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -626,8 +668,16 @@ private fun RestoreTabSection(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text("Clean Replace (Wipe Existing Data)", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            Text("Recommended when moving to a fresh new device", color = TextMuted, fontSize = 10.sp)
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = if (replaceExisting) "Caution: Current on-device recordings will be erased before restoring"
+                                       else "Merge backup records into existing database",
+                                color = if (replaceExisting) AmberWarning else TextMuted,
+                                fontSize = 10.sp,
+                                fontWeight = if (replaceExisting) FontWeight.SemiBold else FontWeight.Normal
+                            )
                         }
+                        Spacer(modifier = Modifier.width(10.dp))
                         Switch(
                             checked = replaceExisting,
                             onCheckedChange = onReplaceExistingChange,
@@ -640,6 +690,8 @@ private fun RestoreTabSection(
                         )
                     }
 
+                    HorizontalDivider(color = SteelBorder.copy(alpha = 0.3f))
+
                     // Restore Settings Switch
                     Row(
                         modifier = Modifier
@@ -651,11 +703,13 @@ private fun RestoreTabSection(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text("Restore AI Endpoints & API Keys", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text("Applies configured STT/LLM endpoints and keys from backup", color = TextMuted, fontSize = 10.sp)
                         }
+                        Spacer(modifier = Modifier.width(10.dp))
                         Switch(
                             checked = restoreSettings,
-                            onCheckedChange = onRestoreSettingsChange,
+                            onRestoreSettingsChange,
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = OnyxBlack,
                                 checkedTrackColor = AccentPrimary,
@@ -674,19 +728,19 @@ private fun RestoreTabSection(
             ) {
                 OutlinedButton(
                     onClick = onSelectFile,
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(6.dp),
                     border = BorderStroke(1.dp, SteelBorder),
                     modifier = Modifier
                         .weight(1f)
                         .height(44.dp)
                 ) {
-                    Text("Change File", color = TextSecondary, fontSize = 11.sp)
+                    Text("CHANGE FILE", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                 }
 
                 Button(
                     onClick = onApplyRestore,
                     enabled = !isRestoring,
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(6.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
                     modifier = Modifier
                         .weight(1f)
@@ -697,7 +751,7 @@ private fun RestoreTabSection(
                     } else {
                         Icon(Icons.Default.Check, contentDescription = null, tint = OnyxBlack, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Apply Restore", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("APPLY RESTORE", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                     }
                 }
             }
@@ -706,20 +760,40 @@ private fun RestoreTabSection(
 }
 
 @Composable
-private fun DataStatBadge(label: String, count: String) {
+private fun DataStatBadge(
+    label: String,
+    count: String,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
-            .background(DarkSlate, RoundedCornerShape(4.dp))
-            .padding(horizontal = 10.dp, vertical = 6.dp)
+        modifier = modifier
+            .background(DarkSlate, RoundedCornerShape(6.dp))
+            .border(1.dp, SteelBorder.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+            .padding(horizontal = 8.dp, vertical = 6.dp)
     ) {
-        Text(text = label, color = TextMuted, fontSize = 9.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
-        Text(text = count, color = TextPrimary, fontSize = 13.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
+        Text(
+            text = label,
+            color = TextMuted,
+            fontSize = 9.sp,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(modifier = Modifier.height(1.dp))
+        Text(
+            text = count,
+            color = TextPrimary,
+            fontSize = 13.sp,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
 @Composable
 private fun BackupTabButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     title: String,
     subtitle: String,
     isSelected: Boolean,
@@ -729,16 +803,16 @@ private fun BackupTabButton(
     Box(
         modifier = modifier
             .background(
-                if (isSelected) AccentPrimary.copy(alpha = 0.18f) else CardBackground,
+                if (isSelected) AccentPrimary.copy(alpha = 0.15f) else CardBackground,
                 shape = RoundedCornerShape(6.dp)
             )
             .border(
                 1.dp,
-                if (isSelected) AccentPrimary else Color.Transparent,
+                if (isSelected) AccentPrimary.copy(alpha = 0.8f) else Color.Transparent,
                 shape = RoundedCornerShape(6.dp)
             )
             .clickable { onClick() }
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp, horizontal = 10.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -748,20 +822,23 @@ private fun BackupTabButton(
                 tint = if (isSelected) AccentPrimary else TextMuted,
                 modifier = Modifier.size(16.dp)
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Column {
                 Text(
                     text = title,
                     color = if (isSelected) AccentPrimary else TextPrimary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.5.sp
+                    letterSpacing = 0.5.sp,
+                    fontFamily = FontFamily.Monospace
                 )
                 Text(
                     text = subtitle,
-                    color = if (isSelected) AccentPrimary else TextMuted,
+                    color = if (isSelected) AccentPrimary.copy(alpha = 0.85f) else TextSecondary,
                     fontSize = 9.sp,
-                    fontFamily = FontFamily.Monospace
+                    fontFamily = FontFamily.Monospace,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
