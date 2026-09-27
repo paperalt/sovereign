@@ -156,16 +156,24 @@ class DirectAIClient(
                 return Result.failure(IOException("Gemini STT failed with code ${response.code}: ${response.body?.string()}"))
             }
             val bodyString = response.body?.string() ?: ""
-            val jsonObject = gson.fromJson(bodyString, JsonObject::class.java)
-            val candidates = jsonObject.getAsJsonArray("candidates")
-            if (candidates != null && candidates.size() > 0) {
-                val text = candidates[0].asJsonObject
-                    .getAsJsonObject("content")
-                    .getAsJsonArray("parts")[0].asJsonObject
-                    .get("text").asString
-                return Result.success(text.trim())
+            return try {
+                val jsonObject = gson.fromJson(bodyString, JsonObject::class.java)
+                val candidates = jsonObject?.getAsJsonArray("candidates")
+                if (candidates != null && candidates.size() > 0) {
+                    val contentObj = candidates[0].asJsonObject.getAsJsonObject("content")
+                    val parts = contentObj?.getAsJsonArray("parts")
+                    if (parts != null && parts.size() > 0) {
+                        val text = parts[0].asJsonObject.get("text")?.asString ?: ""
+                        Result.success(text.trim())
+                    } else {
+                        Result.success("")
+                    }
+                } else {
+                    Result.success("")
+                }
+            } catch (e: Exception) {
+                Result.failure(IOException("Failed to parse Gemini STT response: ${e.message}"))
             }
-            return Result.success("")
         }
     }
 
@@ -176,9 +184,15 @@ class DirectAIClient(
                 return Result.failure(IOException("Transcription failed (${response.code}): $errBody"))
             }
             val bodyString = response.body?.string() ?: ""
-            val jsonObject = gson.fromJson(bodyString, JsonObject::class.java)
-            val text = jsonObject.get("text")?.asString ?: ""
-            return Result.success(text.trim())
+            return try {
+                val jsonObject = gson.fromJson(bodyString, JsonObject::class.java)
+                val text = jsonObject?.get("text")?.asString
+                    ?: jsonObject?.get("transcript")?.asString
+                    ?: ""
+                Result.success(text.trim())
+            } catch (e: Exception) {
+                Result.failure(IOException("Failed to parse transcription response: ${e.message}"))
+            }
         }
     }
 
@@ -346,7 +360,11 @@ class DirectAIClient(
             base = base.removeSuffix("/audio/transcriptions")
         }
 
-        return if (base.endsWith("/models")) base else "$base/models"
+        if (base.endsWith("/models")) return base
+        if (base.endsWith("/v1")) return "$base/models"
+        if (base.contains("11434") && !base.contains("/v1")) return "$base/v1/models"
+
+        return "$base/models"
     }
 
     private fun parseModelsList(body: String): List<String> {
@@ -476,16 +494,24 @@ class DirectAIClient(
                 return Result.failure(IOException("Gemini Chat failed (${response.code}): ${response.body?.string()}"))
             }
             val body = response.body?.string() ?: ""
-            val jsonObject = gson.fromJson(body, JsonObject::class.java)
-            val candidates = jsonObject.getAsJsonArray("candidates")
-            if (candidates != null && candidates.size() > 0) {
-                val content = candidates[0].asJsonObject
-                    .getAsJsonObject("content")
-                    .getAsJsonArray("parts")[0].asJsonObject
-                    .get("text").asString
-                return Result.success(content)
+            return try {
+                val jsonObject = gson.fromJson(body, JsonObject::class.java)
+                val candidates = jsonObject?.getAsJsonArray("candidates")
+                if (candidates != null && candidates.size() > 0) {
+                    val contentObj = candidates[0].asJsonObject.getAsJsonObject("content")
+                    val parts = contentObj?.getAsJsonArray("parts")
+                    if (parts != null && parts.size() > 0) {
+                        val content = parts[0].asJsonObject.get("text")?.asString ?: ""
+                        Result.success(content)
+                    } else {
+                        Result.success("")
+                    }
+                } else {
+                    Result.success("")
+                }
+            } catch (e: Exception) {
+                Result.failure(IOException("Failed to parse Gemini response: ${e.message}"))
             }
-            return Result.success("")
         }
     }
 
