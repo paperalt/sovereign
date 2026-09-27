@@ -306,7 +306,8 @@ fun LiveTranscriptionScreen(
         ) {
             AudioWaveformVisualizer(
                 amplitudeSupplier = amplitudeSupplier,
-                barColor = if (isRecording && !isPaused) AccentPrimary else TextMuted.copy(alpha = 0.35f),
+                barTopColor = if (isRecording && !isPaused) AccentPrimary else TextMuted.copy(alpha = 0.4f),
+                barBottomColor = if (isRecording && !isPaused) Color(0xFF0284C7) else TextMuted.copy(alpha = 0.15f),
                 modifier = Modifier.fillMaxSize()
             )
         }

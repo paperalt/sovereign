@@ -8,13 +8,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun AudioWaveformVisualizer(
     amplitudeSupplier: () -> FloatArray,
-    barColor: Color = Color(0xFF38BDF8),
+    barTopColor: Color = Color(0xFF38BDF8),
+    barBottomColor: Color = Color(0xFF0284C7),
     modifier: Modifier = Modifier
         .fillMaxWidth()
         .height(36.dp)
@@ -43,8 +45,14 @@ fun AudioWaveformVisualizer(
             val x = i * (barWidth + gap)
             val y = (maxHeight - barHeight) / 2f
 
+            val brush = Brush.verticalGradient(
+                colors = listOf(barTopColor, barBottomColor),
+                startY = y,
+                endY = y + barHeight
+            )
+
             drawRoundRect(
-                color = barColor,
+                brush = brush,
                 topLeft = Offset(x, y),
                 size = Size(barWidth, barHeight),
                 cornerRadius = CornerRadius(barWidth / 2f, barWidth / 2f)

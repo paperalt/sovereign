@@ -55,8 +55,14 @@ fun GroupCard(
                 onLongClick = onLongClick
             )
             .border(
-                1.dp,
-                if (isSelected) AccentPrimary else SteelBorder,
+                BorderStroke(
+                    1.dp,
+                    if (isSelected) androidx.compose.ui.graphics.Brush.verticalGradient(
+                        listOf(AccentPrimary, Color(0xFF0284C7))
+                    ) else androidx.compose.ui.graphics.Brush.verticalGradient(
+                        listOf(Color.White.copy(alpha = 0.12f), SteelBorder)
+                    )
+                ),
                 RoundedCornerShape(8.dp)
             ),
         colors = CardDefaults.cardColors(

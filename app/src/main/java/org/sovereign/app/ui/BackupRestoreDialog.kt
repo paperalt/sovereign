@@ -317,15 +317,36 @@ fun BackupRestoreDialog(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
-                        Button(
-                            onClick = onDismiss,
-                            shape = RoundedCornerShape(6.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(42.dp)
+                                .background(
+                                    androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                        listOf(AccentPrimary, Color(0xFF0284C7))
+                                    ),
+                                    RoundedCornerShape(6.dp)
+                                )
+                                .border(
+                                    BorderStroke(
+                                        1.dp,
+                                        androidx.compose.ui.graphics.Brush.verticalGradient(
+                                            listOf(Color.White.copy(alpha = 0.35f), Color.Transparent)
+                                        )
+                                    ),
+                                    RoundedCornerShape(6.dp)
+                                )
+                                .clickable(onClick = onDismiss),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text("CLOSE", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                            Text(
+                                text = "CLOSE",
+                                color = OnyxBlack,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                letterSpacing = 0.5.sp
+                            )
                         }
                     }
                 }
@@ -449,30 +470,49 @@ private fun ExportTabSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Button(
-                onClick = onExportToFile,
-                enabled = !isExporting,
-                shape = RoundedCornerShape(6.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+            Box(
                 modifier = Modifier
                     .weight(1f)
                     .height(44.dp)
+                    .background(
+                        if (!isExporting) androidx.compose.ui.graphics.Brush.horizontalGradient(
+                            listOf(AccentPrimary, Color(0xFF0284C7))
+                        ) else androidx.compose.ui.graphics.Brush.horizontalGradient(
+                            listOf(AccentPrimary.copy(alpha = 0.5f), Color(0xFF0284C7).copy(alpha = 0.5f))
+                        ),
+                        RoundedCornerShape(6.dp)
+                    )
+                    .border(
+                        BorderStroke(
+                            1.dp,
+                            androidx.compose.ui.graphics.Brush.verticalGradient(
+                                listOf(Color.White.copy(alpha = 0.35f), Color.Transparent)
+                            )
+                        ),
+                        RoundedCornerShape(6.dp)
+                    )
+                    .clickable(enabled = !isExporting, onClick = onExportToFile),
+                contentAlignment = Alignment.Center
             ) {
                 if (isExporting) {
                     CircularProgressIndicator(color = OnyxBlack, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                 } else {
-                    Icon(Icons.Default.Download, contentDescription = null, tint = OnyxBlack, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "EXPORT FILE",
-                        color = OnyxBlack,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace,
-                        maxLines = 1,
-                        softWrap = false
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(Icons.Default.Download, contentDescription = null, tint = OnyxBlack, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "EXPORT FILE",
+                            color = OnyxBlack,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
                 }
             }
 
@@ -787,30 +827,49 @@ private fun RestoreTabSection(
                     )
                 }
 
-                Button(
-                    onClick = onApplyRestore,
-                    enabled = !isRestoring,
-                    shape = RoundedCornerShape(6.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                Box(
                     modifier = Modifier
                         .weight(1f)
                         .height(44.dp)
+                        .background(
+                            if (!isRestoring) androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                listOf(AccentPrimary, Color(0xFF0284C7))
+                            ) else androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                listOf(AccentPrimary.copy(alpha = 0.5f), Color(0xFF0284C7).copy(alpha = 0.5f))
+                            ),
+                            RoundedCornerShape(6.dp)
+                        )
+                        .border(
+                            BorderStroke(
+                                1.dp,
+                                androidx.compose.ui.graphics.Brush.verticalGradient(
+                                    listOf(Color.White.copy(alpha = 0.35f), Color.Transparent)
+                                )
+                            ),
+                            RoundedCornerShape(6.dp)
+                        )
+                        .clickable(enabled = !isRestoring, onClick = onApplyRestore),
+                    contentAlignment = Alignment.Center
                 ) {
                     if (isRestoring) {
                         CircularProgressIndicator(color = OnyxBlack, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                     } else {
-                        Icon(Icons.Default.Check, contentDescription = null, tint = OnyxBlack, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "APPLY RESTORE",
-                            color = OnyxBlack,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Monospace,
-                            maxLines = 1,
-                            softWrap = false
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(Icons.Default.Check, contentDescription = null, tint = OnyxBlack, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "APPLY RESTORE",
+                                color = OnyxBlack,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                        }
                     }
                 }
             }
@@ -826,8 +885,21 @@ private fun DataStatBadge(
 ) {
     Column(
         modifier = modifier
-            .background(DarkSlate, RoundedCornerShape(6.dp))
-            .border(1.dp, SteelBorder.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+            .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                    listOf(Color(0xFF161E2B), DarkSlate)
+                ),
+                RoundedCornerShape(6.dp)
+            )
+            .border(
+                BorderStroke(
+                    1.dp,
+                    androidx.compose.ui.graphics.Brush.verticalGradient(
+                        listOf(Color.White.copy(alpha = 0.09f), SteelBorder.copy(alpha = 0.5f))
+                    )
+                ),
+                RoundedCornerShape(6.dp)
+            )
             .padding(horizontal = 6.dp, vertical = 6.dp)
     ) {
         Text(
@@ -861,12 +933,18 @@ private fun BackupTabButton(
     Box(
         modifier = modifier
             .background(
-                if (isSelected) AccentPrimary.copy(alpha = 0.15f) else Color.Transparent,
+                if (isSelected) androidx.compose.ui.graphics.Brush.horizontalGradient(
+                    listOf(Color(0xFF0E2A3B), Color(0xFF081A26))
+                ) else androidx.compose.ui.graphics.SolidColor(Color.Transparent),
                 shape = RoundedCornerShape(6.dp)
             )
             .border(
-                1.dp,
-                if (isSelected) AccentPrimary.copy(alpha = 0.8f) else Color.Transparent,
+                BorderStroke(
+                    1.dp,
+                    if (isSelected) androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        listOf(AccentPrimary, Color(0xFF0284C7))
+                    ) else androidx.compose.ui.graphics.SolidColor(Color.Transparent)
+                ),
                 shape = RoundedCornerShape(6.dp)
             )
             .clickable { onClick() }

@@ -573,13 +573,33 @@ fun DashboardScreen(
                 }
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { showCreateDialog = true },
-                    containerColor = AccentPrimary,
-                    contentColor = OnyxBlack,
-                    shape = RoundedCornerShape(8.dp)
+                Box(
+                    modifier = Modifier
+                        .size(54.dp)
+                        .background(
+                            androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                listOf(AccentPrimary, Color(0xFF0284C7))
+                            ),
+                            RoundedCornerShape(10.dp)
+                        )
+                        .border(
+                            BorderStroke(
+                                1.dp,
+                                androidx.compose.ui.graphics.Brush.verticalGradient(
+                                    listOf(Color.White.copy(alpha = 0.35f), Color.Transparent)
+                                )
+                            ),
+                            RoundedCornerShape(10.dp)
+                        )
+                        .clickable { showCreateDialog = true },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "New Recording")
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "New Recording",
+                        tint = OnyxBlack,
+                        modifier = Modifier.size(26.dp)
+                    )
                 }
             }
         ) { innerPadding ->

@@ -1,5 +1,6 @@
 package org.sovereign.app.ui.dashboard
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -132,12 +133,22 @@ fun DashboardTopBar(
                 .padding(start = 8.dp)
                 .widthIn(max = 160.dp)
                 .background(
-                    if (isBYOKActive) Color(0xFF0E2A3B) else Color(0xFF1E2632),
+                    if (isBYOKActive) androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        listOf(Color(0xFF0E2A3B), Color(0xFF081A26))
+                    ) else androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        listOf(Color(0xFF1E2632), Color(0xFF141A22))
+                    ),
                     RoundedCornerShape(4.dp)
                 )
                 .border(
-                    1.dp,
-                    if (isBYOKActive) AccentPrimary else SteelBorder,
+                    BorderStroke(
+                        1.dp,
+                        if (isBYOKActive) androidx.compose.ui.graphics.Brush.horizontalGradient(
+                            listOf(AccentPrimary, Color(0xFF0284C7))
+                        ) else androidx.compose.ui.graphics.Brush.verticalGradient(
+                            listOf(Color.White.copy(alpha = 0.12f), SteelBorder)
+                        )
+                    ),
                     RoundedCornerShape(4.dp)
                 )
                 .clickable(onClick = onOpenAIEngine)
