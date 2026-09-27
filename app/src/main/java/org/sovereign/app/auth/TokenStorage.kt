@@ -76,6 +76,9 @@ interface TokenStorage {
     fun setLLMConfigsJson(json: String)
     fun getActiveLLMConfigId(): String
     fun setActiveLLMConfigId(id: String)
+
+    fun getAllProviderApiKeys(): Map<String, String>
+    fun restoreProviderApiKeys(keys: Map<String, String>)
 }
 
 class EncryptedTokenStorage(context: Context) : TokenStorage {
@@ -338,6 +341,30 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
 
     override fun setActiveLLMConfigId(id: String) {
         prefs.edit().putString(KEY_ACTIVE_LLM_CONFIG_ID, id.trim()).apply()
+    }
+
+    override fun getAllProviderApiKeys(): Map<String, String> {
+        val map = mutableMapOf<String, String>()
+        try {
+            for ((key, value) in prefs.all) {
+                if (key.startsWith("custom_key_") && value is String && value.isNotBlank()) {
+                    val provider = key.removePrefix("custom_key_")
+                    map[provider] = value
+                }
+            }
+        } catch (_: Exception) {}
+        return map
+    }
+
+    override fun restoreProviderApiKeys(keys: Map<String, String>) {
+        val editor = prefs.edit()
+        for ((provider, key) in keys) {
+            if (key.isNotBlank()) {
+                val keyName = "custom_key_${provider.trim().lowercase()}"
+                editor.putString(keyName, key.trim())
+            }
+        }
+        editor.apply()
     }
 
     override fun hasValidSession(): Boolean {

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.automirrored.filled.DriveFileMove
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.CreateNewFolder
@@ -93,6 +94,7 @@ fun DashboardScreen(
     var showAIEngineDialog by remember { mutableStateOf(false) }
     var showSTTDialog by remember { mutableStateOf(false) }
     var showLLMDialog by remember { mutableStateOf(false) }
+    var showBackupRestoreDialog by remember { mutableStateOf(false) }
     var showInfoDialog by remember { mutableStateOf(false) }
     var showGuideDialog by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -597,6 +599,18 @@ fun DashboardScreen(
         )
     }
 
+    // Backup & Restore Dialog
+    if (showBackupRestoreDialog) {
+        BackupRestoreDialog(
+            tokenStorage = tokenStorage,
+            onDismiss = { showBackupRestoreDialog = false },
+            onDataRestored = {
+                refreshData()
+                currentAIProvider = tokenStorage.getAIProvider()
+            }
+        )
+    }
+
     // System Info Dialog
     if (showInfoDialog) {
         SystemInfoDialog(
@@ -770,6 +784,17 @@ fun DashboardScreen(
                         onClick = {
                             scope.launch { drawerState.close() }
                             showLLMDialog = true
+                        }
+                    )
+
+                    // Menu Item 4: Backup & Restore Data
+                    DrawerNavRow(
+                        icon = Icons.Default.Backup,
+                        title = "Backup & Restore",
+                        subtitle = "Export or import meetings & keys",
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            showBackupRestoreDialog = true
                         }
                     )
 
