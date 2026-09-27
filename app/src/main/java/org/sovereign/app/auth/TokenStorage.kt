@@ -36,6 +36,11 @@ interface TokenStorage {
     fun getSelectedPreset(): String
     fun setSelectedPreset(preset: String)
 
+    fun getSTTPresetId(): String
+    fun setSTTPresetId(presetId: String)
+    fun getLLMPresetId(): String
+    fun setLLMPresetId(presetId: String)
+
     fun getSTTEndpoint(): String
     fun setSTTEndpoint(url: String)
 
@@ -56,6 +61,11 @@ interface TokenStorage {
 
     fun getCustomPresetsUrl(): String
     fun setCustomPresetsUrl(url: String)
+
+    fun getEnginePresetsJson(): String
+    fun setEnginePresetsJson(json: String)
+    fun getActiveEnginePresetId(): String
+    fun setActiveEnginePresetId(id: String)
 }
 
 class EncryptedTokenStorage(context: Context) : TokenStorage {
@@ -174,11 +184,30 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
     }
 
     override fun getSelectedPreset(): String {
-        return prefs.getString(KEY_SELECTED_PRESET, "groq") ?: "groq"
+        val stt = getSTTPresetId()
+        val llm = getLLMPresetId()
+        return prefs.getString(KEY_SELECTED_PRESET, null)
+            ?: if (stt == llm) stt else "${stt}+${llm}"
     }
 
     override fun setSelectedPreset(preset: String) {
         prefs.edit().putString(KEY_SELECTED_PRESET, preset).apply()
+    }
+
+    override fun getSTTPresetId(): String {
+        return prefs.getString(KEY_STT_PRESET_ID, "groq") ?: "groq"
+    }
+
+    override fun setSTTPresetId(presetId: String) {
+        prefs.edit().putString(KEY_STT_PRESET_ID, presetId).apply()
+    }
+
+    override fun getLLMPresetId(): String {
+        return prefs.getString(KEY_LLM_PRESET_ID, "groq") ?: "groq"
+    }
+
+    override fun setLLMPresetId(presetId: String) {
+        prefs.edit().putString(KEY_LLM_PRESET_ID, presetId).apply()
     }
 
     override fun getSTTEndpoint(): String {
@@ -239,6 +268,22 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
         prefs.edit().putString(KEY_CUSTOM_PRESETS_URL, url.trim()).apply()
     }
 
+    override fun getEnginePresetsJson(): String {
+        return prefs.getString(KEY_ENGINE_PRESETS_JSON, "") ?: ""
+    }
+
+    override fun setEnginePresetsJson(json: String) {
+        prefs.edit().putString(KEY_ENGINE_PRESETS_JSON, json).apply()
+    }
+
+    override fun getActiveEnginePresetId(): String {
+        return prefs.getString(KEY_ACTIVE_ENGINE_PRESET_ID, "") ?: ""
+    }
+
+    override fun setActiveEnginePresetId(id: String) {
+        prefs.edit().putString(KEY_ACTIVE_ENGINE_PRESET_ID, id.trim()).apply()
+    }
+
     override fun hasValidSession(): Boolean {
         return !getAccessToken().isNullOrBlank() && !getRefreshToken().isNullOrBlank()
     }
@@ -255,6 +300,8 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
         private const val KEY_CUSTOM_API_KEY = "custom_api_key"
         private const val KEY_ADAPTIVE_STREAMING_BETA = "adaptive_streaming_beta"
         private const val KEY_SELECTED_PRESET = "selected_preset"
+        private const val KEY_STT_PRESET_ID = "stt_preset_id"
+        private const val KEY_LLM_PRESET_ID = "llm_preset_id"
         private const val KEY_STT_ENDPOINT = "stt_endpoint"
         private const val KEY_STT_MODEL = "stt_model"
         private const val KEY_STT_KEY = "stt_key"
@@ -262,5 +309,7 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
         private const val KEY_LLM_MODEL = "llm_model"
         private const val KEY_LLM_KEY = "llm_key"
         private const val KEY_CUSTOM_PRESETS_URL = "custom_presets_url"
+        private const val KEY_ENGINE_PRESETS_JSON = "engine_presets_json"
+        private const val KEY_ACTIVE_ENGINE_PRESET_ID = "active_engine_preset_id"
     }
 }

@@ -200,7 +200,7 @@ fun DashboardScreen(
                 groupMeetings = it.meetings
                 isGroupLoading = false
             }.onFailure {
-                Toast.makeText(context, "Gagal memuat isi grup", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Failed to load group contents", Toast.LENGTH_SHORT).show()
                 isGroupLoading = false
             }
         }
@@ -243,7 +243,7 @@ fun DashboardScreen(
                         onResult(null, msg)
                         refreshData()
                     }.onFailure { err ->
-                        onResult(err.message ?: "Gagal menukarkan voucher", null)
+                        onResult(err.message ?: "Failed to redeem voucher", null)
                     }
                 }
             }
@@ -290,10 +290,10 @@ fun DashboardScreen(
                 scope.launch {
                     val res = meetingRepository.createGroup(name, desc, color)
                     res.onSuccess {
-                        Toast.makeText(context, "Grup \"$name\" berhasil dibuat", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Group \"$name\" created successfully", Toast.LENGTH_SHORT).show()
                         refreshData()
                     }.onFailure {
-                        Toast.makeText(context, "Gagal membuat grup: ${it.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Failed to create group: ${it.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -313,13 +313,13 @@ fun DashboardScreen(
                 scope.launch {
                     val res = meetingRepository.batchAssignMeetingGroup(ids, targetGroupId)
                     res.onSuccess {
-                        Toast.makeText(context, "${ids.size} sesi berhasil dipindahkan", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "${ids.size} sessions moved", Toast.LENGTH_SHORT).show()
                         if (selectedGroupDetail != null) {
                             loadGroupDetail(selectedGroupDetail!!.id)
                         }
                         refreshData()
                     }.onFailure {
-                        Toast.makeText(context, "Gagal memindahkan sesi: ${it.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Failed to move sessions: ${it.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -338,13 +338,13 @@ fun DashboardScreen(
                 scope.launch {
                     val res = meetingRepository.batchDeleteMeetings(ids)
                     res.onSuccess {
-                        Toast.makeText(context, "${ids.size} sesi berhasil dihapus", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "${ids.size} sessions deleted", Toast.LENGTH_SHORT).show()
                         if (selectedGroupDetail != null) {
                             loadGroupDetail(selectedGroupDetail!!.id)
                         }
                         refreshData()
                     }.onFailure {
-                        Toast.makeText(context, "Gagal menghapus sesi: ${it.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Failed to delete sessions: ${it.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -363,13 +363,13 @@ fun DashboardScreen(
                 scope.launch {
                     val res = meetingRepository.batchDeleteGroups(ids, deleteMeetingsAlso)
                     res.onSuccess {
-                        Toast.makeText(context, "${ids.size} grup berhasil dihapus", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "${ids.size} groups deleted", Toast.LENGTH_SHORT).show()
                         if (selectedGroupDetail != null && selectedGroupDetail!!.id in ids) {
                             selectedGroupDetail = null
                         }
                         refreshData()
                     }.onFailure {
-                        Toast.makeText(context, "Gagal menghapus grup: ${it.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Failed to delete groups: ${it.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -400,7 +400,7 @@ fun DashboardScreen(
             text = {
                 Column {
                     Text(
-                        text = "Ubah judul sesi pertemuan / transkripsi:",
+                        text = "Edit session title:",
                         color = TextSecondary,
                         fontSize = 13.sp
                     )
@@ -432,7 +432,7 @@ fun DashboardScreen(
                             scope.launch {
                                 val res = meetingRepository.updateMeetingTitle(meeting.id, trimmed)
                                 res.onSuccess {
-                                    Toast.makeText(context, "Nama transkrip berhasil diubah", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Session renamed", Toast.LENGTH_SHORT).show()
                                     meetingToRename = null
                                     selectedMeetingIds = emptySet()
                                     refreshData()
@@ -440,7 +440,7 @@ fun DashboardScreen(
                                         loadGroupDetail(selectedGroupDetail!!.id)
                                     }
                                 }.onFailure {
-                                    Toast.makeText(context, "Gagal mengubah nama: ${it.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Failed to rename: ${it.message}", Toast.LENGTH_SHORT).show()
                                 }
                                 isRenaming = false
                             }
@@ -490,7 +490,7 @@ fun DashboardScreen(
             text = {
                 Column {
                     Text(
-                        text = "Ubah nama folder grup transkripsi:",
+                        text = "Rename group folder:",
                         color = TextSecondary,
                         fontSize = 13.sp
                     )
@@ -530,7 +530,7 @@ fun DashboardScreen(
                                         selectedGroupDetail = selectedGroupDetail!!.copy(name = trimmed)
                                     }
                                 }.onFailure {
-                                    Toast.makeText(context, "Gagal mengubah nama grup: ${it.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Failed to rename group: ${it.message}", Toast.LENGTH_SHORT).show()
                                 }
                                 isRenaming = false
                             }
@@ -612,7 +612,7 @@ fun DashboardScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "TRANSCRIBE CORE",
+                                text = "SOVEREIGN",
                                 color = TextPrimary,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
@@ -629,7 +629,7 @@ fun DashboardScreen(
                             )
                         }
                         IconButton(onClick = { scope.launch { drawerState.close() } }) {
-                            Icon(Icons.Default.Close, contentDescription = "Tutup Menu", tint = TextSecondary)
+                            Icon(Icons.Default.Close, contentDescription = "Close menu", tint = TextSecondary)
                         }
                     }
 
@@ -650,7 +650,7 @@ fun DashboardScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "STATUS ENGINE",
+                                    text = "ENGINE STATUS",
                                     color = TextMuted,
                                     fontSize = 10.sp,
                                     fontFamily = FontFamily.Monospace,
@@ -662,7 +662,7 @@ fun DashboardScreen(
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
                                     Text(
-                                        text = "AKTIF",
+                                        text = "ACTIVE",
                                         color = EmeraldSuccess,
                                         fontSize = 10.sp,
                                         fontFamily = FontFamily.Monospace,
@@ -679,7 +679,7 @@ fun DashboardScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Penyedia: $currentAIProvider",
+                                    text = "Provider: $currentAIProvider",
                                     color = TextPrimary,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
@@ -689,7 +689,7 @@ fun DashboardScreen(
                             }
 
                             Text(
-                                text = "Penyimpanan: SQLite Lokal",
+                                text = "Storage: Local SQLite",
                                 color = TextSecondary,
                                 fontSize = 10.sp,
                                 fontFamily = FontFamily.Monospace
@@ -702,7 +702,7 @@ fun DashboardScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "NAVIGASI & PENGATURAN",
+                        text = "NAVIGATION & SETTINGS",
                         color = TextMuted,
                         fontSize = 10.sp,
                         fontFamily = FontFamily.Monospace,
@@ -713,8 +713,8 @@ fun DashboardScreen(
                     // Menu Item 1: Konfigurasi AI Engine
                     DrawerNavRow(
                         icon = Icons.Default.Settings,
-                        title = "Pengaturan Model AI",
-                        subtitle = "Endpoint, model, dan API key",
+                        title = "AI Engine Settings",
+                        subtitle = "Endpoints, models, and API keys",
                         badge = currentAIProvider,
                         onClick = {
                             scope.launch { drawerState.close() }
@@ -722,11 +722,11 @@ fun DashboardScreen(
                         }
                     )
 
-                    // Menu Item 2: Informasi Aplikasi
+                    // Menu Item 2: About This App
                     DrawerNavRow(
                         icon = Icons.Default.Info,
-                        title = "Informasi Aplikasi",
-                        subtitle = "Versi dan detail aplikasi",
+                        title = "About This App",
+                        subtitle = "Version and app details",
                         onClick = {
                             scope.launch { drawerState.close() }
                             showInfoDialog = true
@@ -736,19 +736,19 @@ fun DashboardScreen(
                     // Menu Item 3: Panduan Penggunaan
                     DrawerNavRow(
                         icon = Icons.AutoMirrored.Filled.HelpOutline,
-                        title = "Panduan & Bantuan",
-                        subtitle = "Panduan API Key & tips rekam",
+                        title = "User Guide & Help",
+                        subtitle = "API key guide & recording tips",
                         onClick = {
                             scope.launch { drawerState.close() }
                             showGuideDialog = true
                         }
                     )
 
-                    // Menu Item 5: Periksa Pembaruan
+                    // Menu Item 5: Check for Updates
                     DrawerNavRow(
                         icon = Icons.Default.Refresh,
-                        title = "Periksa Pembaruan",
-                        subtitle = "Versi saat ini v$currentVersionName",
+                        title = "Check for Updates",
+                        subtitle = "Current version v$currentVersionName",
                         onClick = {
                             scope.launch {
                                 drawerState.close()
@@ -758,10 +758,10 @@ fun DashboardScreen(
                                         availableUpdate = ver
                                         showUpdateDialog = true
                                     } else {
-                                        Toast.makeText(context, "Aplikasi sudah versi terbaru (v$currentVersionName)", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "App is up to date (v$currentVersionName)", Toast.LENGTH_SHORT).show()
                                     }
                                 }.onFailure {
-                                    Toast.makeText(context, "Gagal memeriksa pembaruan", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Failed to check for updates", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
@@ -784,13 +784,13 @@ fun DashboardScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                            contentDescription = "Keluar",
+                            contentDescription = "Sign Out",
                             tint = CrimsonAlert,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "Keluar Akun",
+                            text = "Sign Out",
                             color = CrimsonAlert,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold
@@ -821,11 +821,11 @@ fun DashboardScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(onClick = { selectedMeetingIds = emptySet() }, modifier = Modifier.size(36.dp)) {
-                                Icon(Icons.Default.Close, contentDescription = "Batal", tint = TextPrimary)
+                                Icon(Icons.Default.Close, contentDescription = "Cancel", tint = TextPrimary)
                             }
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "${selectedMeetingIds.size} Sesi Terpilih",
+                                text = "${selectedMeetingIds.size} Sessions Selected",
                                 color = TextPrimary,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
@@ -869,7 +869,7 @@ fun DashboardScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.SelectAll,
-                                    contentDescription = "Pilih Semua",
+                                    contentDescription = "Select All",
                                     tint = if (isAllSelected) AccentPrimary else TextSecondary,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -881,7 +881,7 @@ fun DashboardScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.DriveFileMove,
-                                    contentDescription = "Pindahkan ke Grup",
+                                    contentDescription = "Move to Group",
                                     tint = AccentPrimary,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -893,7 +893,7 @@ fun DashboardScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Hapus Terpilih",
+                                    contentDescription = "Delete Selected",
                                     tint = CrimsonAlert,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -918,11 +918,11 @@ fun DashboardScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(onClick = { selectedGroupIds = emptySet() }, modifier = Modifier.size(36.dp)) {
-                                Icon(Icons.Default.Close, contentDescription = "Batal", tint = TextPrimary)
+                                Icon(Icons.Default.Close, contentDescription = "Cancel", tint = TextPrimary)
                             }
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "${selectedGroupIds.size} Grup Terpilih",
+                                text = "${selectedGroupIds.size} Groups Selected",
                                 color = TextPrimary,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
@@ -960,7 +960,7 @@ fun DashboardScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.SelectAll,
-                                    contentDescription = "Pilih Semua",
+                                    contentDescription = "Select All",
                                     tint = if (isAllSelected) AccentPrimary else TextSecondary,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -972,7 +972,7 @@ fun DashboardScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Hapus Grup",
+                                    contentDescription = "Delete Group",
                                     tint = CrimsonAlert,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -1008,7 +1008,7 @@ fun DashboardScreen(
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "TRANSCRIBE CORE",
+                                text = "SOVEREIGN",
                                 color = TextPrimary,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
@@ -1061,7 +1061,7 @@ fun DashboardScreen(
                                 )
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Text(
-                                    text = if (isBYOKActive) "AI: $currentAIProvider" else "AI: CLOUD",
+                                    text = if (isBYOKActive) "AI: $currentAIProvider" else "AI: NOT CONFIGURED",
                                     color = if (isBYOKActive) AccentPrimary else TextPrimary,
                                     fontSize = 10.sp,
                                     fontFamily = FontFamily.Monospace,
@@ -1079,7 +1079,7 @@ fun DashboardScreen(
                     contentColor = OnyxBlack,
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Mulai Rapat")
+                    Icon(Icons.Default.Add, contentDescription = "New Recording")
                 }
             }
         ) { innerPadding ->
@@ -1113,7 +1113,7 @@ fun DashboardScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Pembaruan v${upd.latestVersionName} Tersedia",
+                                text = "Update v${upd.latestVersionName} Available",
                                 color = AccentPrimary,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
@@ -1249,7 +1249,7 @@ fun DashboardScreen(
                                 isSearching = false
                                 displayedMeetings = allMeetings
                             }) {
-                                Icon(Icons.Default.Close, contentDescription = "Hapus Pencarian", tint = TextMuted)
+                                Icon(Icons.Default.Close, contentDescription = "Clear Search", tint = TextMuted)
                             }
                         }
                     },
@@ -1293,7 +1293,7 @@ fun DashboardScreen(
                                 ) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Kembali ke Grup",
+                                        contentDescription = "Back to Groups",
                                         tint = TextPrimary
                                     )
                                 }
@@ -1309,7 +1309,7 @@ fun DashboardScreen(
                                     )
                                     val grpTotalMin = (currentGrp.totalDurationSec / 60).toInt()
                                     Text(
-                                        text = "${groupMeetings.size} Sesi • Total ${grpTotalMin} Menit",
+                                        text = "${groupMeetings.size} Sessions • Total ${grpTotalMin} Min",
                                         color = TextSecondary,
                                         fontSize = 11.sp,
                                         fontFamily = FontFamily.Monospace
@@ -1350,7 +1350,7 @@ fun DashboardScreen(
                     } else if (groupMeetings.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text(
-                                text = "Belum ada rekaman di grup ini.\nKetuk [+ REKAM DI GRUP INI] untuk memulai.",
+                                text = "No recordings in this group yet.\nTap [+ RECORD IN THIS GROUP] to start.",
                                 color = TextMuted,
                                 fontSize = 13.sp,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -1372,7 +1372,7 @@ fun DashboardScreen(
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(20.dp)) {
                                     Text(
-                                        text = "Tidak ditemukan rekaman di grup ini untuk \"$searchQuery\".",
+                                        text = "No recordings in this group for \"$searchQuery\".",
                                         color = TextMuted,
                                         fontSize = 13.sp,
                                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -1418,7 +1418,7 @@ fun DashboardScreen(
                         }
                     }
                 } else {
-                    // Level 1 Hierarchy: Tab Selector (Semua Sesi vs Folder Grup)
+                    // Level 1 Hierarchy: Tab Selector (All Sessions vs Folder Grup)
                     TabRow(
                         selectedTabIndex = selectedMainTab,
                         containerColor = DarkSlate,
@@ -1476,7 +1476,7 @@ fun DashboardScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = if (searchQuery.isNotBlank()) "${displayedMeetings.size} Hasil" else "${displayedMeetings.size} Sesi",
+                                text = if (searchQuery.isNotBlank()) "${displayedMeetings.size} Results" else "${displayedMeetings.size} Sessions",
                                 color = if (searchQuery.isNotBlank()) AccentPrimary else TextSecondary,
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace
@@ -1493,7 +1493,7 @@ fun DashboardScreen(
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
                                     Text(
-                                        text = if (searchQuery.isNotBlank()) "Tidak ditemukan sesi untuk \"$searchQuery\"" else "Belum ada rekaman tersimpan.",
+                                        text = if (searchQuery.isNotBlank()) "No sessions found for \"$searchQuery\"" else "No recordings saved yet.",
                                         color = TextPrimary,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.SemiBold,
@@ -1502,7 +1502,7 @@ fun DashboardScreen(
                                     if (searchQuery.isNotBlank()) {
                                         Spacer(modifier = Modifier.height(6.dp))
                                         Text(
-                                            text = "Periksa kata kunci judul rapat, topik grup, ringkasan, atau isi audio.",
+                                            text = "Check session titles, group topics, summaries, or audio contents.",
                                             color = TextMuted,
                                             fontSize = 12.sp,
                                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -1597,7 +1597,7 @@ fun DashboardScreen(
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
                                     Text(
-                                        text = if (searchQuery.isNotBlank()) "Tidak ditemukan grup untuk \"$searchQuery\"" else "Belum ada grup atau folder.",
+                                        text = if (searchQuery.isNotBlank()) "No groups found for \"$searchQuery\"" else "No groups or folders yet.",
                                         color = TextPrimary,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.SemiBold,
@@ -1975,7 +1975,7 @@ fun GroupCard(
             ) {
                 val totalMin = (group.totalDurationSec / 60).toInt()
                 Text(
-                    text = "${group.meetingCount} Sesi • $totalMin Menit",
+                    text = "${group.meetingCount} Sessions • $totalMin Min",
                     color = TextMuted,
                     fontSize = 11.sp,
                     fontFamily = FontFamily.Monospace,
@@ -2039,12 +2039,12 @@ fun CreateGroupDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nama Grup / Topik", color = TextMuted, fontSize = 13.sp) },
+                    label = { Text("Group Name", color = TextMuted, fontSize = 13.sp) },
                     placeholder = { Text("Misal: Kuliah Kriptografi", color = TextMuted.copy(alpha = 0.5f), fontSize = 13.sp) },
                     trailingIcon = {
                         if (name.isNotEmpty()) {
                             IconButton(onClick = { name = "" }, modifier = Modifier.size(28.dp)) {
-                                Icon(Icons.Default.Close, contentDescription = "Hapus Nama", tint = TextMuted, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Close, contentDescription = "Clear Name", tint = TextMuted, modifier = Modifier.size(16.dp))
                             }
                         }
                     },
@@ -2107,7 +2107,7 @@ fun CreateGroupDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
                 shape = RoundedCornerShape(4.dp)
             ) {
-                Text("SIMPAN GRUP", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text("SAVE GROUP", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
@@ -2276,7 +2276,7 @@ fun SubscriptionDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Aktivasi Voucher Kuota",
+                    text = "Redeem Voucher",
                     color = TextPrimary,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold
@@ -2287,7 +2287,7 @@ fun SubscriptionDialog(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Tutup",
+                        contentDescription = "Close",
                         tint = TextSecondary,
                         modifier = Modifier.size(20.dp)
                     )
@@ -2354,7 +2354,7 @@ fun SubscriptionDialog(
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = "${numberFormat.format(q.remainingMinutes)} Menit",
+                                    text = "${numberFormat.format(q.remainingMinutes)} Min",
                                     color = TextPrimary,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
@@ -2483,7 +2483,7 @@ fun SubscriptionDialog(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Hubungi admin untuk memperoleh kode voucher resmi:",
+                    text = "Contact your admin for an official voucher code:",
                     color = TextMuted,
                     fontSize = 12.sp,
                     lineHeight = 16.sp
@@ -2539,7 +2539,7 @@ fun SubscriptionDialog(
                             Spacer(modifier = Modifier.height(4.dp))
 
                             Text(
-                                text = "Rp ${numberFormat.format(plan.priceIdr)} • +${numberFormat.format(plan.durationMin)} Menit",
+                                text = "Rp ${numberFormat.format(plan.priceIdr)} • +${numberFormat.format(plan.durationMin)} Min",
                                 color = AccentPrimary,
                                 fontSize = 12.sp,
                                 fontFamily = FontFamily.Monospace,
@@ -2610,7 +2610,7 @@ fun AppUpdateDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Versi Terpasang", color = TextMuted, fontSize = 10.sp)
+                        Text("Installed Version", color = TextMuted, fontSize = 10.sp)
                         Text(
                             text = "v$currentVersionName (b$currentVersionCode)",
                             color = TextSecondary,
@@ -2643,7 +2643,7 @@ fun AppUpdateDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Text("Catatan Pembaruan:", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text("Release Notes:", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
                 Box(
                     modifier = Modifier
@@ -2714,7 +2714,7 @@ fun BatchAssignGroupDialog(
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Pilih grup tujuan untuk memindahkan $selectedCount sesi rapat terpilih:",
+                    text = "Select a destination group to move $selectedCount selected sessions:",
                     color = TextSecondary,
                     fontSize = 13.sp,
                     lineHeight = 18.sp
@@ -2741,7 +2741,7 @@ fun BatchAssignGroupDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Keluarkan dari Grup (Tanpa Grup)",
+                        text = "Remove from Group (No Group)",
                         color = TextPrimary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
@@ -2752,7 +2752,7 @@ fun BatchAssignGroupDialog(
 
                 if (groups.isEmpty()) {
                     Text(
-                        text = "Belum ada grup yang tersedia. Buat grup terlebih dahulu.",
+                        text = "No groups available. Create a group first.",
                         color = TextMuted,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
@@ -2848,9 +2848,9 @@ fun BatchDeleteMeetingsDialog(
         },
         text = {
             val desc = if (count == 1) {
-                "Apakah Anda yakin ingin menghapus sesi transkripsi ini secara permanen? Seluruh rekaman, transkrip, dan ringkasan akan dihapus."
+                "Delete this transcription session permanently? All audio, transcripts, and summaries will be removed."
             } else {
-                "Apakah Anda yakin ingin menghapus $count rekaman terpilih secara permanen? Seluruh transkrip, potongan audio, dan ringkasan akan dihapus."
+                "Are you sure you want to permanently delete $count selected recordings? All transcripts, audio segments, and summaries will be removed."
             }
             Text(
                 text = desc,
@@ -2903,9 +2903,9 @@ fun BatchDeleteGroupsDialog(
         text = {
             Column {
                 val headerDesc = if (count == 1) {
-                    "Folder grup ini akan dihapus permanen."
+                    "This group folder will be permanently deleted."
                 } else {
-                    "$count grup terpilih akan dihapus permanen."
+                    "$count selected groups will be permanently deleted."
                 }
                 Text(
                     text = headerDesc,
@@ -2921,7 +2921,7 @@ fun BatchDeleteGroupsDialog(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (count == 1) "Hapus juga semua isi rekaman di dalam grup ini" else "Hapus juga semua isi rekaman di dalam grup terpilih",
+                        text = if (count == 1) "Also delete all recordings inside this group" else "Also delete all recordings inside the selected groups",
                         color = if (deleteMeetingsAlso) CrimsonAlert else TextSecondary,
                         fontSize = 12.sp,
                         modifier = Modifier.weight(1f)
@@ -2930,7 +2930,7 @@ fun BatchDeleteGroupsDialog(
                 if (!deleteMeetingsAlso) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Jika tidak dicentang, seluruh rekaman tetap disimpan di daftar semua sesi.",
+                        text = "If unchecked, recordings stay in the all-sessions list.",
                         color = TextMuted,
                         fontSize = 11.sp
                     )

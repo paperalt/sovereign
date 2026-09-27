@@ -66,7 +66,7 @@ fun LoginScreen(
             ) {
                 // Application Title
                 Text(
-                    text = "TRANSCRIBE CORE",
+                    text = "SOVEREIGN",
                     color = TextWhite,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -76,7 +76,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Sistem transkripsi dan intelijen rapat berbasis AI.",
+                    text = "AI-powered transcription and meeting intelligence.",
                     color = TextMuted,
                     fontSize = 13.sp,
                     textAlign = TextAlign.Center,
@@ -127,7 +127,7 @@ fun LoginScreen(
                         )
                     } else {
                         Text(
-                            text = "Lanjutkan dengan Google",
+                            text = "Continue with Google",
                             color = OnyxBackground,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,

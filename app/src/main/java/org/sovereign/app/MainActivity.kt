@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity() {
                                             authViewModel.processIntent(AuthIntent.SignInWithGoogle(idToken))
                                         }.onFailure { err ->
                                             authViewModel.processIntent(
-                                                AuthIntent.SetError(err.message ?: "Otentikasi Google gagal")
+                                                AuthIntent.SetError(err.message ?: "Google authentication failed")
                                             )
                                         }
                                     }
@@ -130,7 +130,7 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate(Screen.LiveTranscription.createRoute(meetingId, title))
                                 },
                                 onLogout = {
-                                    Toast.makeText(this@MainActivity, "Aplikasi beroperasi secara lokal", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@MainActivity, "Running locally on this device", Toast.LENGTH_SHORT).show()
                                 }
                             )
                         }
@@ -144,7 +144,7 @@ class MainActivity : ComponentActivity() {
                             )
                         ) { backStackEntry ->
                             val meetingId = backStackEntry.arguments?.getString("meetingId") ?: ""
-                            val meetingTitle = backStackEntry.arguments?.getString("title") ?: "Sesi Rapat"
+                            val meetingTitle = backStackEntry.arguments?.getString("title") ?: "Meeting Session"
 
                             val isRecording by TranscriptionService.isRecording.collectAsState()
                             val isPaused by TranscriptionService.isPaused.collectAsState()

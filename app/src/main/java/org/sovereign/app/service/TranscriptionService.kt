@@ -102,7 +102,7 @@ class TranscriptionService : Service() {
             serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
         }
 
-        val notification = createNotification("Perekaman dan Transkripsi Berjalan Mandiri...")
+        val notification = createNotification("Recording and transcribing...")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(
                 NOTIFICATION_ID,
@@ -129,7 +129,7 @@ class TranscriptionService : Service() {
         startTimerJob()
 
         serviceScope.launch {
-            _events.emit(StreamEvent.Status("RECORDING", "Perekaman lokal aktif."))
+            _events.emit(StreamEvent.Status("RECORDING", "Local recording active."))
             runAudioLoop()
         }
     }
@@ -153,7 +153,7 @@ class TranscriptionService : Service() {
                 bufferSize
             )
         } catch (_: SecurityException) {
-            _events.emit(StreamEvent.Error("Izin mikrofon tidak diberikan."))
+            _events.emit(StreamEvent.Error("Microphone permission not granted."))
             stopSelf()
             return@withContext
         } catch (e: Exception) {
@@ -164,7 +164,7 @@ class TranscriptionService : Service() {
 
         val record = audioRecord
         if (record == null || record.state != AudioRecord.STATE_INITIALIZED) {
-            _events.emit(StreamEvent.Error("Perangkat keras audio tidak siap."))
+            _events.emit(StreamEvent.Error("Audio hardware is not ready."))
             stopSelf()
             return@withContext
         }
@@ -172,7 +172,7 @@ class TranscriptionService : Service() {
         try {
             record.startRecording()
         } catch (e: Exception) {
-            _events.emit(StreamEvent.Error("Gagal memulai perekam audio: ${e.message}"))
+            _events.emit(StreamEvent.Error("Failed to start the audio recorder: ${e.message}"))
             stopSelf()
             return@withContext
         }
@@ -234,7 +234,7 @@ class TranscriptionService : Service() {
             val apiKey = tokenStorage.getSTTKey()
 
             if (apiKey.isBlank() && !sttEndpoint.contains("localhost") && !sttEndpoint.contains("10.0.2.2")) {
-                _events.emit(StreamEvent.Error("Kunci API belum diatur. Masukkan kunci API di pengaturan."))
+                _events.emit(StreamEvent.Error("API key is missing. Add it in AI Engine settings."))
                 return@launch
             }
 
@@ -270,7 +270,7 @@ class TranscriptionService : Service() {
                     )
                 }
             } else {
-                val err = res.exceptionOrNull()?.message ?: "Gagal transkripsi audio"
+                val err = res.exceptionOrNull()?.message ?: "Audio transcription failed"
                 _events.emit(StreamEvent.Error(err))
             }
         }
@@ -280,7 +280,7 @@ class TranscriptionService : Service() {
     private suspend fun finalizeMeetingLocally() = withContext(Dispatchers.IO) {
         // 1. Stop meeting status in local SQLite
         localRepo.stopMeeting(meetingId)
-        _events.emit(StreamEvent.Status("COMPLETED", "Rekaman selesai diproses."))
+        _events.emit(StreamEvent.Status("COMPLETED", "Recording processed."))
 
         // 2. Generate executive summary locally
         val summaryRes = localRepo.summarizeMeeting(meetingId)
@@ -320,7 +320,7 @@ class TranscriptionService : Service() {
         serviceScope.launch {
             if (cancel) {
                 localRepo.cancelMeeting(meetingId)
-                _events.emit(StreamEvent.Status("DISCARDED", "Sesi dibatalkan."))
+                _events.emit(StreamEvent.Status("DISCARDED", "Session discarded."))
                 cleanup()
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
@@ -422,7 +422,7 @@ class TranscriptionService : Service() {
         val channelId = "sovereign_transcribe_channel"
         val manager = getSystemService(NotificationManager::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "Transkripsi Langsung", NotificationManager.IMPORTANCE_LOW)
+            val channel = NotificationChannel(channelId, "Live Transcription", NotificationManager.IMPORTANCE_LOW)
             manager.createNotificationChannel(channel)
         }
 

@@ -18,7 +18,7 @@ class GoogleAuthManager(
         val serverClientId = clientIdProvider().trim()
         if (serverClientId.isBlank()) {
             return Result.failure(
-                IllegalStateException("Google OAuth Client ID belum dikonfigurasi. Masukkan Web Client ID di pengaturan.")
+                IllegalStateException("Google OAuth Client ID is not configured. Add the Web Client ID in settings.")
             )
         }
 
@@ -40,13 +40,13 @@ class GoogleAuthManager(
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 Result.success(googleIdTokenCredential.idToken)
             } else {
-                Result.failure(Exception("Tipe kredensial Google tidak didukung"))
+                Result.failure(Exception("Unsupported Google credential type"))
             }
         } catch (e: GetCredentialException) {
             val friendlyMsg = when {
-                e.message?.contains("canceled", ignoreCase = true) == true -> "Login dibatalkan oleh pengguna"
-                e.message?.contains("No credentials available", ignoreCase = true) == true -> "Tidak ada akun Google yang tersedia atau belum terdaftar"
-                else -> e.message ?: "Gagal otentikasi Google"
+                e.message?.contains("canceled", ignoreCase = true) == true -> "Sign-in cancelled"
+                e.message?.contains("No credentials available", ignoreCase = true) == true -> "No Google account available"
+                else -> e.message ?: "Google authentication failed"
             }
             Result.failure(Exception(friendlyMsg))
         } catch (e: Exception) {

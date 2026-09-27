@@ -87,7 +87,7 @@ class AuthViewModel(
                             _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
                         },
                         onFailure = { err ->
-                            _uiState.update { it.copy(isLoading = false, errorMessage = err.message ?: "Login Google gagal") }
+                            _uiState.update { it.copy(isLoading = false, errorMessage = err.message ?: "Google sign-in failed") }
                         }
                     )
                 }
@@ -102,19 +102,19 @@ class AuthViewModel(
 
         // Client-side Input Validation
         if (email.isEmpty()) {
-            _uiState.update { it.copy(errorMessage = "Email wajib diisi") }
+            _uiState.update { it.copy(errorMessage = "Email is required") }
             return
         }
         if (!emailPattern.matcher(email).matches()) {
-            _uiState.update { it.copy(errorMessage = "Format email tidak valid") }
+            _uiState.update { it.copy(errorMessage = "Invalid email format") }
             return
         }
         if (password.length < 8) {
-            _uiState.update { it.copy(errorMessage = "Password minimal 8 karakter") }
+            _uiState.update { it.copy(errorMessage = "Password must be at least 8 characters") }
             return
         }
         if (state.isRegisterMode && state.fullName.trim().isEmpty()) {
-            _uiState.update { it.copy(errorMessage = "Nama lengkap wajib diisi") }
+            _uiState.update { it.copy(errorMessage = "Full name is required") }
             return
         }
 

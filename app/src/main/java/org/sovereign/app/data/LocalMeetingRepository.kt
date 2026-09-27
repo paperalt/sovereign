@@ -41,7 +41,7 @@ class LocalMeetingRepository(
 
             val values = ContentValues().apply {
                 put("id", meetingId)
-                put("title", if (title.isBlank()) "Sesi Transkripsi Lokal" else title)
+                put("title", if (title.isBlank()) "Local Transcription Session" else title)
                 put("language", if (language.isBlank()) "id" else language)
                 put("target_language", targetLanguage)
                 put("status", "RECORDING")
@@ -151,7 +151,7 @@ class LocalMeetingRepository(
             }
 
             if (meetingDto == null) {
-                return@withContext Result.failure(Exception("Meeting tidak ditemukan"))
+                return@withContext Result.failure(Exception("Meeting not found"))
             }
 
             // 2. Get Chunks
@@ -296,7 +296,7 @@ class LocalMeetingRepository(
             val apiKey = tokenStorage.getLLMKey().ifBlank { tokenStorage.getSTTKey() }
 
             if (apiKey.isBlank() && !llmEndpoint.contains("localhost") && !llmEndpoint.contains("10.0.2.2")) {
-                return@withContext Result.failure(Exception("Kunci API AI belum dikonfigurasi di Pengaturan Kunci Pribadi."))
+                return@withContext Result.failure(Exception("AI API key is not configured. Open AI Engine settings to add it."))
             }
 
             val summaryRes = directAIClient.generateSummary(
@@ -307,7 +307,7 @@ class LocalMeetingRepository(
                 customModel = llmModel.ifBlank { null }
             )
             if (summaryRes.isFailure) {
-                return@withContext Result.failure(summaryRes.exceptionOrNull() ?: Exception("Gagal merangkum"))
+                return@withContext Result.failure(summaryRes.exceptionOrNull() ?: Exception("Failed to generate summary"))
             }
 
             val res = summaryRes.getOrThrow()
@@ -414,7 +414,7 @@ class LocalMeetingRepository(
                 SubscriptionPlanDto(
                     id = "sovereign_mit",
                     name = "Sovereign Core (MIT License)",
-                    description = "100% data dan pemrosesan lokal di perangkat Android Anda",
+                    description = "100% local data and processing on your Android device",
                     durationMin = 999999,
                     priceIdr = 0,
                     badge = "LOKAL"
@@ -426,7 +426,7 @@ class LocalMeetingRepository(
     override suspend fun topUp(planId: String): Result<UserQuotaDto> = getUserQuota()
 
     override suspend fun redeemVoucher(code: String): Result<String> = withContext(Dispatchers.IO) {
-        Result.success("Sistem beroperasi mandiri secara lokal.")
+        Result.success("Runs fully offline on this device.")
     }
 
     override suspend fun checkAppVersion(): Result<AppVersionDto> = withContext(Dispatchers.IO) {
@@ -436,7 +436,7 @@ class LocalMeetingRepository(
                 latestVersionName = "2.1.0",
                 minSupportedVersionCode = 1,
                 downloadUrl = "https://github.com/paperalt/sovereign/releases",
-                releaseNotes = "Sovereign: Aplikasi Transkripsi & Intelijen Mandiri",
+                releaseNotes = "Sovereign: Private On-Device Transcription & Intelligence",
                 isCritical = false,
                 sha256 = null
             )
@@ -487,7 +487,7 @@ class LocalMeetingRepository(
             val apiKey = tokenStorage.getLLMKey().ifBlank { tokenStorage.getSTTKey() }
 
             if (apiKey.isBlank() && !llmEndpoint.contains("localhost") && !llmEndpoint.contains("10.0.2.2")) {
-                return@withContext Result.failure(Exception("Kunci API belum diisi di Pengaturan Kunci Pribadi."))
+                return@withContext Result.failure(Exception("API key is missing. Open AI Engine settings to add it."))
             }
 
             val questionsRes = directAIClient.suggestQuestions(
@@ -499,7 +499,7 @@ class LocalMeetingRepository(
                 customModel = llmModel.ifBlank { null }
             )
             if (questionsRes.isFailure) {
-                return@withContext Result.failure(questionsRes.exceptionOrNull() ?: Exception("Gagal membuat rekomendasi pertanyaan"))
+                return@withContext Result.failure(questionsRes.exceptionOrNull() ?: Exception("Failed to generate question suggestions"))
             }
 
             val items = questionsRes.getOrThrow().map {
@@ -537,7 +537,7 @@ class LocalMeetingRepository(
                         valid = true,
                         provider = provider,
                         latencyMs = 250L,
-                        message = "Kunci API Valid & Siap Digunakan"
+                        message = "API key is valid and ready"
                     )
                 )
             } else {
@@ -546,7 +546,7 @@ class LocalMeetingRepository(
                         valid = false,
                         provider = provider,
                         latencyMs = 0L,
-                        message = ping.exceptionOrNull()?.message ?: "Validasi Gagal"
+                        message = ping.exceptionOrNull()?.message ?: "Validation failed"
                     )
                 )
             }
@@ -659,7 +659,7 @@ class LocalMeetingRepository(
             }
 
             if (groupDto == null) {
-                return@withContext Result.failure(Exception("Grup tidak ditemukan"))
+                return@withContext Result.failure(Exception("Group not found"))
             }
 
             val meetingsQuery = """
@@ -756,7 +756,7 @@ class LocalMeetingRepository(
                 if (it.moveToNext()) {
                     Result.success(cursorToMeetingDto(it))
                 } else {
-                    Result.failure(Exception("Meeting tidak ditemukan"))
+                    Result.failure(Exception("Meeting not found"))
                 }
             }
         } catch (e: Exception) {
@@ -935,7 +935,7 @@ class LocalMeetingRepository(
                 if (it.moveToNext()) {
                     Result.success(cursorToMeetingDto(it))
                 } else {
-                    Result.failure(Exception("Meeting tidak ditemukan"))
+                    Result.failure(Exception("Meeting not found"))
                 }
             }
         } catch (e: Exception) {

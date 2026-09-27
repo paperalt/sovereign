@@ -65,7 +65,7 @@ fun QuestionSuggestionDialog(
         if (res.isSuccess) {
             resultData = res.getOrNull()
         } else {
-            errorMessage = res.exceptionOrNull()?.message ?: "Gagal merumuskan pertanyaan"
+            errorMessage = res.exceptionOrNull()?.message ?: "Failed to generate questions"
         }
         isLoading = false
     }

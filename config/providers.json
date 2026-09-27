@@ -17,7 +17,7 @@
         "models_endpoint": "https://api.groq.com/openai/v1/models"
       },
       "api_key_url": "https://console.groq.com/keys",
-      "description": "Transkripsi cepat Whisper Turbo (~300ms) dan penalaran Llama 3.3 70B."
+      "description": "Fast Whisper Turbo transcription (~300ms) and Llama 3.3 70B reasoning."
     },
     {
       "id": "gemini",
@@ -34,7 +34,7 @@
         "models_endpoint": "https://generativelanguage.googleapis.com/v1beta/models"
       },
       "api_key_url": "https://aistudio.google.com/app/apikey",
-      "description": "Model multimodal Gemini 2.0 Flash dengan kapasitas konteks hingga 1 juta token."
+      "description": "Gemini 2.0 Flash multimodal model with up to 1M tokens of context."
     },
     {
       "id": "openai",
@@ -51,7 +51,7 @@
         "models_endpoint": "https://api.openai.com/v1/models"
       },
       "api_key_url": "https://platform.openai.com/api-keys",
-      "description": "Whisper-1 untuk akurasi transkripsi dan GPT-4o-Mini untuk perangkuman."
+      "description": "Whisper-1 for accurate transcription and GPT-4o-Mini for summarization."
     },
     {
       "id": "deepseek",
@@ -68,7 +68,7 @@
         "models_endpoint": "https://api.deepseek.com/models"
       },
       "api_key_url": "https://platform.deepseek.com/api_keys",
-      "description": "Penalaran DeepSeek Chat dipadukan dengan Whisper Large Turbo."
+      "description": "DeepSeek Chat reasoning paired with Whisper Large Turbo."
     },
     {
       "id": "openrouter",
@@ -85,12 +85,12 @@
         "models_endpoint": "https://openrouter.ai/api/v1/models"
       },
       "api_key_url": "https://openrouter.ai/keys",
-      "description": "Akses multi-penyedia model melalui satu endpoint terintegrasi."
+      "description": "Multi-provider model access through one unified endpoint."
     },
     {
       "id": "ollama",
-      "name": "Ollama (Lokal)",
-      "badge": "LOKAL",
+      "name": "Ollama (Local)",
+      "badge": "LOCAL",
       "stt": {
         "endpoint": "http://10.0.2.2:11434/v1/audio/transcriptions",
         "default_model": "whisper",
@@ -102,12 +102,12 @@
         "models_endpoint": "http://10.0.2.2:11434/v1/models"
       },
       "api_key_url": "",
-      "description": "Inferensi mandiri pada server lokal atau jaringan privat."
+      "description": "Self-hosted inference on a local server or private network."
     },
     {
       "id": "custom",
-      "name": "Kustom Penuh",
-      "badge": "KUSTOM",
+      "name": "Custom Endpoint",
+      "badge": "CUSTOM",
       "stt": {
         "endpoint": "",
         "default_model": "",
@@ -119,7 +119,7 @@
         "models_endpoint": ""
       },
       "api_key_url": "",
-      "description": "Konfigurasi kustom untuk endpoint dan nama model mandiri."
+      "description": "Custom configuration for self-managed endpoints and model names."
     }
   ]
 }

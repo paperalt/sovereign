@@ -808,7 +808,7 @@ private fun QuestionSuggestionTabContent(
             if (res.isSuccess) {
                 resultData = res.getOrNull()
             } else {
-                errorMessage = res.exceptionOrNull()?.message ?: "Gagal merumuskan pertanyaan"
+                errorMessage = res.exceptionOrNull()?.message ?: "Failed to generate questions"
             }
             isLoading = false
         }
@@ -829,10 +829,10 @@ private fun QuestionSuggestionTabContent(
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             listOf(
-                5 to "5 Menit",
-                15 to "15 Menit",
-                30 to "30 Menit",
-                0 to "Semua Sesi"
+                5 to "5 Min",
+                15 to "15 Min",
+                30 to "30 Min",
+                0 to "All Sessions"
             ).forEach { (win, label) ->
                 val isSelected = selectedWindow == win
                 Box(
@@ -910,7 +910,7 @@ private fun QuestionSuggestionTabContent(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = res.message ?: "Materi pada rentang ini belum cukup untuk merumuskan pertanyaan spesifik.",
+                            text = res.message ?: "Not enough material in this range to formulate specific questions.",
                             color = TextSecondary,
                             fontSize = 12.sp
                         )
@@ -918,7 +918,7 @@ private fun QuestionSuggestionTabContent(
                 }
             } else if (res.suggestions.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Belum ada saran pertanyaan.", color = TextMuted, fontSize = 12.sp)
+                    Text("No question suggestions yet.", color = TextMuted, fontSize = 12.sp)
                 }
             } else {
                 LazyColumn(
@@ -931,7 +931,7 @@ private fun QuestionSuggestionTabContent(
                             item = item,
                             onCopy = { q ->
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                clipboard.setPrimaryClip(ClipData.newPlainText("Pertanyaan Rapat", q))
+                                clipboard.setPrimaryClip(ClipData.newPlainText("Meeting Questions", q))
                                 Toast.makeText(context, "Pertanyaan disalin ke clipboard", Toast.LENGTH_SHORT).show()
                             }
                         )
@@ -955,7 +955,7 @@ private fun buildMarkdown(data: FullTranscriptDto): String {
     sb.append("**Tanggal:** ${data.startedAt.take(10)} | **Durasi:** ${data.durationSec.toInt()}s | **Bahasa:** ${data.language.uppercase()}\n\n")
 
     if (!data.summary.isNullOrBlank()) {
-        sb.append("## Ringkasan Eksekutif\n")
+        sb.append("## Executive Summary\n")
         sb.append("${data.summary}\n\n")
     }
 
@@ -969,7 +969,7 @@ private fun buildMarkdown(data: FullTranscriptDto): String {
         }
     }
 
-    sb.append("## Transkripsi Lengkap\n\n")
+    sb.append("## Full Transcript\n\n")
     data.chunks.forEach { chunk ->
         sb.append("**[${formatSeconds(chunk.startTimeSec)}]** ${chunk.rawText}\n\n")
     }
@@ -978,7 +978,7 @@ private fun buildMarkdown(data: FullTranscriptDto): String {
 }
 
 internal fun cleanExecutiveSummaryText(raw: String?): String {
-    if (raw.isNullOrBlank()) return "Belum ada ringkasan."
+    if (raw.isNullOrBlank()) return "No summary yet."
     var text = raw.trim()
     val preambleRegex = Regex("""(?is)^[\s*#_\-]*(?:(?:tentu[,!]?\s*)?(?:berikut\s+(?:ini\s+)?(?:adalah\s+)?|ini\s+adalah\s+|berdasarkan\s+[^\n:]*|dari\s+[^\n:]*)(?:ringkasan|rangkuman|kesimpulan|poin|ulasan|hasil|analisis|laporan|executive\s+summary)[^\n:]*[:\n\-]+)\s*""")
     val headingRegex = Regex("""(?i)^[\s*#_\-]*(?:ringkasan(?:\s+eksekutif)?|executive\s+summary)\s*(?:\([^\)]*\))?\s*[:*#_\-\s]*\s*""")

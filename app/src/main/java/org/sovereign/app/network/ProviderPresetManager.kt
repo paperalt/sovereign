@@ -54,7 +54,7 @@ object ProviderPresetManager {
                 modelsEndpoint = "https://api.groq.com/openai/v1/models"
             ),
             apiKeyUrl = "https://console.groq.com/keys",
-            description = "Transkripsi cepat Whisper Turbo (~300ms) dan penalaran Llama 3.3 70B."
+            description = "Fast Whisper Turbo transcription (~300ms) and Llama 3.3 70B reasoning."
         ),
         ProviderPreset(
             id = "gemini",
@@ -71,7 +71,7 @@ object ProviderPresetManager {
                 modelsEndpoint = "https://generativelanguage.googleapis.com/v1beta/models"
             ),
             apiKeyUrl = "https://aistudio.google.com/app/apikey",
-            description = "Model multimodal Gemini 2.0 Flash dengan kapasitas konteks hingga 1 juta token."
+            description = "Gemini 2.0 Flash multimodal model with up to 1M tokens of context."
         ),
         ProviderPreset(
             id = "openai",
@@ -88,7 +88,7 @@ object ProviderPresetManager {
                 modelsEndpoint = "https://api.openai.com/v1/models"
             ),
             apiKeyUrl = "https://platform.openai.com/api-keys",
-            description = "Whisper-1 untuk akurasi transkripsi dan GPT-4o-Mini untuk perangkuman."
+            description = "Whisper-1 for accurate transcription and GPT-4o-Mini for summarization."
         ),
         ProviderPreset(
             id = "deepseek",
@@ -105,7 +105,7 @@ object ProviderPresetManager {
                 modelsEndpoint = "https://api.deepseek.com/models"
             ),
             apiKeyUrl = "https://platform.deepseek.com/api_keys",
-            description = "Penalaran DeepSeek Chat dipadukan dengan Whisper Large Turbo."
+            description = "DeepSeek Chat reasoning paired with Whisper Large Turbo."
         ),
         ProviderPreset(
             id = "openrouter",
@@ -122,12 +122,12 @@ object ProviderPresetManager {
                 modelsEndpoint = "https://openrouter.ai/api/v1/models"
             ),
             apiKeyUrl = "https://openrouter.ai/keys",
-            description = "Akses multi-penyedia model melalui satu endpoint terintegrasi."
+            description = "Multi-provider model access through one unified endpoint."
         ),
         ProviderPreset(
             id = "ollama",
-            name = "Ollama (Lokal)",
-            badge = "LOKAL",
+            name = "Ollama (Local)",
+            badge = "LOCAL",
             stt = ModelEndpointConfig(
                 endpoint = "http://10.0.2.2:11434/v1/audio/transcriptions",
                 defaultModel = "whisper",
@@ -139,12 +139,12 @@ object ProviderPresetManager {
                 modelsEndpoint = "http://10.0.2.2:11434/v1/models"
             ),
             apiKeyUrl = "",
-            description = "Inferensi mandiri pada server lokal atau jaringan privat."
+            description = "Self-hosted inference on a local server or private network."
         ),
         ProviderPreset(
             id = "custom",
-            name = "Kustom Penuh",
-            badge = "KUSTOM",
+            name = "Custom Endpoint",
+            badge = "CUSTOM",
             stt = ModelEndpointConfig(
                 endpoint = "",
                 defaultModel = "",
@@ -156,7 +156,7 @@ object ProviderPresetManager {
                 modelsEndpoint = ""
             ),
             apiKeyUrl = "",
-            description = "Konfigurasi kustom untuk endpoint dan nama model mandiri."
+            description = "Custom configuration for self-managed endpoints and model names."
         )
     )
 
@@ -181,12 +181,12 @@ object ProviderPresetManager {
 
             httpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
-                    return@withContext Result.failure(IOException("Gagal mengambil preset dari URL (${response.code})"))
+                    return@withContext Result.failure(IOException("Failed to fetch presets from URL (${response.code})"))
                 }
                 val body = response.body?.string() ?: ""
                 val list = parsePresetsJson(body)
                 if (list.isEmpty()) {
-                    return@withContext Result.failure(IOException("Format JSON preset tidak valid atau kosong."))
+                    return@withContext Result.failure(IOException("Invalid or empty preset JSON format."))
                 }
 
                 // Cache locally
@@ -204,7 +204,7 @@ object ProviderPresetManager {
         try {
             val list = parsePresetsJson(jsonStr)
             if (list.isEmpty()) {
-                return@withContext Result.failure(IOException("Format JSON tidak valid atau tidak memiliki daftar 'providers'."))
+                return@withContext Result.failure(IOException("Invalid JSON: missing 'providers' list."))
             }
 
             // Cache locally

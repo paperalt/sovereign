@@ -121,7 +121,7 @@ class DirectAIClient(
         endpoint: String = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
     ): Result<String> {
         val base64Audio = Base64.encodeToString(wavBytes, Base64.NO_WRAP)
-        val prompt = "Transkripsikan audio berikut secara akurat dalam bahasa $language. Berikan HANYA teks transkripsi tanpa basa-basi."
+        val prompt = "Transcribe the following audio accurately in $language. Output ONLY the raw transcript text without preamble or commentary."
 
         val json = """
             {
@@ -193,7 +193,7 @@ class DirectAIClient(
         customModel: String? = null
     ): Result<SummaryResult> = withContext(Dispatchers.IO) {
         if (fullTranscript.isBlank()) {
-            return@withContext Result.success(SummaryResult("Tidak ada transkrip untuk dirangkum.", emptyList(), emptyList()))
+            return@withContext Result.success(SummaryResult("No transcript available to summarize.", emptyList(), emptyList()))
         }
 
         val systemPrompt = """
@@ -255,18 +255,18 @@ class DirectAIClient(
             3. Kembalikan HANYA format JSON valid tanpa pembuka/penutup markdown:
             [
               {
-                "question": "Kalimat pertanyaan tajam",
-                "category": "STRATEGIS / OPERASIONAL / TEKNIS",
-                "rationale": "Mengapa pertanyaan ini krusial",
-                "context_ref": "Kutipan kalimat asli dari transkrip"
+                "question": "Sharp analytical question",
+                "category": "STRATEGIC / OPERATIONAL / TECHNICAL",
+                "rationale": "Why this inquiry is critical",
+                "context_ref": "Direct verbatim quote from transcript"
               }
             ]
         """.trimIndent()
 
         val userPrompt = if (focusTopic.isNotBlank()) {
-            "Fokus Topik: $focusTopic\n\nTranskrip Diskusi:\n$transcriptContext"
+            "Focus Topic: $focusTopic\n\nDiscussion Transcript:\n$transcriptContext"
         } else {
-            "Transkrip Diskusi:\n$transcriptContext"
+            "Discussion Transcript:\n$transcriptContext"
         }
 
         try {
@@ -292,6 +292,20 @@ class DirectAIClient(
     }
 
     /**
+     * Pings an endpoint via /models and measures round-trip latency in milliseconds.
+     */
+    suspend fun pingEndpoint(endpointUrl: String, apiKey: String): Result<Long> = withContext(Dispatchers.IO) {
+        val start = System.currentTimeMillis()
+        val res = fetchModels(endpointUrl, apiKey)
+        val latency = System.currentTimeMillis() - start
+        if (res.isSuccess) {
+            Result.success(latency)
+        } else {
+            Result.failure(res.exceptionOrNull() ?: IOException("Connection failed"))
+        }
+    }
+
+    /**
      * Auto-detects models from any standard /models endpoint.
      */
     suspend fun fetchModels(endpointOrBaseUrl: String, apiKey: String): Result<List<String>> = withContext(Dispatchers.IO) {
@@ -305,12 +319,12 @@ class DirectAIClient(
             client.newCall(reqBuilder.build()).execute().use { response ->
                 if (!response.isSuccessful) {
                     val err = response.body?.string() ?: ""
-                    return@withContext Result.failure(IOException("Gagal deteksi model (${response.code}): $err"))
+                    return@withContext Result.failure(IOException("Model detection failed (${response.code}): $err"))
                 }
                 val body = response.body?.string() ?: ""
                 val models = parseModelsList(body)
                 if (models.isEmpty()) {
-                    return@withContext Result.failure(IOException("Tidak ada model yang ditemukan di endpoint."))
+                    return@withContext Result.failure(IOException("No models found at this endpoint."))
                 }
                 Result.success(models)
             }
