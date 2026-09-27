@@ -500,7 +500,7 @@ fun AIEngineConfigDialog(
                         shape = RoundedCornerShape(8.dp),
                         border = BorderStroke(1.dp, EngineColors.SteelBorder)
                     ) {
-                        Text("Cancel", color = EngineColors.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text("CANCEL", color = EngineColors.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
                     }
 
                     Button(
@@ -523,7 +523,7 @@ fun AIEngineConfigDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = EngineColors.AccentPrimary),
                         enabled = pipelineReady
                     ) {
-                        Text("Apply & Activate", color = EngineColors.OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("APPLY & ACTIVATE", color = EngineColors.OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
                     }
                 }
             }

@@ -44,7 +44,7 @@ private val TextPrimary = Color(0xFFF0F4F8)
 private val TextSecondary = Color(0xFF94A3B8)
 private val TextMuted = Color(0xFF64748B)
 private val AccentPrimary = Color(0xFF38BDF8)
-private val CrimsonAlert = Color(0xFFE11D48)
+private val CrimsonAlert = Color(0xFFEF4444)
 
 @Composable
 fun MeetingDetailScreen(

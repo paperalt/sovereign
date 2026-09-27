@@ -47,8 +47,9 @@ fun BatchAssignGroupDialog(
         containerColor = DarkSlate,
         shape = RoundedCornerShape(8.dp),
         title = {
+            val titleText = if (selectedCount == 1) "MOVE TO GROUP (1 SESSION)" else "MOVE TO GROUP ($selectedCount SESSIONS)"
             Text(
-                text = "MOVE TO GROUP ($selectedCount SESSIONS)",
+                text = titleText,
                 color = TextPrimary,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
@@ -57,8 +58,13 @@ fun BatchAssignGroupDialog(
         },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
+                val descText = if (selectedCount == 1) {
+                    "Select a destination group to move 1 selected session:"
+                } else {
+                    "Select a destination group to move $selectedCount selected sessions:"
+                }
                 Text(
-                    text = "Select a destination group to move $selectedCount selected sessions:",
+                    text = descText,
                     color = TextSecondary,
                     fontSize = 13.sp,
                     lineHeight = 18.sp
@@ -209,7 +215,7 @@ fun BatchDeleteMeetingsDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = CrimsonAlert),
                 shape = RoundedCornerShape(4.dp)
             ) {
-                Text(if (count == 1) "DELETE" else "DELETE ALL", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(if (count == 1) "DELETE" else "DELETE SELECTED", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {

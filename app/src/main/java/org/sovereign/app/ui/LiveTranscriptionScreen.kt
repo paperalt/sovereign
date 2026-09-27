@@ -36,7 +36,7 @@ private val TextPrimary = Color(0xFFF0F4F8)
 private val TextSecondary = Color(0xFF94A3B8)
 private val TextMuted = Color(0xFF64748B)
 private val AccentPrimary = Color(0xFF38BDF8)
-private val CrimsonAlert = Color(0xFFE11D48)
+private val CrimsonAlert = Color(0xFFEF4444)
 private val EmeraldConnected = Color(0xFF10B981)
 private val AmberWarning = Color(0xFFF59E0B)
 private val PillBackground = Color(0xFF1E2632)
@@ -125,10 +125,11 @@ fun LiveTranscriptionScreen(
             shape = RoundedCornerShape(12.dp),
             title = {
                 Text(
-                    text = "Discard Transcription Session?",
+                    text = "DISCARD RECORDING SESSION?",
                     color = TextPrimary,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
                 )
             },
             text = {
@@ -146,18 +147,18 @@ fun LiveTranscriptionScreen(
                         onCancelConfirmed()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = CrimsonAlert),
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(4.dp)
                 ) {
-                    Text("DISCARD SESSION", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("DISCARD", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 OutlinedButton(
                     onClick = { showCancelDialog = false },
                     border = BorderStroke(1.dp, SteelBorder),
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(4.dp)
                 ) {
-                    Text("RESUME RECORDING", color = TextPrimary, fontSize = 12.sp)
+                    Text("RESUME", color = TextPrimary, fontSize = 12.sp)
                 }
             }
         )

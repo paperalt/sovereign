@@ -192,7 +192,7 @@ fun LLMEndpointsDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = EngineColors.AccentPrimary),
                         modifier = Modifier.height(38.dp)
                     ) {
-                        Text("Done", color = EngineColors.OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("DONE", color = EngineColors.OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                     }
                 }
             }

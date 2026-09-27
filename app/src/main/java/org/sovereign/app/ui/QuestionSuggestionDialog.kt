@@ -42,7 +42,7 @@ private val AccentPrimary = Color(0xFF38BDF8)
 private val EmeraldClarify = Color(0xFF10B981)
 private val AmberEdgeCase = Color(0xFFF59E0B)
 private val IndigoImpact = Color(0xFF818CF8)
-private val CrimsonAlert = Color(0xFFE11D48)
+private val CrimsonAlert = Color(0xFFEF4444)
 
 @Composable
 fun QuestionSuggestionDialog(
@@ -90,10 +90,11 @@ fun QuestionSuggestionDialog(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "In-Meeting Inquiry",
+                        text = "IN-MEETING INQUIRY",
                         color = TextPrimary,
-                        fontSize = 17.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp,
                         maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
@@ -105,12 +106,12 @@ fun QuestionSuggestionDialog(
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
                 }
-                IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
+                IconButton(onClick = onDismiss, modifier = Modifier.size(34.dp)) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
                         tint = TextSecondary,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
@@ -218,11 +219,12 @@ fun QuestionSuggestionDialog(
                             OutlinedButton(
                                 onClick = { scope.launch { loadQuestions(selectedWindow) } },
                                 shape = RoundedCornerShape(4.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, SteelBorder)
+                                border = androidx.compose.foundation.BorderStroke(1.dp, SteelBorder),
+                                modifier = Modifier.height(34.dp)
                             ) {
                                 Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Retry", fontSize = 12.sp)
+                                Text("RETRY", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

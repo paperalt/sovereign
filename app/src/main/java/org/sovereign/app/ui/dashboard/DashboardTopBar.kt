@@ -196,8 +196,9 @@ fun MeetingSelectionActionBar(
                 Icon(Icons.Default.Close, contentDescription = "Cancel", tint = TextPrimary)
             }
             Spacer(modifier = Modifier.width(6.dp))
+            val label = if (selectedCount == 1) "1 Session Selected" else "$selectedCount Sessions Selected"
             Text(
-                text = "$selectedCount Sessions Selected",
+                text = label,
                 color = TextPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
@@ -276,8 +277,9 @@ fun GroupSelectionActionBar(
                 Icon(Icons.Default.Close, contentDescription = "Cancel", tint = TextPrimary)
             }
             Spacer(modifier = Modifier.width(6.dp))
+            val label = if (selectedCount == 1) "1 Group Selected" else "$selectedCount Groups Selected"
             Text(
-                text = "$selectedCount Groups Selected",
+                text = label,
                 color = TextPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
