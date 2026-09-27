@@ -128,7 +128,7 @@ class AuthViewModel(
                         _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
                     },
                     onFailure = { err ->
-                        _uiState.update { it.copy(isLoading = false, errorMessage = err.message ?: "Pendaftaran gagal") }
+                        _uiState.update { it.copy(isLoading = false, errorMessage = err.message ?: "Registration failed") }
                     }
                 )
             } else {
@@ -138,7 +138,7 @@ class AuthViewModel(
                         _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
                     },
                     onFailure = { err ->
-                        _uiState.update { it.copy(isLoading = false, errorMessage = err.message ?: "Login gagal") }
+                        _uiState.update { it.copy(isLoading = false, errorMessage = err.message ?: "Login failed") }
                     }
                 )
             }

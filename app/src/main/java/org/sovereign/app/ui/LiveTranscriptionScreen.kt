@@ -525,7 +525,7 @@ private fun formatQuotaHuman(seconds: Int): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     return if (hours > 0) {
-        "${hours}j ${minutes}m"
+        "${hours}h ${minutes}m"
     } else {
         "${minutes}m ${seconds % 60}s"
     }

@@ -280,8 +280,16 @@ class LocalMeetingRepository(
     override suspend fun cancelMeeting(meetingId: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val db = dbHelper.writableDatabase
-            db.delete("meetings", "id = ?", arrayOf(meetingId))
-            Result.success(Unit)
+            db.beginTransaction()
+            try {
+                db.delete("meeting_summaries", "meeting_id = ?", arrayOf(meetingId))
+                db.delete("transcript_chunks", "meeting_id = ?", arrayOf(meetingId))
+                db.delete("meetings", "id = ?", arrayOf(meetingId))
+                db.setTransactionSuccessful()
+                Result.success(Unit)
+            } finally {
+                db.endTransaction()
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -423,8 +431,16 @@ class LocalMeetingRepository(
     override suspend fun deleteMeeting(meetingId: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val db = dbHelper.writableDatabase
-            db.delete("meetings", "id = ?", arrayOf(meetingId))
-            Result.success(Unit)
+            db.beginTransaction()
+            try {
+                db.delete("meeting_summaries", "meeting_id = ?", arrayOf(meetingId))
+                db.delete("transcript_chunks", "meeting_id = ?", arrayOf(meetingId))
+                db.delete("meetings", "id = ?", arrayOf(meetingId))
+                db.setTransactionSuccessful()
+                Result.success(Unit)
+            } finally {
+                db.endTransaction()
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -582,7 +598,21 @@ class LocalMeetingRepository(
                 chunksList.reverse()
             }
 
-            val contextText = chunksList.joinToString(" ")
+            val contextText = chunksList.joinToString(" ").trim()
+            if (contextText.length < 50) {
+                return@withContext Result.success(
+                    QuestionSuggestionResponseDto(
+                        meetingId = meetingId,
+                        windowMinutes = windowMinutes,
+                        analyzedDurationSec = 0.0,
+                        wordCount = if (contextText.isBlank()) 0 else contextText.split("\\s+".toRegex()).size,
+                        hasSufficientContext = false,
+                        message = "Transcript in this window is not yet substantive enough to formulate grounded inquiries.",
+                        suggestions = emptyList()
+                    )
+                )
+            }
+
             val provider = tokenStorage.getSelectedPreset().ifBlank { "groq" }
             val llmEndpoint = tokenStorage.getLLMEndpoint()
             val llmModel = tokenStorage.getLLMModel()
@@ -658,7 +688,7 @@ class LocalMeetingRepository(
                     valid = false,
                     provider = provider,
                     latencyMs = 0L,
-                    message = e.message ?: "Koneksi gagal"
+                    message = e.message ?: "Connection failed"
                 )
             )
         }
@@ -821,7 +851,17 @@ class LocalMeetingRepository(
             db.beginTransaction()
             try {
                 if (deleteMeetings) {
-                    db.delete("meetings", "group_id = ?", arrayOf(groupId))
+                    val meetingIds = mutableListOf<String>()
+                    db.rawQuery("SELECT id FROM meetings WHERE group_id = ?", arrayOf(groupId)).use { cursor ->
+                        while (cursor.moveToNext()) {
+                            meetingIds.add(cursor.getString(0))
+                        }
+                    }
+                    for (mId in meetingIds) {
+                        db.delete("meeting_summaries", "meeting_id = ?", arrayOf(mId))
+                        db.delete("transcript_chunks", "meeting_id = ?", arrayOf(mId))
+                        db.delete("meetings", "id = ?", arrayOf(mId))
+                    }
                 } else {
                     val updateValues = ContentValues().apply { putNull("group_id") }
                     db.update("meetings", updateValues, "group_id = ?", arrayOf(groupId))
@@ -899,6 +939,8 @@ class LocalMeetingRepository(
             db.beginTransaction()
             try {
                 for (id in meetingIds) {
+                    db.delete("meeting_summaries", "meeting_id = ?", arrayOf(id))
+                    db.delete("transcript_chunks", "meeting_id = ?", arrayOf(id))
                     db.delete("meetings", "id = ?", arrayOf(id))
                 }
                 db.setTransactionSuccessful()
@@ -918,7 +960,17 @@ class LocalMeetingRepository(
             try {
                 for (id in groupIds) {
                     if (deleteMeetings) {
-                        db.delete("meetings", "group_id = ?", arrayOf(id))
+                        val meetingIds = mutableListOf<String>()
+                        db.rawQuery("SELECT id FROM meetings WHERE group_id = ?", arrayOf(id)).use { cursor ->
+                            while (cursor.moveToNext()) {
+                                meetingIds.add(cursor.getString(0))
+                            }
+                        }
+                        for (mId in meetingIds) {
+                            db.delete("meeting_summaries", "meeting_id = ?", arrayOf(mId))
+                            db.delete("transcript_chunks", "meeting_id = ?", arrayOf(mId))
+                            db.delete("meetings", "id = ?", arrayOf(mId))
+                        }
                     } else {
                         val updateValues = ContentValues().apply { putNull("group_id") }
                         db.update("meetings", updateValues, "group_id = ?", arrayOf(id))
@@ -990,6 +1042,9 @@ class LocalMeetingRepository(
             try {
                 db.delete("transcript_chunks", "meeting_id = ?", arrayOf(meetingId))
 
+                val existingDuration = db.rawQuery("SELECT duration_sec FROM meetings WHERE id = ?", arrayOf(meetingId)).use {
+                    if (it.moveToFirst()) it.getDouble(0) else 10.0
+                }
                 val now = nowIso()
                 val chunkValues = ContentValues().apply {
                     put("id", UUID.randomUUID().toString())
@@ -997,7 +1052,7 @@ class LocalMeetingRepository(
                     put("chunk_index", 0)
                     put("text", rawText)
                     put("start_time_sec", 0.0)
-                    put("end_time_sec", 10.0)
+                    put("end_time_sec", maxOf(existingDuration, 1.0))
                     put("is_final", 1)
                     put("created_at", now)
                 }

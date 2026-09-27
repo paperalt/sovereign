@@ -99,12 +99,12 @@ class DefaultAuthRepository(
     }
 
     private fun parseError(json: String?): String {
-        if (json.isNullOrBlank()) return "Terjadi kesalahan jaringan"
+        if (json.isNullOrBlank()) return "Network error occurred"
         return try {
             val map = com.google.gson.JsonParser.parseString(json).asJsonObject
-            map.get("error")?.asString ?: "Permintaan gagal diproses"
+            map.get("error")?.asString ?: "Request failed"
         } catch (e: Exception) {
-            "Kesalahan otentikasi"
+            "Authentication error"
         }
     }
 }

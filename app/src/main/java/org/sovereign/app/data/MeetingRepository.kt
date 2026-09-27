@@ -226,7 +226,7 @@ class DefaultMeetingRepository(
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
-                val errorMsg = response.errorBody()?.string() ?: "Permintaan gagal (${response.code()})"
+                val errorMsg = response.errorBody()?.string() ?: "Request failed (${response.code()})"
                 Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {

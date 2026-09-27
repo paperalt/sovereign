@@ -376,7 +376,7 @@ fun QuestionCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
-                        contentDescription = "Salin",
+                        contentDescription = "Copy Question",
                         tint = AccentPrimary,
                         modifier = Modifier.size(16.dp)
                     )
