@@ -549,7 +549,7 @@ private fun PipelineNodeItem(
             shape = RoundedCornerShape(4.dp),
             border = BorderStroke(1.dp, EngineColors.SteelBorder),
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
-            modifier = Modifier.height(28.dp)
+            modifier = Modifier.height(34.dp)
         ) {
             Icon(Icons.Default.Edit, contentDescription = null, tint = EngineColors.TextSecondary, modifier = Modifier.size(12.dp))
             Spacer(modifier = Modifier.width(4.dp))
@@ -678,18 +678,18 @@ private fun SavedProfileRow(
                         shape = RoundedCornerShape(4.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = EngineColors.AccentPrimary),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
-                        modifier = Modifier.height(28.dp)
+                        modifier = Modifier.height(34.dp)
                     ) {
                         Text("Use", color = EngineColors.OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(6.dp))
                 }
-                IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
+                IconButton(onClick = onDelete, modifier = Modifier.size(34.dp)) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete profile",
                         tint = EngineColors.CrimsonAlert,
-                        modifier = Modifier.size(15.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }

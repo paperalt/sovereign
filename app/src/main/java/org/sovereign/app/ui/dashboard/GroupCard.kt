@@ -67,42 +67,39 @@ fun GroupCard(
         Column(modifier = Modifier.padding(14.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    if (isSelectionMode) {
-                        Checkbox(
-                            checked = isSelected,
-                            onCheckedChange = { onOpenGroup() },
-                            colors = CheckboxDefaults.colors(
-                                checkedColor = AccentPrimary,
-                                checkmarkColor = OnyxBlack,
-                                uncheckedColor = TextMuted
-                            ),
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .background(
-                                parseSafeColor(group.color),
-                                RoundedCornerShape(5.dp)
-                            )
+                if (isSelectionMode) {
+                    Checkbox(
+                        checked = isSelected,
+                        onCheckedChange = { onOpenGroup() },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = AccentPrimary,
+                            checkmarkColor = OnyxBlack,
+                            uncheckedColor = TextMuted
+                        ),
+                        modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = group.name,
-                        color = TextPrimary,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
                 }
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .background(
+                            parseSafeColor(group.color),
+                            RoundedCornerShape(5.dp)
+                        )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = group.name,
+                    color = TextPrimary,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             if (group.description.isNotBlank()) {
@@ -143,7 +140,7 @@ fun GroupCard(
                         shape = RoundedCornerShape(4.dp),
                         border = BorderStroke(1.dp, AccentPrimary),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
-                        modifier = Modifier.height(30.dp)
+                        modifier = Modifier.height(34.dp)
                     ) {
                         Text("+ RECORD", color = AccentPrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                     }
@@ -153,7 +150,7 @@ fun GroupCard(
                         shape = RoundedCornerShape(4.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
-                        modifier = Modifier.height(30.dp)
+                        modifier = Modifier.height(34.dp)
                     ) {
                         Text("OPEN", color = OnyxBlack, fontSize = 10.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                     }

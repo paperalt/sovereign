@@ -460,7 +460,7 @@ fun AIEngineConfigDialog(
                                                 shape = RoundedCornerShape(4.dp),
                                                 colors = ButtonDefaults.buttonColors(containerColor = EngineColors.AccentPrimary),
                                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
-                                                modifier = Modifier.height(28.dp)
+                                                modifier = Modifier.height(34.dp)
                                             ) {
                                                 Text("Apply", color = EngineColors.OnyxBlack, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                             }
@@ -471,9 +471,9 @@ fun AIEngineConfigDialog(
                                                     savedPresets = updated
                                                     EnginePresetStore.saveAll(tokenStorage, updated)
                                                 },
-                                                modifier = Modifier.size(28.dp)
+                                                modifier = Modifier.size(34.dp)
                                             ) {
-                                                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = EngineColors.CrimsonAlert, modifier = Modifier.size(14.dp))
+                                                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = EngineColors.CrimsonAlert, modifier = Modifier.size(16.dp))
                                             }
                                         }
                                     }

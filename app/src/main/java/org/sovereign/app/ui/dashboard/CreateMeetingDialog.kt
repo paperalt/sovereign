@@ -78,17 +78,43 @@ fun CreateMeetingDialog(
                     Spacer(modifier = Modifier.height(6.dp))
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         item {
+                            val isSel = selectedGroupId == null
                             FilterChip(
-                                selected = selectedGroupId == null,
+                                selected = isSel,
                                 onClick = { selectedGroupId = null },
-                                label = { Text("No Folder", fontSize = 11.sp) }
+                                label = { Text("No Folder", fontSize = 11.sp) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = AccentPrimary.copy(alpha = 0.2f),
+                                    selectedLabelColor = AccentPrimary,
+                                    containerColor = OnyxBlack,
+                                    labelColor = TextSecondary
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = isSel,
+                                    borderColor = SteelBorder,
+                                    selectedBorderColor = AccentPrimary
+                                )
                             )
                         }
                         items(groups) { grp ->
+                            val isSel = selectedGroupId == grp.id
                             FilterChip(
-                                selected = selectedGroupId == grp.id,
+                                selected = isSel,
                                 onClick = { selectedGroupId = grp.id },
-                                label = { Text(grp.name, fontSize = 11.sp) }
+                                label = { Text(grp.name, fontSize = 11.sp) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = AccentPrimary.copy(alpha = 0.2f),
+                                    selectedLabelColor = AccentPrimary,
+                                    containerColor = OnyxBlack,
+                                    labelColor = TextSecondary
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = isSel,
+                                    borderColor = SteelBorder,
+                                    selectedBorderColor = AccentPrimary
+                                )
                             )
                         }
                     }
@@ -100,10 +126,23 @@ fun CreateMeetingDialog(
                 Spacer(modifier = Modifier.height(6.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     items(listOf("id" to "ID", "en" to "EN", "ja" to "JA", "auto" to "AUTO")) { (code, label) ->
+                        val isSel = selectedLang == code
                         FilterChip(
-                            selected = selectedLang == code,
+                            selected = isSel,
                             onClick = { selectedLang = code },
-                            label = { Text(label, fontSize = 12.sp) }
+                            label = { Text(label, fontSize = 12.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = AccentPrimary.copy(alpha = 0.2f),
+                                selectedLabelColor = AccentPrimary,
+                                containerColor = OnyxBlack,
+                                labelColor = TextSecondary
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isSel,
+                                borderColor = SteelBorder,
+                                selectedBorderColor = AccentPrimary
+                            )
                         )
                     }
                 }
@@ -114,10 +153,23 @@ fun CreateMeetingDialog(
                 Spacer(modifier = Modifier.height(6.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     items(listOf("" to "None", "id" to "To ID", "en" to "To EN")) { (code, label) ->
+                        val isSel = selectedTarget == code
                         FilterChip(
-                            selected = selectedTarget == code,
+                            selected = isSel,
                             onClick = { selectedTarget = code },
-                            label = { Text(label, fontSize = 11.sp) }
+                            label = { Text(label, fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = AccentPrimary.copy(alpha = 0.2f),
+                                selectedLabelColor = AccentPrimary,
+                                containerColor = OnyxBlack,
+                                labelColor = TextSecondary
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isSel,
+                                borderColor = SteelBorder,
+                                selectedBorderColor = AccentPrimary
+                            )
                         )
                     }
                 }

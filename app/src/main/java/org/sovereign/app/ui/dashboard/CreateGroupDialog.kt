@@ -97,15 +97,21 @@ fun CreateGroupDialog(
                         val isSelected = selectedColor == hex
                         Box(
                             modifier = Modifier
-                                .size(28.dp)
-                                .background(Color(android.graphics.Color.parseColor(hex)), RoundedCornerShape(14.dp))
-                                .border(
-                                    width = if (isSelected) 2.dp else 0.dp,
-                                    color = if (isSelected) TextPrimary else Color.Transparent,
-                                    shape = RoundedCornerShape(14.dp)
-                                )
-                                .clickable { selectedColor = hex }
-                        )
+                                .size(36.dp)
+                                .clickable { selectedColor = hex },
+                            contentAlignment = androidx.compose.ui.Alignment.Center
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .background(Color(android.graphics.Color.parseColor(hex)), RoundedCornerShape(14.dp))
+                                    .border(
+                                        width = if (isSelected) 2.dp else 0.dp,
+                                        color = if (isSelected) TextPrimary else Color.Transparent,
+                                        shape = RoundedCornerShape(14.dp)
+                                    )
+                            )
+                        }
                     }
                 }
             }

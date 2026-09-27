@@ -131,7 +131,7 @@ fun LLMEndpointsDialog(
                         shape = RoundedCornerShape(6.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = EngineColors.AccentPrimary),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                        modifier = Modifier.height(32.dp)
+                        modifier = Modifier.height(34.dp)
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null, tint = EngineColors.OnyxBlack, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
@@ -349,7 +349,7 @@ private fun LLMEndpointCard(
                         shape = RoundedCornerShape(6.dp),
                         border = BorderStroke(1.dp, EngineColors.SteelBorder),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
-                        modifier = Modifier.height(30.dp)
+                        modifier = Modifier.height(34.dp)
                     ) {
                         Icon(Icons.Default.Edit, contentDescription = null, tint = EngineColors.TextSecondary, modifier = Modifier.size(13.dp))
                         Spacer(modifier = Modifier.width(4.dp))
@@ -357,7 +357,7 @@ private fun LLMEndpointCard(
                     }
 
                     if (config.isDeletable) {
-                        IconButton(onClick = onDelete, modifier = Modifier.size(30.dp)) {
+                        IconButton(onClick = onDelete, modifier = Modifier.size(34.dp)) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete", tint = EngineColors.CrimsonAlert, modifier = Modifier.size(15.dp))
                         }
                     }
@@ -369,7 +369,7 @@ private fun LLMEndpointCard(
                         shape = RoundedCornerShape(6.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = EngineColors.AccentPrimary),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
-                        modifier = Modifier.height(30.dp)
+                        modifier = Modifier.height(34.dp)
                     ) {
                         Text("Select LLM", color = EngineColors.OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }

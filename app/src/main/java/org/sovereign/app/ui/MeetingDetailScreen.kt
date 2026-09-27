@@ -832,7 +832,7 @@ private fun QuestionSuggestionTabContent(
                 5 to "5 Min",
                 15 to "15 Min",
                 30 to "30 Min",
-                0 to "All Sessions"
+                0 to "Full Session"
             ).forEach { (win, label) ->
                 val isSelected = selectedWindow == win
                 Box(
