@@ -132,193 +132,201 @@ fun BackupRestoreDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Card(
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkSlate),
-            border = BorderStroke(1.dp, SteelBorder),
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.92f)
-                .padding(horizontal = 16.dp, vertical = 20.dp)
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.78f))
+                .clickable(onClick = onDismiss),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
+            Card(
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = DarkSlate),
+                border = BorderStroke(1.dp, SteelBorder),
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(DarkSlate)
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.92f)
+                    .padding(horizontal = 16.dp, vertical = 20.dp)
+                    .clickable(enabled = false) {} // Prevent dismiss when tapping card content
             ) {
-                // Header
-                Row(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .fillMaxSize()
+                        .background(DarkSlate)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .background(AccentPrimary.copy(alpha = 0.15f), RoundedCornerShape(8.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Backup, contentDescription = null, tint = AccentPrimary, modifier = Modifier.size(20.dp))
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "BACKUP & RESTORE DATA",
-                                color = TextPrimary,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 0.5.sp
-                            )
-                            Text(
-                                text = "Local database migration & endpoint protection",
-                                color = TextMuted,
-                                fontSize = 11.sp
-                            )
-                        }
-                    }
-
-                    IconButton(onClick = onDismiss, modifier = Modifier.size(34.dp)) {
-                        Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondary, modifier = Modifier.size(18.dp))
-                    }
-                }
-
-                HorizontalDivider(color = SteelBorder.copy(alpha = 0.6f))
-
-                // Segmented Tabs
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 10.dp)
-                        .background(CardBackground, RoundedCornerShape(8.dp))
-                        .border(1.dp, SteelBorder.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                        .padding(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    BackupTabButton(
-                        icon = Icons.Default.FileDownload,
-                        title = "EXPORT DATA",
-                        subtitle = "Save to JSON / share",
-                        isSelected = selectedTab == 0,
-                        onClick = { selectedTab = 0 },
-                        modifier = Modifier.weight(1f)
-                    )
-                    BackupTabButton(
-                        icon = Icons.Default.Restore,
-                        title = "RESTORE DATA",
-                        subtitle = "Import from JSON file",
-                        isSelected = selectedTab == 1,
-                        onClick = { selectedTab = 1 },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                // Body Content
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Column(
+                    // Header
+                    Row(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (selectedTab == 0) {
-                            // EXPORT TAB CONTENT
-                            ExportTabSection(
-                                inventory = inventory,
-                                includeKeys = includeKeysInExport,
-                                onIncludeKeysChange = { includeKeysInExport = it },
-                                isExporting = isExporting,
-                                onExportToFile = {
-                                    val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-                                    createDocLauncher.launch("sovereign_backup_${timestamp}.json")
-                                },
-                                onShareDirectly = {
-                                    scope.launch {
-                                        isExporting = true
-                                        val res = BackupManager.exportBackup(context, tokenStorage, includeKeysInExport)
-                                        isExporting = false
-                                        res.onSuccess { jsonStr ->
-                                            val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-                                            val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                                                type = "application/json"
-                                                putExtra(Intent.EXTRA_SUBJECT, "Sovereign Backup - $timestamp")
-                                                putExtra(Intent.EXTRA_TEXT, jsonStr)
-                                            }
-                                            context.startActivity(Intent.createChooser(sendIntent, "Share Sovereign Backup"))
-                                        }.onFailure {
-                                            Toast.makeText(context, "Export error: ${it.message}", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                }
-                            )
-                        } else {
-                            // RESTORE TAB CONTENT
-                            RestoreTabSection(
-                                parsedPayload = parsedPayload,
-                                parseError = parseError,
-                                replaceExisting = replaceExistingData,
-                                onReplaceExistingChange = { replaceExistingData = it },
-                                restoreSettings = restoreSettingsAndKeys,
-                                onRestoreSettingsChange = { restoreSettingsAndKeys = it },
-                                isRestoring = isRestoring,
-                                onSelectFile = {
-                                    openDocLauncher.launch("application/json")
-                                },
-                                onApplyRestore = {
-                                    if (parsedPayload != null) {
-                                        scope.launch {
-                                            isRestoring = true
-                                            val res = BackupManager.applyBackup(
-                                                context = context,
-                                                tokenStorage = tokenStorage,
-                                                payload = parsedPayload!!,
-                                                replaceExisting = replaceExistingData,
-                                                restoreSettings = restoreSettingsAndKeys
-                                            )
-                                            isRestoring = false
-                                            res.onSuccess { summary ->
-                                                Toast.makeText(
-                                                    context,
-                                                    "Restored ${summary.meetingsRestored} meetings & ${summary.chunksRestored} transcripts",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                                onDataRestored()
-                                                onDismiss()
-                                            }.onFailure { err ->
-                                                Toast.makeText(context, "Restore failed: ${err.message}", Toast.LENGTH_LONG).show()
-                                            }
-                                        }
-                                    }
-                                }
-                            )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(AccentPrimary.copy(alpha = 0.15f), RoundedCornerShape(8.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Backup, contentDescription = null, tint = AccentPrimary, modifier = Modifier.size(20.dp))
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "BACKUP & RESTORE DATA",
+                                    color = TextPrimary,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 0.5.sp
+                                )
+                                Text(
+                                    text = "Local database migration & endpoint protection",
+                                    color = TextMuted,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+
+                        IconButton(onClick = onDismiss, modifier = Modifier.size(34.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondary, modifier = Modifier.size(18.dp))
                         }
                     }
-                }
 
-                HorizontalDivider(color = SteelBorder.copy(alpha = 0.6f))
+                    HorizontalDivider(color = SteelBorder.copy(alpha = 0.6f))
 
-                // Footer
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Button(
-                        onClick = onDismiss,
-                        shape = RoundedCornerShape(6.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
-                        modifier = Modifier.height(38.dp)
+                    // Segmented Tabs
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp)
+                            .background(CardBackground, RoundedCornerShape(8.dp))
+                            .border(1.dp, SteelBorder.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .padding(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Text("DONE", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                        BackupTabButton(
+                            icon = Icons.Default.FileDownload,
+                            title = "EXPORT DATA",
+                            isSelected = selectedTab == 0,
+                            onClick = { selectedTab = 0 },
+                            modifier = Modifier.weight(1f)
+                        )
+                        BackupTabButton(
+                            icon = Icons.Default.Restore,
+                            title = "RESTORE DATA",
+                            isSelected = selectedTab == 1,
+                            onClick = { selectedTab = 1 },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    // Body Content
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                                .padding(vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            if (selectedTab == 0) {
+                                // EXPORT TAB CONTENT
+                                ExportTabSection(
+                                    inventory = inventory,
+                                    includeKeys = includeKeysInExport,
+                                    onIncludeKeysChange = { includeKeysInExport = it },
+                                    isExporting = isExporting,
+                                    onExportToFile = {
+                                        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                                        createDocLauncher.launch("sovereign_backup_${timestamp}.json")
+                                    },
+                                    onShareDirectly = {
+                                        scope.launch {
+                                            isExporting = true
+                                            val res = BackupManager.exportBackup(context, tokenStorage, includeKeysInExport)
+                                            isExporting = false
+                                            res.onSuccess { jsonStr ->
+                                                val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                                                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                                    type = "application/json"
+                                                    putExtra(Intent.EXTRA_SUBJECT, "Sovereign Backup - $timestamp")
+                                                    putExtra(Intent.EXTRA_TEXT, jsonStr)
+                                                }
+                                                context.startActivity(Intent.createChooser(sendIntent, "Share Sovereign Backup"))
+                                            }.onFailure {
+                                                Toast.makeText(context, "Export error: ${it.message}", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    }
+                                )
+                            } else {
+                                // RESTORE TAB CONTENT
+                                RestoreTabSection(
+                                    parsedPayload = parsedPayload,
+                                    parseError = parseError,
+                                    replaceExisting = replaceExistingData,
+                                    onReplaceExistingChange = { replaceExistingData = it },
+                                    restoreSettings = restoreSettingsAndKeys,
+                                    onRestoreSettingsChange = { restoreSettingsAndKeys = it },
+                                    isRestoring = isRestoring,
+                                    onSelectFile = {
+                                        openDocLauncher.launch("application/json")
+                                    },
+                                    onApplyRestore = {
+                                        if (parsedPayload != null) {
+                                            scope.launch {
+                                                isRestoring = true
+                                                val res = BackupManager.applyBackup(
+                                                    context = context,
+                                                    tokenStorage = tokenStorage,
+                                                    payload = parsedPayload!!,
+                                                    replaceExisting = replaceExistingData,
+                                                    restoreSettings = restoreSettingsAndKeys
+                                                )
+                                                isRestoring = false
+                                                res.onSuccess { summary ->
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Restored ${summary.meetingsRestored} meetings & ${summary.chunksRestored} transcripts",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                    onDataRestored()
+                                                    onDismiss()
+                                                }.onFailure { err ->
+                                                    Toast.makeText(context, "Restore failed: ${err.message}", Toast.LENGTH_LONG).show()
+                                                }
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    HorizontalDivider(color = SteelBorder.copy(alpha = 0.6f))
+
+                    // Footer Action
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                    ) {
+                        Button(
+                            onClick = onDismiss,
+                            shape = RoundedCornerShape(6.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(42.dp)
+                        ) {
+                            Text("CLOSE", color = OnyxBlack, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                        }
                     }
                 }
             }
@@ -439,13 +447,14 @@ private fun ExportTabSection(
         // Action Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Button(
                 onClick = onExportToFile,
                 enabled = !isExporting,
                 shape = RoundedCornerShape(6.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                 modifier = Modifier
                     .weight(1f)
                     .height(44.dp)
@@ -455,7 +464,15 @@ private fun ExportTabSection(
                 } else {
                     Icon(Icons.Default.Download, contentDescription = null, tint = OnyxBlack, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("EXPORT TO FILE", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                    Text(
+                        text = "EXPORT FILE",
+                        color = OnyxBlack,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace,
+                        maxLines = 1,
+                        softWrap = false
+                    )
                 }
             }
 
@@ -464,31 +481,45 @@ private fun ExportTabSection(
                 enabled = !isExporting,
                 shape = RoundedCornerShape(6.dp),
                 border = BorderStroke(1.dp, SteelBorder),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                 modifier = Modifier
                     .weight(1f)
                     .height(44.dp)
             ) {
                 Icon(Icons.Default.Share, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("SHARE BACKUP", color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                Text(
+                    text = "SHARE FILE",
+                    color = TextPrimary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace,
+                    maxLines = 1,
+                    softWrap = false
+                )
             }
         }
 
         // Enterprise Info Card
         Card(
             shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkSlate),
-            border = BorderStroke(1.dp, SteelBorder.copy(alpha = 0.5f)),
+            colors = CardDefaults.cardColors(containerColor = CardBackground),
+            border = BorderStroke(1.dp, SteelBorder.copy(alpha = 0.6f)),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier.padding(12.dp),
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Info, contentDescription = null, tint = TextMuted, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = TextMuted,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Exported files contain your complete meeting history, transcript segments, and customized pipeline configurations in standard JSON format.",
+                    text = "Exported JSON files contain your complete meeting history, transcript segments, and customized pipeline configurations.",
                     color = TextMuted,
                     fontSize = 11.sp,
                     lineHeight = 15.sp
@@ -544,7 +575,7 @@ private fun RestoreTabSection(
                         letterSpacing = 0.5.sp
                     )
                     Text(
-                        text = "Select a previously exported sovereign_backup_*.json file from your device storage or cloud drive to inspect and restore.",
+                        text = "Choose a previously exported sovereign_backup_*.json file from your device storage or cloud drive to inspect and restore.",
                         color = TextMuted,
                         fontSize = 11.sp,
                         lineHeight = 15.sp,
@@ -556,11 +587,20 @@ private fun RestoreTabSection(
                         onClick = onSelectFile,
                         shape = RoundedCornerShape(6.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
                         modifier = Modifier.height(40.dp)
                     ) {
                         Icon(Icons.Default.FolderOpen, contentDescription = null, tint = OnyxBlack, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("BROWSE BACKUP FILE", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                        Text(
+                            text = "BROWSE BACKUP FILE",
+                            color = OnyxBlack,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            maxLines = 1,
+                            softWrap = false
+                        )
                     }
 
                     if (parseError != null) {
@@ -568,7 +608,8 @@ private fun RestoreTabSection(
                             text = parseError,
                             color = CrimsonAlert,
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
                 }
@@ -600,7 +641,7 @@ private fun RestoreTabSection(
                                 .border(1.dp, EmeraldSuccess.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
-                            Text("VALID SIGNATURE", color = EmeraldSuccess, fontSize = 9.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                            Text("VALID FORMAT", color = EmeraldSuccess, fontSize = 9.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                         }
                     }
 
@@ -626,7 +667,7 @@ private fun RestoreTabSection(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         DataStatBadge("MEETINGS", "${parsedPayload.meetings.size}", Modifier.weight(1f))
-                        DataStatBadge("CHUNKS", "${parsedPayload.chunks.size}", Modifier.weight(1f))
+                        DataStatBadge("TRANSCRIPTS", "${parsedPayload.chunks.size}", Modifier.weight(1f))
                         DataStatBadge("SUMMARIES", "${parsedPayload.summaries.size}", Modifier.weight(1f))
                     }
                     Row(
@@ -709,7 +750,7 @@ private fun RestoreTabSection(
                         Spacer(modifier = Modifier.width(10.dp))
                         Switch(
                             checked = restoreSettings,
-                            onRestoreSettingsChange,
+                            onCheckedChange = onRestoreSettingsChange,
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = OnyxBlack,
                                 checkedTrackColor = AccentPrimary,
@@ -724,17 +765,26 @@ private fun RestoreTabSection(
             // Restore Execution Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedButton(
                     onClick = onSelectFile,
                     shape = RoundedCornerShape(6.dp),
                     border = BorderStroke(1.dp, SteelBorder),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                     modifier = Modifier
                         .weight(1f)
                         .height(44.dp)
                 ) {
-                    Text("CHANGE FILE", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                    Text(
+                        text = "CHANGE FILE",
+                        color = TextSecondary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace,
+                        maxLines = 1,
+                        softWrap = false
+                    )
                 }
 
                 Button(
@@ -742,6 +792,7 @@ private fun RestoreTabSection(
                     enabled = !isRestoring,
                     shape = RoundedCornerShape(6.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                     modifier = Modifier
                         .weight(1f)
                         .height(44.dp)
@@ -751,7 +802,15 @@ private fun RestoreTabSection(
                     } else {
                         Icon(Icons.Default.Check, contentDescription = null, tint = OnyxBlack, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("APPLY RESTORE", color = OnyxBlack, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                        Text(
+                            text = "APPLY RESTORE",
+                            color = OnyxBlack,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace,
+                            maxLines = 1,
+                            softWrap = false
+                        )
                     }
                 }
             }
@@ -769,22 +828,22 @@ private fun DataStatBadge(
         modifier = modifier
             .background(DarkSlate, RoundedCornerShape(6.dp))
             .border(1.dp, SteelBorder.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-            .padding(horizontal = 8.dp, vertical = 6.dp)
+            .padding(horizontal = 6.dp, vertical = 6.dp)
     ) {
         Text(
             text = label,
             color = TextMuted,
-            fontSize = 9.sp,
+            fontSize = 8.5.sp,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        Spacer(modifier = Modifier.height(1.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = count,
             color = TextPrimary,
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Bold
         )
@@ -795,7 +854,6 @@ private fun DataStatBadge(
 private fun BackupTabButton(
     icon: ImageVector,
     title: String,
-    subtitle: String,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -803,7 +861,7 @@ private fun BackupTabButton(
     Box(
         modifier = modifier
             .background(
-                if (isSelected) AccentPrimary.copy(alpha = 0.15f) else CardBackground,
+                if (isSelected) AccentPrimary.copy(alpha = 0.15f) else Color.Transparent,
                 shape = RoundedCornerShape(6.dp)
             )
             .border(
@@ -812,10 +870,13 @@ private fun BackupTabButton(
                 shape = RoundedCornerShape(6.dp)
             )
             .clickable { onClick() }
-            .padding(vertical = 8.dp, horizontal = 10.dp),
+            .padding(vertical = 10.dp, horizontal = 12.dp),
         contentAlignment = Alignment.Center
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
@@ -823,24 +884,16 @@ private fun BackupTabButton(
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Text(
-                    text = title,
-                    color = if (isSelected) AccentPrimary else TextPrimary,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.5.sp,
-                    fontFamily = FontFamily.Monospace
-                )
-                Text(
-                    text = subtitle,
-                    color = if (isSelected) AccentPrimary.copy(alpha = 0.85f) else TextSecondary,
-                    fontSize = 9.sp,
-                    fontFamily = FontFamily.Monospace,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            Text(
+                text = title,
+                color = if (isSelected) AccentPrimary else TextSecondary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp,
+                fontFamily = FontFamily.Monospace,
+                maxLines = 1,
+                softWrap = false
+            )
         }
     }
 }
