@@ -83,7 +83,7 @@ private val AmberWarning = Color(0xFFF59E0B)
 fun DashboardScreen(
     meetingRepository: MeetingRepository,
     onNavigateToMeeting: (String) -> Unit,
-    onNavigateToLive: (String, String) -> Unit,
+    onNavigateToLive: (meetingId: String, title: String, language: String) -> Unit,
     onLogout: () -> Unit
 ) {
     val context = LocalContext.current
@@ -243,7 +243,7 @@ fun DashboardScreen(
                 scope.launch {
                     val res = meetingRepository.createMeeting(title, lang, targetLang, groupId)
                     res.onSuccess { newMeeting ->
-                        onNavigateToLive(newMeeting.id, newMeeting.title)
+                        onNavigateToLive(newMeeting.id, newMeeting.title, newMeeting.language)
                     }.onFailure {
                         refreshData()
                     }
@@ -661,7 +661,7 @@ fun DashboardScreen(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Button(
-                                    onClick = { onNavigateToLive(ongoing.id, ongoing.title) },
+                                    onClick = { onNavigateToLive(ongoing.id, ongoing.title, ongoing.language) },
                                     colors = ButtonDefaults.buttonColors(containerColor = AmberWarning),
                                     shape = RoundedCornerShape(4.dp),
                                     modifier = Modifier.weight(1f),

@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToMeeting = { meetingId ->
                                     navController.navigate(Screen.MeetingDetail.createRoute(meetingId))
                                 },
-                                onNavigateToLive = { meetingId, title ->
+                                onNavigateToLive = { meetingId, title, language ->
                                     // Start Foreground Service
                                     val token = app.tokenStorage.getAccessToken() ?: ""
                                     val currentBase = app.tokenStorage.getServerUrl()
@@ -109,6 +109,7 @@ class MainActivity : ComponentActivity() {
                                     val intent = Intent(this@MainActivity, TranscriptionService::class.java).apply {
                                         action = TranscriptionService.ACTION_START
                                         putExtra(TranscriptionService.EXTRA_MEETING_ID, meetingId)
+                                        putExtra(TranscriptionService.EXTRA_LANGUAGE, language)
                                         putExtra(TranscriptionService.EXTRA_TOKEN, token)
                                         putExtra(TranscriptionService.EXTRA_WS_URL, "$wsBase/ws/transcribe")
                                         if (sttProvider != "DEFAULT" && !sttKey.isNullOrBlank()) {

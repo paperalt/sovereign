@@ -61,9 +61,30 @@ class TranscriptionService : Service() {
     private var isStopping = false
     private var isCancelled = false
     private var isManuallyPaused = false
+    private var isSystemFocusPaused = false
 
     private val chunkIndexCounter = AtomicInteger(0)
     private val activeTranscribeJobs = java.util.concurrent.CopyOnWriteArrayList<Job>()
+
+    private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_LOSS,
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                if (_isRecording.value && !_isPaused.value) {
+                    isSystemFocusPaused = true
+                    _isPaused.value = true
+                    _vadState.value = "PAUSED"
+                }
+            }
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                if (isSystemFocusPaused && !isManuallyPaused) {
+                    isSystemFocusPaused = false
+                    _isPaused.value = false
+                    _vadState.value = "ACTIVE"
+                }
+            }
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -82,7 +103,7 @@ class TranscriptionService : Service() {
                 isAdaptive = pipelineMode == "adaptive"
                 _isAdaptiveBeta.value = isAdaptive
 
-                val requestedLang = intent.getStringExtra("extra_language") ?: "id"
+                val requestedLang = intent.getStringExtra(EXTRA_LANGUAGE) ?: "id"
                 language = requestedLang
 
                 startForegroundServiceSafely()
@@ -116,6 +137,7 @@ class TranscriptionService : Service() {
 
         acquireWakeLock()
         requestAudioFocus()
+        enableBluetoothAudioRouting()
     }
 
     private fun startLocalRecordingPipeline() {
@@ -412,12 +434,13 @@ class TranscriptionService : Service() {
 
             audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
                 .setAudioAttributes(playbackAttributes)
+                .setOnAudioFocusChangeListener(audioFocusChangeListener)
                 .build()
 
             audioManager?.requestAudioFocus(audioFocusRequest!!)
         } else {
             @Suppress("DEPRECATION")
-            audioManager?.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+            audioManager?.requestAudioFocus(audioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
         }
     }
 
@@ -426,11 +449,46 @@ class TranscriptionService : Service() {
             audioFocusRequest?.let { audioManager?.abandonAudioFocusRequest(it) }
         } else {
             @Suppress("DEPRECATION")
-            audioManager?.abandonAudioFocus(null)
+            audioManager?.abandonAudioFocus(audioFocusChangeListener)
         }
     }
 
+    private fun enableBluetoothAudioRouting() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val devices = audioManager?.availableCommunicationDevices ?: emptyList()
+                val btDevice = devices.firstOrNull {
+                    it.type == android.media.AudioDeviceInfo.TYPE_BLUETOOTH_SCO ||
+                    it.type == android.media.AudioDeviceInfo.TYPE_BLE_HEADSET ||
+                    it.type == android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET
+                }
+                if (btDevice != null) {
+                    audioManager?.setCommunicationDevice(btDevice)
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                if (audioManager?.isBluetoothScoAvailableOffCall == true) {
+                    audioManager?.startBluetoothSco()
+                    audioManager?.isBluetoothScoOn = true
+                }
+            }
+        } catch (_: Exception) {}
+    }
+
+    private fun disableBluetoothAudioRouting() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                audioManager?.clearCommunicationDevice()
+            } else {
+                @Suppress("DEPRECATION")
+                audioManager?.stopBluetoothSco()
+                audioManager?.isBluetoothScoOn = false
+            }
+        } catch (_: Exception) {}
+    }
+
     private fun cleanup() {
+        disableBluetoothAudioRouting()
         try {
             audioRecord?.stop()
         } catch (_: Exception) {}
@@ -489,6 +547,7 @@ class TranscriptionService : Service() {
         const val ACTION_CANCEL = "org.sovereign.app.CANCEL"
 
         const val EXTRA_MEETING_ID = "extra_meeting_id"
+        const val EXTRA_LANGUAGE = "extra_language"
         const val EXTRA_TOKEN = "extra_token"
         const val EXTRA_WS_URL = "extra_ws_url"
         const val EXTRA_BYOK_PROVIDER = "extra_byok_provider"
