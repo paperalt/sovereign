@@ -270,13 +270,16 @@ object BackupManager {
                 if (rowId != -1L) groupsRestored++
             }
 
+            val validGroupIds = mutableSetOf<String>()
+            db.rawQuery("SELECT id FROM transcript_groups", null).use { cursor ->
+                while (cursor.moveToNext()) {
+                    validGroupIds.add(cursor.getString(0))
+                }
+            }
+
             // 2. Restore Meetings
             for (m in payload.meetings) {
-                val validGroupId = if (m.groupId.isNullOrBlank()) null else {
-                    val cursor = db.rawQuery("SELECT 1 FROM transcript_groups WHERE id = ?", arrayOf(m.groupId))
-                    val exists = cursor.use { it.moveToFirst() }
-                    if (exists) m.groupId else null
-                }
+                val validGroupId = if (m.groupId.isNullOrBlank() || m.groupId !in validGroupIds) null else m.groupId
 
                 val cv = ContentValues().apply {
                     put("id", m.id)
@@ -294,10 +297,16 @@ object BackupManager {
                 if (rowId != -1L) meetingsRestored++
             }
 
+            val validMeetingIds = mutableSetOf<String>()
+            db.rawQuery("SELECT id FROM meetings", null).use { cursor ->
+                while (cursor.moveToNext()) {
+                    validMeetingIds.add(cursor.getString(0))
+                }
+            }
+
             // 3. Restore Chunks
             for (c in payload.chunks) {
-                val meetingExists = db.rawQuery("SELECT 1 FROM meetings WHERE id = ?", arrayOf(c.meetingId)).use { it.moveToFirst() }
-                if (!meetingExists) continue
+                if (c.meetingId !in validMeetingIds) continue
 
                 val cv = ContentValues().apply {
                     put("id", c.id)
@@ -315,8 +324,7 @@ object BackupManager {
 
             // 4. Restore Summaries
             for (s in payload.summaries) {
-                val meetingExists = db.rawQuery("SELECT 1 FROM meetings WHERE id = ?", arrayOf(s.meetingId)).use { it.moveToFirst() }
-                if (!meetingExists) continue
+                if (s.meetingId !in validMeetingIds) continue
 
                 val cv = ContentValues().apply {
                     put("id", s.id)

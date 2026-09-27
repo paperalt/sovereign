@@ -81,10 +81,6 @@ fun BackupRestoreDialog(
     var restoreSettingsAndKeys by remember { mutableStateOf(true) }
     var isRestoring by remember { mutableStateOf(false) }
 
-    val dateSuffix = remember {
-        SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-    }
-
     // Export File Launcher (Create Document)
     val createDocLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
@@ -247,7 +243,8 @@ fun BackupRestoreDialog(
                                 onIncludeKeysChange = { includeKeysInExport = it },
                                 isExporting = isExporting,
                                 onExportToFile = {
-                                    createDocLauncher.launch("sovereign_backup_${dateSuffix}.json")
+                                    val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                                    createDocLauncher.launch("sovereign_backup_${timestamp}.json")
                                 },
                                 onShareDirectly = {
                                     scope.launch {
@@ -255,9 +252,10 @@ fun BackupRestoreDialog(
                                         val res = BackupManager.exportBackup(context, tokenStorage, includeKeysInExport)
                                         isExporting = false
                                         res.onSuccess { jsonStr ->
+                                            val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
                                             val sendIntent = Intent(Intent.ACTION_SEND).apply {
                                                 type = "application/json"
-                                                putExtra(Intent.EXTRA_SUBJECT, "Sovereign Backup - $dateSuffix")
+                                                putExtra(Intent.EXTRA_SUBJECT, "Sovereign Backup - $timestamp")
                                                 putExtra(Intent.EXTRA_TEXT, jsonStr)
                                             }
                                             context.startActivity(Intent.createChooser(sendIntent, "Share Sovereign Backup"))
