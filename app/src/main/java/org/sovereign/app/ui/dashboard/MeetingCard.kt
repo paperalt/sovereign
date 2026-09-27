@@ -166,7 +166,13 @@ fun MeetingCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 val durSec = meeting.durationSec.toInt()
-                val durFormatted = if (durSec >= 60) "${durSec / 60}m ${durSec % 60}s" else "${durSec}s"
+                val durFormatted = if (durSec >= 3600) {
+                    "${durSec / 3600}h ${(durSec % 3600) / 60}m"
+                } else if (durSec >= 60) {
+                    "${durSec / 60}m ${durSec % 60}s"
+                } else {
+                    "${durSec}s"
+                }
                 Text(
                     text = "${meeting.status} • $durFormatted",
                     color = if (meeting.status == "COMPLETED") EmeraldSuccess else TextMuted,

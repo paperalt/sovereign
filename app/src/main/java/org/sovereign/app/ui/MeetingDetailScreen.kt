@@ -952,7 +952,9 @@ private fun formatSeconds(seconds: Double): String {
 private fun buildMarkdown(data: FullTranscriptDto): String {
     val sb = StringBuilder()
     sb.append("# ${data.title}\n\n")
-    sb.append("**Date:** ${data.startedAt.take(10)} | **Duration:** ${data.durationSec.toInt()}s | **Language:** ${data.language.uppercase()}\n\n")
+    val durSec = data.durationSec.toInt()
+    val durFormatted = if (durSec >= 3600) "${durSec / 3600}h ${(durSec % 3600) / 60}m" else if (durSec >= 60) "${durSec / 60}m ${durSec % 60}s" else "${durSec}s"
+    sb.append("**Date:** ${data.startedAt.take(10)} | **Duration:** $durFormatted | **Language:** ${data.language.uppercase()}\n\n")
 
     if (!data.summary.isNullOrBlank()) {
         sb.append("## Executive Summary\n")

@@ -79,6 +79,7 @@ class AppDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_N
 
         // Indexes for lightning-fast queries
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_meetings_updated ON meetings(updated_at DESC);")
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_meetings_group ON meetings(group_id);")
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_chunks_meeting ON transcript_chunks(meeting_id, chunk_index ASC);")
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_groups_created ON transcript_groups(created_at DESC);")
     }

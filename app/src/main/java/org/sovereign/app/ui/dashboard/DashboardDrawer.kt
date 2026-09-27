@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Close
@@ -107,7 +106,7 @@ fun DashboardDrawerContent(
     onOpenInfo: () -> Unit,
     onOpenGuide: () -> Unit,
     onCheckUpdate: () -> Unit,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit = {}
 ) {
     ModalDrawerSheet(
         drawerContainerColor = DarkSlate,
@@ -293,27 +292,36 @@ fun DashboardDrawerContent(
             HorizontalDivider(color = SteelBorder, thickness = 1.dp)
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Sign Out Action
-            Row(
+            // Zero-Knowledge Architecture Privacy Badge
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(onClick = onSignOut)
-                    .padding(vertical = 10.dp, horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .background(Color(0xFF0F151E), RoundedCornerShape(6.dp))
+                    .border(1.dp, SteelBorder, RoundedCornerShape(6.dp))
+                    .padding(vertical = 10.dp, horizontal = 12.dp)
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                    contentDescription = "Sign Out",
-                    tint = CrimsonAlert,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Sign Out",
-                    color = CrimsonAlert,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(EmeraldSuccess, shape = RoundedCornerShape(4.dp))
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "ZERO-KNOWLEDGE CORE",
+                            color = TextPrimary,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace
+                        )
+                        Text(
+                            text = "100% on-device • No external tracking",
+                            color = TextSecondary,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
             }
         }
     }

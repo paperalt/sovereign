@@ -114,9 +114,11 @@ class LocalMeetingRepository(
             val query = """
                 SELECT m.id, m.title, m.language, m.target_language, m.status, m.duration_sec,
                        m.started_at, m.ended_at, m.group_id, m.updated_at,
-                       g.name AS group_name
+                       g.name AS group_name,
+                       s.summary_text AS summary
                 FROM meetings m
                 LEFT JOIN transcript_groups g ON m.group_id = g.id
+                LEFT JOIN meeting_summaries s ON s.meeting_id = m.id
                 WHERE m.status = 'RECORDING'
                 ORDER BY m.started_at DESC
                 LIMIT 1
@@ -143,9 +145,11 @@ class LocalMeetingRepository(
             val meetingQuery = """
                 SELECT m.id, m.title, m.language, m.target_language, m.status, m.duration_sec,
                        m.started_at, m.ended_at, m.group_id, m.updated_at,
-                       g.name AS group_name
+                       g.name AS group_name,
+                       s.summary_text AS summary
                 FROM meetings m
                 LEFT JOIN transcript_groups g ON m.group_id = g.id
+                LEFT JOIN meeting_summaries s ON s.meeting_id = m.id
                 WHERE m.id = ?
             """.trimIndent()
 
@@ -295,6 +299,9 @@ class LocalMeetingRepository(
                 }
             }
             val fullText = sb.toString().trim()
+            if (fullText.isBlank()) {
+                return@withContext Result.failure(Exception("No audible speech recorded to summarize."))
+            }
 
             val provider = tokenStorage.getSelectedPreset().ifBlank { "groq" }
             val llmEndpoint = tokenStorage.getLLMEndpoint()
@@ -843,9 +850,11 @@ class LocalMeetingRepository(
             val query = """
                 SELECT m.id, m.title, m.language, m.target_language, m.status, m.duration_sec,
                        m.started_at, m.ended_at, m.group_id, m.updated_at,
-                       g.name AS group_name
+                       g.name AS group_name,
+                       s.summary_text AS summary
                 FROM meetings m
                 LEFT JOIN transcript_groups g ON m.group_id = g.id
+                LEFT JOIN meeting_summaries s ON s.meeting_id = m.id
                 WHERE m.id = ?
             """.trimIndent()
 
@@ -1022,9 +1031,11 @@ class LocalMeetingRepository(
             val query = """
                 SELECT m.id, m.title, m.language, m.target_language, m.status, m.duration_sec,
                        m.started_at, m.ended_at, m.group_id, m.updated_at,
-                       g.name AS group_name
+                       g.name AS group_name,
+                       s.summary_text AS summary
                 FROM meetings m
                 LEFT JOIN transcript_groups g ON m.group_id = g.id
+                LEFT JOIN meeting_summaries s ON s.meeting_id = m.id
                 WHERE m.id = ?
             """.trimIndent()
 

@@ -403,10 +403,14 @@ class DirectAIClient(
             }
             val body = response.body?.string() ?: ""
             val jsonObject = gson.fromJson(body, JsonObject::class.java)
-            val content = jsonObject.getAsJsonArray("choices")[0].asJsonObject
-                .getAsJsonObject("message")
-                .get("content").asString
-            return Result.success(content)
+            val choices = jsonObject?.getAsJsonArray("choices")
+            if (choices != null && choices.size() > 0) {
+                val content = choices[0].asJsonObject
+                    .getAsJsonObject("message")
+                    ?.get("content")?.asString ?: ""
+                return Result.success(content)
+            }
+            return Result.failure(IOException("No completion choices returned: $body"))
         }
     }
 
@@ -490,8 +494,30 @@ class DirectAIClient(
         return try {
             val obj = gson.fromJson(clean, JsonObject::class.java)
             val summary = obj.get("summary")?.asString ?: rawText
-            val keyPoints = obj.getAsJsonArray("key_points")?.map { it.asString } ?: emptyList()
-            val rawActionItems = obj.getAsJsonArray("action_items")?.map { it.asString } ?: emptyList()
+            val keyPoints = try {
+                obj.getAsJsonArray("key_points")?.mapNotNull { elem ->
+                    if (elem.isJsonPrimitive) elem.asString
+                    else if (elem.isJsonObject) {
+                        val kpObj = elem.asJsonObject
+                        kpObj.get("point")?.asString ?: kpObj.get("text")?.asString ?: kpObj.toString()
+                    } else null
+                } ?: emptyList()
+            } catch (_: Exception) {
+                emptyList()
+            }
+
+            val rawActionItems = try {
+                obj.getAsJsonArray("action_items")?.mapNotNull { elem ->
+                    if (elem.isJsonPrimitive) elem.asString
+                    else if (elem.isJsonObject) {
+                        val taskObj = elem.asJsonObject
+                        taskObj.get("task")?.asString ?: taskObj.get("item")?.asString ?: taskObj.get("text")?.asString ?: taskObj.toString()
+                    } else null
+                } ?: emptyList()
+            } catch (_: Exception) {
+                emptyList()
+            }
+
             val actionItems = rawActionItems.map { ActionItemDto(task = it, assignee = null, status = "PENDING") }
             SummaryResult(summary, keyPoints, actionItems)
         } catch (_: Exception) {
@@ -502,16 +528,29 @@ class DirectAIClient(
     private fun parseQuestionsJson(rawText: String): List<QuestionItem> {
         val clean = cleanJsonMarkdown(rawText)
         return try {
-            val array = gson.fromJson(clean, com.google.gson.JsonArray::class.java)
-            array.map { elem ->
+            val jsonElement = com.google.gson.JsonParser.parseString(clean)
+            val array = if (jsonElement.isJsonArray) {
+                jsonElement.asJsonArray
+            } else if (jsonElement.isJsonObject) {
+                val obj = jsonElement.asJsonObject
+                obj.getAsJsonArray("questions")
+                    ?: obj.getAsJsonArray("inquiries")
+                    ?: obj.getAsJsonArray("items")
+                    ?: com.google.gson.JsonArray()
+            } else {
+                com.google.gson.JsonArray()
+            }
+
+            array.mapNotNull { elem ->
+                if (!elem.isJsonObject) return@mapNotNull null
                 val obj = elem.asJsonObject
                 QuestionItem(
                     question = obj.get("question")?.asString ?: "",
-                    category = obj.get("category")?.asString ?: "STRATEGIS",
+                    category = obj.get("category")?.asString ?: "STRATEGIC",
                     rationale = obj.get("rationale")?.asString ?: "",
-                    contextRef = obj.get("context_ref")?.asString ?: ""
+                    contextRef = obj.get("context_ref")?.asString ?: obj.get("context")?.asString ?: ""
                 )
-            }
+            }.filter { it.question.isNotBlank() }
         } catch (_: Exception) {
             emptyList()
         }
