@@ -90,7 +90,7 @@ VALUES (
     '11111111-1111-1111-1111-111111111111',
     'Rapat berhasil menetapkan standar PostgreSQL 16 dan dual-token auth.',
     '["Implementasi Argon2id selesai", "Konkurensi WebSocket terisolasi"]'::jsonb,
-    '[{"task": "Audit skema DB", "assignee": "Homura", "status": "DONE"}, {"task": "Build Android APK", "assignee": "Asmaul", "status": "PENDING"}]'::jsonb
+    '[{"task": "Audit skema DB", "assignee": "Homura", "status": "DONE"}, {"task": "Build Android APK", "assignee": "paperalt", "status": "PENDING"}]'::jsonb
 );
 
 -- Test JSONB Querying
