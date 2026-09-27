@@ -154,71 +154,7 @@ fun DashboardDrawerContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Engine Status Summary Card in Drawer
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF0F151E), RoundedCornerShape(8.dp))
-                    .border(1.dp, SteelBorder, RoundedCornerShape(8.dp))
-                    .padding(12.dp)
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "ENGINE STATUS",
-                            color = TextMuted,
-                            fontSize = 10.sp,
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Box(
-                            modifier = Modifier
-                                .background(Color(0xFF1E2632), RoundedCornerShape(3.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                        ) {
-                            Text(
-                                text = "ACTIVE",
-                                color = EmeraldSuccess,
-                                fontSize = 10.sp,
-                                fontFamily = FontFamily.Monospace,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .background(EmeraldSuccess, shape = RoundedCornerShape(3.dp))
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Provider: $currentAIProvider",
-                            color = TextPrimary,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-
-                    Text(
-                        text = "Storage: Local SQLite",
-                        color = TextSecondary,
-                        fontSize = 10.sp,
-                        fontFamily = FontFamily.Monospace
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             HorizontalDivider(color = SteelBorder, thickness = 1.dp)
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -290,39 +226,15 @@ fun DashboardDrawerContent(
 
             Spacer(modifier = Modifier.weight(1f))
             HorizontalDivider(color = SteelBorder, thickness = 1.dp)
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Zero-Knowledge Architecture Privacy Badge
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF0F151E), RoundedCornerShape(6.dp))
-                    .border(1.dp, SteelBorder, RoundedCornerShape(6.dp))
-                    .padding(vertical = 10.dp, horizontal = 12.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(EmeraldSuccess, shape = RoundedCornerShape(4.dp))
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Column {
-                        Text(
-                            text = "ZERO-KNOWLEDGE CORE",
-                            color = TextPrimary,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Monospace
-                        )
-                        Text(
-                            text = "100% on-device • No external tracking",
-                            color = TextSecondary,
-                            fontSize = 10.sp
-                        )
-                    }
-                }
-            }
+            Text(
+                text = "Sovereign Speech Intelligence",
+                color = TextMuted,
+                fontSize = 11.sp,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
         }
     }
 }

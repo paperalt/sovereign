@@ -147,7 +147,7 @@ fun AIEngineConfigDialog(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "ACTIVE PIPELINE ARCHITECTURE",
+                                    text = "ACTIVE PIPELINE",
                                     color = EngineColors.TextMuted,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,

@@ -61,10 +61,7 @@ import org.sovereign.app.auth.EncryptedTokenStorage
 import org.sovereign.app.data.MeetingRepository
 import org.sovereign.app.network.AppVersionDto
 import org.sovereign.app.network.MeetingDto
-import org.sovereign.app.network.SubscriptionPlanDto
 import org.sovereign.app.network.TranscriptGroupDto
-import org.sovereign.app.network.UserQuotaDto
-import java.text.NumberFormat
 import java.util.Locale
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -109,11 +106,8 @@ fun DashboardScreen(
     var isSearching by remember { mutableStateOf(false) }
     var searchJob by remember { mutableStateOf<Job?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
-    var showSubscriptionDialog by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
     var availableUpdate by remember { mutableStateOf<AppVersionDto?>(null) }
-    var userQuota by remember { mutableStateOf<UserQuotaDto?>(null) }
-    var plans by remember { mutableStateOf<List<SubscriptionPlanDto>>(emptyList()) }
 
     // Grouping & Hierarchy State
     var selectedMainTab by remember { mutableStateOf(0) } // 0 = SEMUA SESI, 1 = GRUP / FOLDER
@@ -154,12 +148,6 @@ fun DashboardScreen(
             isLoading = true
             val activeRes = meetingRepository.getActiveMeeting()
             activeMeeting = activeRes.getOrNull()
-
-            val quotaRes = meetingRepository.getUserQuota()
-            userQuota = quotaRes.getOrNull()
-
-            val plansRes = meetingRepository.getPlans()
-            plans = plansRes.getOrDefault(emptyList())
 
             val versionRes = meetingRepository.checkAppVersion()
             versionRes.onSuccess { ver ->

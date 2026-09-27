@@ -170,7 +170,7 @@ fun SystemInfoDialog(
                         }
                     }
 
-                    // 2. Architecture Specifications
+                    // 2. Product Capabilities
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
@@ -178,33 +178,29 @@ fun SystemInfoDialog(
                         border = BorderStroke(1.dp, SteelBorder)
                     ) {
                         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("CORE ARCHITECTURE", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                            Text("CAPABILITIES", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                             HorizontalDivider(color = SteelBorder.copy(alpha = 0.4f))
 
                             ArchitectureSpecItem(
-                                label = "Runtime Architecture",
-                                value = "100% On-Device Standalone (Zero-Backend Server)"
+                                label = "Speech-to-Text",
+                                value = "Live streaming voice recognition with pause & resume"
                             )
                             ArchitectureSpecItem(
-                                label = "Local Persistence",
-                                value = "Native SQLite 3 Database (App Private Sandbox)"
+                                label = "Reasoning & Synthesis",
+                                value = "Executive summaries, key takeaways, and action items"
                             )
                             ArchitectureSpecItem(
-                                label = "Audio Ingestion",
-                                value = "16kHz Mono 16-bit PCM -> In-Memory RIFF/WAVE Container"
+                                label = "In-Meeting Inquiry",
+                                value = "Context-grounded analytical questions during live discussions"
                             )
                             ArchitectureSpecItem(
-                                label = "Silence Filter (VAD)",
-                                value = "On-Device RMS Energy Gating (~78% Bandwidth Reduction)"
-                            )
-                            ArchitectureSpecItem(
-                                label = "AI Connectivity",
-                                value = "Direct Phone-to-Provider HTTPS (Zero Intermediary Relay)"
+                                label = "Model Flexibility",
+                                value = "Bring-your-own-key or local inference (Ollama, Groq, Google, OpenAI)"
                             )
                         }
                     }
 
-                    // 3. Zero-Knowledge Security Card
+                    // 3. Privacy & Security
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
@@ -215,21 +211,21 @@ fun SystemInfoDialog(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.Security, contentDescription = null, tint = AccentPrimary, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("SECURITY & PRIVACY ASSURANCE", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                                Text("PRIVACY & SECURITY", color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                             }
                             HorizontalDivider(color = SteelBorder.copy(alpha = 0.4f))
 
                             SecurityBulletItem(
-                                title = "Hardware Keystore Encryption",
-                                desc = "API keys are encrypted at rest via AES-256-GCM backed by Android Hardware Keystore."
+                                title = "Hardware Keystore Protection",
+                                desc = "API keys are encrypted using hardware-backed AES-256-GCM."
                             )
                             SecurityBulletItem(
-                                title = "Zero Intermediary Cloud",
-                                desc = "Audio and meeting transcripts are stored strictly in local SQLite and never sent to any proxy."
+                                title = "Direct Provider Connectivity",
+                                desc = "Audio and requests go directly to your configured AI endpoints with no third-party proxies."
                             )
                             SecurityBulletItem(
-                                title = "Data Sovereignty",
-                                desc = "You retain 100% ownership of recordings, notes, action items, and AI model choices."
+                                title = "Complete Ownership",
+                                desc = "All session recordings, notes, and transcripts remain exclusively on your device."
                             )
                         }
                     }
@@ -335,8 +331,8 @@ fun GuideDialog(
                     )
 
                     GuideItem(
-                        title = "6. Data Privacy & Local Storage",
-                        description = "• All audio recordings, transcripts, summaries, and meeting groups are stored strictly in local SQLite on this device.\n• No intermediate server or third party ever receives your data."
+                        title = "6. Data Privacy & On-Device Storage",
+                        description = "• All audio recordings, transcripts, summaries, and meeting groups remain securely stored on your device.\n• No intermediate server or third party ever receives your data."
                     )
 
                     Button(

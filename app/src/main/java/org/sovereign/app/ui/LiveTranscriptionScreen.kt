@@ -229,21 +229,12 @@ fun LiveTranscriptionScreen(
                     val baseStatus = when {
                         isFinalizing -> "FINALIZING"
                         isPaused -> "PAUSED"
-                        isRecording && isAdaptiveBeta -> {
-                            when (vadState) {
-                                "SPEAKING" -> "VAD: ACTIVE"
-                                "SUPPRESSED" -> "VAD: SAVING"
-                                else -> "STREAM"
-                            }
-                        }
-                        isRecording -> "STREAM"
+                        isRecording -> "RECORDING"
                         else -> "READY"
                     }
                     val statusLabel = baseStatus
-                    val metaLabel = if (aiProvider != "DEFAULT") {
+                    val metaLabel = if (aiProvider != "DEFAULT" && aiProvider.isNotBlank()) {
                         "$statusLabel • $aiProvider"
-                    } else if (remainingQuotaSeconds != null) {
-                        "$statusLabel • ${formatQuotaHuman(remainingQuotaSeconds)}"
                     } else {
                         statusLabel
                     }
@@ -516,17 +507,5 @@ fun LiveTranscriptionScreen(
                 }
             }
         }
-    }
-}
-
-// Formats seconds into human-digestible format (e.g. "25j 28m" or "28m 35s")
-private fun formatQuotaHuman(seconds: Int): String {
-    if (seconds <= 0) return "0m"
-    val hours = seconds / 3600
-    val minutes = (seconds % 3600) / 60
-    return if (hours > 0) {
-        "${hours}h ${minutes}m"
-    } else {
-        "${minutes}m ${seconds % 60}s"
     }
 }
