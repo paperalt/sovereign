@@ -297,19 +297,33 @@ fun LiveTranscriptionScreen(
             }
         }
 
-        // 2. Audio Waveform Monitor (Seamless Studio Strip)
-        Box(
+        // 2. Audio Waveform Oscilloscope Monitor
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp)
-                .height(28.dp)
-        ) {
-            AudioWaveformVisualizer(
-                amplitudeSupplier = amplitudeSupplier,
-                barTopColor = if (isRecording && !isPaused) AccentPrimary else TextMuted.copy(alpha = 0.4f),
-                barBottomColor = if (isRecording && !isPaused) Color(0xFF0284C7) else TextMuted.copy(alpha = 0.15f),
-                modifier = Modifier.fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF0C1118)),
+            border = BorderStroke(
+                1.dp,
+                if (isRecording && !isPaused) androidx.compose.ui.graphics.Brush.verticalGradient(
+                    listOf(AccentPrimary.copy(alpha = 0.35f), SteelBorder)
+                ) else androidx.compose.ui.graphics.SolidColor(SteelBorder.copy(alpha = 0.5f))
             )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                    .height(42.dp)
+            ) {
+                AudioWaveformVisualizer(
+                    amplitudeSupplier = amplitudeSupplier,
+                    barTopColor = if (isRecording && !isPaused) AccentPrimary else TextMuted.copy(alpha = 0.4f),
+                    barBottomColor = if (isRecording && !isPaused) Color(0xFF0284C7) else TextMuted.copy(alpha = 0.15f),
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(6.dp))

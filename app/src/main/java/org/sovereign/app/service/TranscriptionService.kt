@@ -395,7 +395,16 @@ class TranscriptionService : Service() {
     }
 
     private fun updateAmplitudes(rms: Double) {
-        val norm = (rms / 32767.0).toFloat().coerceIn(0.05f, 1.0f)
+        // Normal human speech in 16-bit PCM ranges from 200 to 3000 RMS.
+        // Acoustic perceptual square-root compression provides natural dynamic responsiveness.
+        val effectiveRms = (rms - 60.0).coerceAtLeast(0.0)
+        val ratio = (effectiveRms / 2600.0).coerceIn(0.0, 1.0)
+        val norm = if (effectiveRms > 0) {
+            (0.06 + 0.94 * kotlin.math.sqrt(ratio)).toFloat().coerceIn(0.05f, 1.0f)
+        } else {
+            0.04f
+        }
+
         val current = _amplitudes.value.clone()
         for (i in 0 until current.size - 1) {
             current[i] = current[i + 1]

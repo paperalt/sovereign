@@ -19,7 +19,7 @@ fun AudioWaveformVisualizer(
     barBottomColor: Color = Color(0xFF0284C7),
     modifier: Modifier = Modifier
         .fillMaxWidth()
-        .height(36.dp)
+        .height(44.dp)
 ) {
     Canvas(modifier = modifier) {
         val amplitudes = amplitudeSupplier()
@@ -27,26 +27,41 @@ fun AudioWaveformVisualizer(
 
         val barCount = amplitudes.size
         val totalWidth = size.width
-        val barWidth = (totalWidth / barCount) * 0.65f
-        val gap = (totalWidth - (barWidth * barCount)) / (barCount - 1).coerceAtLeast(1)
         val maxHeight = size.height
 
-        val minBarHeight = 4.dp.toPx()
+        // Hardware oscilloscope center baseline guideline
+        drawLine(
+            color = Color.White.copy(alpha = 0.06f),
+            start = Offset(0f, maxHeight / 2f),
+            end = Offset(totalWidth, maxHeight / 2f),
+            strokeWidth = 1.dp.toPx()
+        )
+
+        val barWidth = (totalWidth / barCount) * 0.62f
+        val gap = (totalWidth - (barWidth * barCount)) / (barCount - 1).coerceAtLeast(1)
+        val minBarHeight = 3.dp.toPx()
+
         for (i in 0 until barCount) {
             val amp = amplitudes[i]
-            val normalizedAmp = if (amp > 0.05f) {
+            val normalizedAmp = if (amp > 0.055f) {
                 amp.coerceIn(0.08f, 1.0f)
             } else {
-                // Subtle organic baseline curve so idle state doesn't look like flat hyphens
+                // Organic breathing baseline curve when silent so the meter feels live and responsive
                 val progress = i.toFloat() / (barCount - 1).coerceAtLeast(1)
-                (0.08f + 0.06f * kotlin.math.sin(progress * Math.PI).toFloat())
+                (0.06f + 0.05f * kotlin.math.sin(progress * Math.PI).toFloat())
             }
-            val barHeight = (maxHeight * normalizedAmp).coerceAtLeast(minBarHeight)
+
+            val barHeight = (maxHeight * normalizedAmp).coerceIn(minBarHeight, maxHeight)
             val x = i * (barWidth + gap)
             val y = (maxHeight - barHeight) / 2f
 
+            // Leftmost edge fade for smooth historical stream transition
+            val fadeRatio = (i.toFloat() / 4.coerceAtLeast(1)).coerceIn(0.25f, 1.0f)
+            val topColorWithFade = barTopColor.copy(alpha = barTopColor.alpha * fadeRatio)
+            val bottomColorWithFade = barBottomColor.copy(alpha = barBottomColor.alpha * fadeRatio)
+
             val brush = Brush.verticalGradient(
-                colors = listOf(barTopColor, barBottomColor),
+                colors = listOf(topColorWithFade, bottomColorWithFade),
                 startY = y,
                 endY = y + barHeight
             )
