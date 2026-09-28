@@ -35,6 +35,7 @@ class DirectAIClient(
 
     /**
      * Directly transcribes a WAV audio byte array via the selected provider or universal endpoint.
+     * Supports Whisper/Groq prompt conditioning to eliminate boundary syllable clipping.
      */
     suspend fun transcribeAudio(
         wavBytes: ByteArray,
@@ -42,22 +43,23 @@ class DirectAIClient(
         provider: String = "groq",
         apiKey: String,
         customEndpoint: String? = null,
-        customModel: String? = null
+        customModel: String? = null,
+        prompt: String? = null
     ): Result<String> = withContext(Dispatchers.IO) {
         try {
             if (!customEndpoint.isNullOrBlank()) {
                 if (customEndpoint.contains("generativelanguage.googleapis.com")) {
-                    return@withContext transcribeGemini(wavBytes, language, apiKey, customEndpoint)
+                    return@withContext transcribeGemini(wavBytes, language, apiKey, customEndpoint, prompt)
                 }
                 val model = if (!customModel.isNullOrBlank()) customModel else "whisper-large-v3-turbo"
-                return@withContext transcribeOpenAICompatible(wavBytes, language, customEndpoint, model, apiKey)
+                return@withContext transcribeOpenAICompatible(wavBytes, language, customEndpoint, model, apiKey, prompt)
             }
 
             when (provider.lowercase()) {
-                "groq" -> transcribeGroq(wavBytes, language, apiKey)
-                "openai" -> transcribeOpenAI(wavBytes, language, apiKey)
-                "gemini" -> transcribeGemini(wavBytes, language, apiKey)
-                else -> transcribeGroq(wavBytes, language, apiKey)
+                "groq" -> transcribeGroq(wavBytes, language, apiKey, prompt)
+                "openai" -> transcribeOpenAI(wavBytes, language, apiKey, prompt)
+                "gemini" -> transcribeGemini(wavBytes, language, apiKey, prompt = prompt)
+                else -> transcribeGroq(wavBytes, language, apiKey, prompt)
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -69,9 +71,10 @@ class DirectAIClient(
         language: String,
         endpoint: String,
         model: String,
-        apiKey: String
+        apiKey: String,
+        prompt: String? = null
     ): Result<String> {
-        val requestBody = MultipartBody.Builder()
+        val requestBodyBuilder = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("model", model)
             .addFormDataPart("response_format", "json")
@@ -81,10 +84,16 @@ class DirectAIClient(
                 "audio.wav",
                 wavBytes.toRequestBody("audio/wav".toMediaType())
             )
-            .build()
+
+        if (!prompt.isNullOrBlank()) {
+            requestBodyBuilder.addFormDataPart("prompt", prompt.trim())
+        }
+
+        val requestBody = requestBodyBuilder.build()
 
         val reqBuilder = Request.Builder()
             .url(endpoint)
+            .header("User-Agent", "SovereignSpeechIntelligence/1.0")
             .post(requestBody)
 
         if (apiKey.isNotBlank()) {
@@ -94,23 +103,35 @@ class DirectAIClient(
         return executeTranscriptionRequest(reqBuilder.build())
     }
 
-    private fun transcribeGroq(wavBytes: ByteArray, language: String, apiKey: String): Result<String> {
+    private fun transcribeGroq(
+        wavBytes: ByteArray,
+        language: String,
+        apiKey: String,
+        prompt: String? = null
+    ): Result<String> {
         return transcribeOpenAICompatible(
             wavBytes,
             language,
             "https://api.groq.com/openai/v1/audio/transcriptions",
             "whisper-large-v3-turbo",
-            apiKey
+            apiKey,
+            prompt
         )
     }
 
-    private fun transcribeOpenAI(wavBytes: ByteArray, language: String, apiKey: String): Result<String> {
+    private fun transcribeOpenAI(
+        wavBytes: ByteArray,
+        language: String,
+        apiKey: String,
+        prompt: String? = null
+    ): Result<String> {
         return transcribeOpenAICompatible(
             wavBytes,
             language,
             "https://api.openai.com/v1/audio/transcriptions",
             "whisper-1",
-            apiKey
+            apiKey,
+            prompt
         )
     }
 
@@ -118,17 +139,22 @@ class DirectAIClient(
         wavBytes: ByteArray,
         language: String,
         apiKey: String,
-        endpoint: String = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+        endpoint: String = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        prompt: String? = null
     ): Result<String> {
         val base64Audio = Base64.encodeToString(wavBytes, Base64.NO_WRAP)
-        val prompt = "Transcribe the following audio accurately in $language. Output ONLY the raw transcript text without preamble or commentary."
+        val instruction = if (!prompt.isNullOrBlank()) {
+            "The speaker was previously saying: \"${prompt.trim()}\". Continue transcribing the subsequent audio in $language without repeating prior words. Output ONLY the raw transcript text without preamble or commentary."
+        } else {
+            "Transcribe the following audio accurately in $language. Output ONLY the raw transcript text without preamble or commentary."
+        }
 
         val json = """
             {
               "contents": [
                 {
                   "parts": [
-                    {"text": "$prompt"},
+                    {"text": "$instruction"},
                     {
                       "inline_data": {
                         "mime_type": "audio/wav",
@@ -148,6 +174,7 @@ class DirectAIClient(
 
         val request = Request.Builder()
             .url(fullUrl)
+            .header("User-Agent", "SovereignSpeechIntelligence/1.0")
             .post(json.toRequestBody("application/json".toMediaType()))
             .build()
 
@@ -228,15 +255,15 @@ class DirectAIClient(
                 if (customEndpoint.contains("generativelanguage.googleapis.com")) {
                     return@withContext completeChatGemini(systemPrompt, fullTranscript, apiKey, customEndpoint).map { parseSummaryJson(it) }
                 }
-                val model = if (!customModel.isNullOrBlank()) customModel else "llama-3.3-70b-versatile"
+                val model = if (!customModel.isNullOrBlank()) customModel else "openai/gpt-oss-120b"
                 return@withContext completeChatOpenAICompatible(systemPrompt, fullTranscript, customEndpoint, model, apiKey).map { parseSummaryJson(it) }
             }
 
             when (provider.lowercase()) {
-                "groq" -> completeChatGroq(systemPrompt, fullTranscript, "llama-3.3-70b-versatile", apiKey)
+                "groq" -> completeChatGroq(systemPrompt, fullTranscript, "openai/gpt-oss-120b", apiKey)
                 "openai" -> completeChatOpenAI(systemPrompt, fullTranscript, "gpt-4o-mini", apiKey)
                 "gemini" -> completeChatGemini(systemPrompt, fullTranscript, apiKey)
-                else -> completeChatGroq(systemPrompt, fullTranscript, "llama-3.3-70b-versatile", apiKey)
+                else -> completeChatGroq(systemPrompt, fullTranscript, "openai/gpt-oss-120b", apiKey)
             }.map { jsonString ->
                 parseSummaryJson(jsonString)
             }
@@ -288,15 +315,15 @@ class DirectAIClient(
                 if (customEndpoint.contains("generativelanguage.googleapis.com")) {
                     return@withContext completeChatGemini(systemPrompt, userPrompt, apiKey, customEndpoint).map { parseQuestionsJson(it) }
                 }
-                val model = if (!customModel.isNullOrBlank()) customModel else "llama-3.3-70b-versatile"
+                val model = if (!customModel.isNullOrBlank()) customModel else "openai/gpt-oss-120b"
                 return@withContext completeChatOpenAICompatible(systemPrompt, userPrompt, customEndpoint, model, apiKey, temperature = 0.2).map { parseQuestionsJson(it) }
             }
 
             when (provider.lowercase()) {
-                "groq" -> completeChatGroq(systemPrompt, userPrompt, "llama-3.3-70b-versatile", apiKey, temperature = 0.2)
+                "groq" -> completeChatGroq(systemPrompt, userPrompt, "openai/gpt-oss-120b", apiKey, temperature = 0.2)
                 "openai" -> completeChatOpenAI(systemPrompt, userPrompt, "gpt-4o-mini", apiKey, temperature = 0.2)
                 "gemini" -> completeChatGemini(systemPrompt, userPrompt, apiKey)
-                else -> completeChatGroq(systemPrompt, userPrompt, "llama-3.3-70b-versatile", apiKey, temperature = 0.2)
+                else -> completeChatGroq(systemPrompt, userPrompt, "openai/gpt-oss-120b", apiKey, temperature = 0.2)
             }.map { jsonString ->
                 parseQuestionsJson(jsonString)
             }
@@ -404,11 +431,13 @@ class DirectAIClient(
         val payload = mapOf(
             "model" to model,
             "messages" to messages,
-            "temperature" to temperature
+            "temperature" to temperature,
+            "stream" to false
         )
 
         val reqBuilder = Request.Builder()
             .url(endpoint)
+            .header("User-Agent", "SovereignSpeechIntelligence/1.0")
             .post(gson.toJson(payload).toRequestBody("application/json".toMediaType()))
 
         if (apiKey.isNotBlank()) {
@@ -444,15 +473,16 @@ class DirectAIClient(
     private fun completeChatGroq(
         systemPrompt: String,
         userPrompt: String,
-        model: String,
+        model: String = "openai/gpt-oss-120b",
         apiKey: String,
         temperature: Double = 0.5
     ): Result<String> {
+        val targetModel = if (model.isBlank() || model == "llama-3.3-70b-versatile") "openai/gpt-oss-120b" else model
         return completeChatOpenAICompatible(
             systemPrompt,
             userPrompt,
             "https://api.groq.com/openai/v1/chat/completions",
-            model,
+            targetModel,
             apiKey,
             temperature
         )

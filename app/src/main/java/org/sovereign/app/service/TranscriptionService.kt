@@ -65,6 +65,7 @@ class TranscriptionService : Service() {
 
     private val chunkIndexCounter = AtomicInteger(0)
     private val activeTranscribeJobs = java.util.concurrent.CopyOnWriteArrayList<Job>()
+    private var lastChunkTranscript: String = ""
 
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
@@ -149,6 +150,7 @@ class TranscriptionService : Service() {
         recordStartTime = System.currentTimeMillis()
         totalPausedDuration = 0L
         chunkIndexCounter.set(0)
+        lastChunkTranscript = ""
         activeTranscribeJobs.clear()
 
         startTimerJob()
@@ -280,17 +282,25 @@ class TranscriptionService : Service() {
                 return@launch
             }
 
+            val priorPrompt = synchronized(this@TranscriptionService) {
+                if (lastChunkTranscript.isNotBlank()) lastChunkTranscript.takeLast(250) else null
+            }
+
             val res = directAIClient.transcribeAudio(
                 wavBytes = wavBytes,
                 language = language,
                 provider = provider,
                 apiKey = apiKey,
                 customEndpoint = sttEndpoint.ifBlank { null },
-                customModel = sttModel.ifBlank { null }
+                customModel = sttModel.ifBlank { null },
+                prompt = priorPrompt
             )
             if (res.isSuccess) {
                 val text = res.getOrThrow()
                 if (text.isNotBlank()) {
+                    synchronized(this@TranscriptionService) {
+                        lastChunkTranscript = text.trim()
+                    }
                     // 1. Insert into local SQLite
                     localRepo.insertTranscriptChunk(
                         meetingId = meetingId,

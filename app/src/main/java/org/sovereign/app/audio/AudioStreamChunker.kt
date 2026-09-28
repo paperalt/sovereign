@@ -17,13 +17,17 @@ class AudioStreamChunker(
     // Audio constants: 16kHz, 16-bit mono -> 32,000 bytes per second
     private val bytesPerSecond = sampleRate * 2
 
+    // Sizing thresholds
     private val minChunkBytes: Int = if (isAdaptive) (bytesPerSecond * 2.5).toInt() else (bytesPerSecond * 5.0).toInt()
-    private val maxChunkBytes: Int = if (isAdaptive) (bytesPerSecond * 12.0).toInt() else (bytesPerSecond * 25.0).toInt()
+    private val targetMaxChunkBytes: Int = if (isAdaptive) (bytesPerSecond * 10.0).toInt() else (bytesPerSecond * 20.0).toInt()
+    private val hardCeilingBytes: Int = if (isAdaptive) (bytesPerSecond * 14.0).toInt() else (bytesPerSecond * 25.0).toInt()
 
+    // Energy thresholds
     private val silenceRmsThreshold = 280.0
+    private val speechValleyRmsThreshold = 140.0 // Micro-pause between words/syllables
     private val deadAirRmsThreshold = 50.0
 
-    private val pcmBuffer = ByteArrayOutputStream(maxChunkBytes)
+    private val pcmBuffer = ByteArrayOutputStream(hardCeilingBytes + 4096)
     private var totalProcessedBytes = 0L
     private var chunkStartByteOffset = 0L
 
@@ -32,7 +36,10 @@ class AudioStreamChunker(
 
     /**
      * Ingests a raw PCM frame (typically 128ms or 100ms) and checks if a chunk boundary is reached.
-     * Returns an AudioChunk if a boundary condition (silence split or hard limit) is met, or null.
+     * Implements Dynamic VAD Valley Snapping:
+     * 1. Natural Pause: Split when silence threshold is reached after minChunkBytes.
+     * 2. Valley Snapping Window: When between targetMax and hardCeiling, snap at the first speech valley (micro-pause).
+     * 3. Hard Ceiling: Split immediately if speaker continues unbroken speech.
      */
     @Synchronized
     fun processFrame(frame: ByteArray): Pair<AudioChunk?, Double> {
@@ -59,13 +66,17 @@ class AudioStreamChunker(
 
         val currentBufferSize = pcmBuffer.size()
 
-        // Condition 1: Hard duration limit exceeded
-        val reachedHardLimit = currentBufferSize >= maxChunkBytes
+        // Condition 1: Natural speech pause after minimum duration
+        val reachedNaturalPause = currentBufferSize >= minChunkBytes && consecutiveSilenceFrames >= requiredSilenceFrames
 
-        // Condition 2: Natural speech pause after minimum duration
-        val reachedSilencePause = currentBufferSize >= minChunkBytes && consecutiveSilenceFrames >= requiredSilenceFrames
+        // Condition 2: Dynamic VAD Valley Snapping (in grace window between targetMax and hardCeiling)
+        val inValleyWindow = currentBufferSize in targetMaxChunkBytes until hardCeilingBytes
+        val reachedSpeechValley = inValleyWindow && (rms <= speechValleyRmsThreshold || consecutiveSilenceFrames >= 2)
 
-        if (reachedHardLimit || reachedSilencePause) {
+        // Condition 3: Hard duration ceiling exceeded
+        val reachedHardCeiling = currentBufferSize >= hardCeilingBytes
+
+        if (reachedNaturalPause || reachedSpeechValley || reachedHardCeiling) {
             val chunk = emitChunk(isFinal = false)
             return Pair(chunk, rms)
         }
@@ -75,6 +86,7 @@ class AudioStreamChunker(
 
     /**
      * Flushes remaining audio in buffer when recording ends.
+     * Discards sub-100ms fragments (< 3200 bytes) to prevent STT HTTP 400 errors.
      */
     @Synchronized
     fun flush(): AudioChunk? {
