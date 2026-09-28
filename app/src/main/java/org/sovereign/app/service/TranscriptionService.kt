@@ -204,6 +204,7 @@ class TranscriptionService : Service() {
 
         val chunker = AudioStreamChunker(isAdaptive = isAdaptive, sampleRate = sampleRate)
         val audioFrame = ByteArray(frameBytes)
+        var consecutiveAudioReadErrors = 0
 
         while (isActive && !isStopping) {
             if (isManuallyPaused) {
@@ -213,9 +214,15 @@ class TranscriptionService : Service() {
 
             val read = record.read(audioFrame, 0, frameBytes)
             if (read < 0) {
+                consecutiveAudioReadErrors++
+                if (consecutiveAudioReadErrors >= 30) {
+                    _events.emit(StreamEvent.Error("Microphone hardware error ($read). Session halted."))
+                    break
+                }
                 delay(50)
                 continue
             }
+            consecutiveAudioReadErrors = 0
 
             if (read > 0) {
                 val pcmData = if (read == frameBytes) audioFrame else audioFrame.copyOf(read)
@@ -310,6 +317,7 @@ class TranscriptionService : Service() {
             }
         }
         activeTranscribeJobs.add(job)
+        job.invokeOnCompletion { activeTranscribeJobs.remove(job) }
     }
 
     private suspend fun finalizeMeetingLocally() = withContext(Dispatchers.IO) {

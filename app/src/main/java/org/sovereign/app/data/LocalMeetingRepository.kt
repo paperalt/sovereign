@@ -320,6 +320,9 @@ class LocalMeetingRepository(
                 return@withContext Result.failure(Exception("No audible speech recorded to summarize."))
             }
 
+            // Cap transcript at 60,000 characters (~15k tokens) to prevent context window overflows on long sessions
+            val safeFullTranscript = if (fullText.length > 60000) fullText.take(60000) else fullText
+
             val provider = tokenStorage.getSelectedPreset().ifBlank { "groq" }
             val llmEndpoint = tokenStorage.getLLMEndpoint()
             val llmModel = tokenStorage.getLLMModel()
@@ -330,7 +333,7 @@ class LocalMeetingRepository(
             }
 
             val summaryRes = directAIClient.generateSummary(
-                fullTranscript = fullText,
+                fullTranscript = safeFullTranscript,
                 provider = provider,
                 apiKey = apiKey,
                 customEndpoint = llmEndpoint.ifBlank { null },
@@ -374,6 +377,11 @@ class LocalMeetingRepository(
     }
 
     override suspend fun search(query: String): Result<List<SearchResultDto>> = withContext(Dispatchers.IO) {
+        val trimmed = query.trim()
+        if (trimmed.isBlank()) {
+            return@withContext Result.success(emptyList())
+        }
+
         try {
             val db = dbHelper.readableDatabase
             val sql = """
@@ -385,7 +393,7 @@ class LocalMeetingRepository(
                 LIMIT 50
             """.trimIndent()
 
-            val pattern = "%$query%"
+            val pattern = "%$trimmed%"
             val cursor = db.rawQuery(sql, arrayOf(pattern, pattern))
             val results = mutableListOf<SearchResultDto>()
 
@@ -410,13 +418,54 @@ class LocalMeetingRepository(
     }
 
     override suspend fun searchFull(query: String): Result<SearchResponse> = withContext(Dispatchers.IO) {
-        search(query).map { list ->
-            val meetingIds = list.map { it.meetingId }.distinct()
+        val trimmed = query.trim()
+        if (trimmed.isBlank()) {
+            return@withContext Result.success(SearchResponse(query = "", results = emptyList(), meetings = emptyList(), total = 0))
+        }
+
+        try {
+            val db = dbHelper.readableDatabase
+            val pattern = "%$trimmed%"
+
+            // 1. Search transcript chunks
+            val chunkResults = search(trimmed).getOrDefault(emptyList())
+            val chunkMeetingIds = chunkResults.map { it.meetingId }.toSet()
+
+            // 2. Comprehensive direct meeting search across title, language, group name, summary, and action items
+            val meetingSql = """
+                SELECT m.id, m.title, m.language, m.target_language, m.status, m.duration_sec,
+                       m.started_at, m.ended_at, m.group_id, m.updated_at,
+                       g.name AS group_name,
+                       s.summary_text AS summary
+                FROM meetings m
+                LEFT JOIN transcript_groups g ON m.group_id = g.id
+                LEFT JOIN meeting_summaries s ON s.meeting_id = m.id
+                WHERE m.title LIKE ?
+                   OR (g.name IS NOT NULL AND g.name LIKE ?)
+                   OR m.language LIKE ?
+                   OR (s.summary_text IS NOT NULL AND s.summary_text LIKE ?)
+                   OR (s.key_points IS NOT NULL AND s.key_points LIKE ?)
+                   OR (s.action_items IS NOT NULL AND s.action_items LIKE ?)
+                ORDER BY m.updated_at DESC
+                LIMIT 50
+            """.trimIndent()
+
             val matchedMeetings = mutableListOf<MeetingDto>()
-            if (meetingIds.isNotEmpty()) {
-                val db = dbHelper.readableDatabase
-                val placeholders = meetingIds.joinToString(",") { "?" }
-                val querySql = """
+            val foundMeetingIds = mutableSetOf<String>()
+
+            db.rawQuery(meetingSql, arrayOf(pattern, pattern, pattern, pattern, pattern, pattern)).use { cursor ->
+                while (cursor.moveToNext()) {
+                    val dto = cursorToMeetingDto(cursor)
+                    matchedMeetings.add(dto)
+                    foundMeetingIds.add(dto.id)
+                }
+            }
+
+            // 3. Include any meetings discovered via transcript chunk search that were not caught by direct filter
+            val missingIds = chunkMeetingIds.filterNot { it in foundMeetingIds }
+            if (missingIds.isNotEmpty()) {
+                val placeholders = missingIds.joinToString(",") { "?" }
+                val extraQuery = """
                     SELECT m.id, m.title, m.language, m.target_language, m.status, m.duration_sec,
                            m.started_at, m.ended_at, m.group_id, m.updated_at,
                            g.name AS group_name,
@@ -427,13 +476,23 @@ class LocalMeetingRepository(
                     WHERE m.id IN ($placeholders)
                     ORDER BY m.updated_at DESC
                 """.trimIndent()
-                db.rawQuery(querySql, meetingIds.toTypedArray()).use { cursor ->
+                db.rawQuery(extraQuery, missingIds.toTypedArray()).use { cursor ->
                     while (cursor.moveToNext()) {
                         matchedMeetings.add(cursorToMeetingDto(cursor))
                     }
                 }
             }
-            SearchResponse(query = query, results = list, meetings = matchedMeetings, total = list.size)
+
+            Result.success(
+                SearchResponse(
+                    query = trimmed,
+                    results = chunkResults,
+                    meetings = matchedMeetings,
+                    total = chunkResults.size + matchedMeetings.size
+                )
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
@@ -622,6 +681,9 @@ class LocalMeetingRepository(
                 )
             }
 
+            // Cap recent inquiry context at 24,000 characters (~6k tokens) to guarantee rapid response and zero payload overflow
+            val safeInquiryContext = if (contextText.length > 24000) contextText.takeLast(24000) else contextText
+
             val provider = tokenStorage.getSelectedPreset().ifBlank { "groq" }
             val llmEndpoint = tokenStorage.getLLMEndpoint()
             val llmModel = tokenStorage.getLLMModel()
@@ -632,7 +694,7 @@ class LocalMeetingRepository(
             }
 
             val questionsRes = directAIClient.suggestQuestions(
-                transcriptContext = contextText,
+                transcriptContext = safeInquiryContext,
                 focusTopic = focusTopic,
                 provider = provider,
                 apiKey = apiKey,

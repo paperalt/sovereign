@@ -78,7 +78,10 @@ class AudioStreamChunker(
      */
     @Synchronized
     fun flush(): AudioChunk? {
-        if (pcmBuffer.size() == 0) return null
+        if (pcmBuffer.size() < 3200) {
+            pcmBuffer.reset()
+            return null
+        }
         return emitChunk(isFinal = true)
     }
 

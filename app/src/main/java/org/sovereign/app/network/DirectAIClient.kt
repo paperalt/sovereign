@@ -423,10 +423,19 @@ class DirectAIClient(
             val jsonObject = gson.fromJson(body, JsonObject::class.java)
             val choices = jsonObject?.getAsJsonArray("choices")
             if (choices != null && choices.size() > 0) {
-                val content = choices[0].asJsonObject
-                    .getAsJsonObject("message")
-                    ?.get("content")?.asString ?: ""
-                return Result.success(content)
+                val choiceObj = choices[0].asJsonObject
+                val messageObj = choiceObj.getAsJsonObject("message")
+                var content = messageObj?.get("content")?.asString
+                if (content.isNullOrBlank()) {
+                    content = messageObj?.get("reasoning_content")?.asString
+                }
+                if (content.isNullOrBlank()) {
+                    content = choiceObj.get("text")?.asString
+                }
+                if (!content.isNullOrBlank()) {
+                    return Result.success(content)
+                }
+                return Result.success("")
             }
             return Result.failure(IOException("No completion choices returned: $body"))
         }
@@ -498,16 +507,27 @@ class DirectAIClient(
                 val jsonObject = gson.fromJson(body, JsonObject::class.java)
                 val candidates = jsonObject?.getAsJsonArray("candidates")
                 if (candidates != null && candidates.size() > 0) {
-                    val contentObj = candidates[0].asJsonObject.getAsJsonObject("content")
+                    val candidateObj = candidates[0].asJsonObject
+                    val finishReason = candidateObj.get("finishReason")?.asString
+                    val contentObj = candidateObj.getAsJsonObject("content")
                     val parts = contentObj?.getAsJsonArray("parts")
                     if (parts != null && parts.size() > 0) {
                         val content = parts[0].asJsonObject.get("text")?.asString ?: ""
                         Result.success(content)
                     } else {
-                        Result.success("")
+                        if (finishReason == "SAFETY" || finishReason == "RECITATION") {
+                            Result.failure(IOException("Gemini blocked output ($finishReason)"))
+                        } else {
+                            Result.success("")
+                        }
                     }
                 } else {
-                    Result.success("")
+                    val blockReason = jsonObject?.getAsJsonObject("promptFeedback")?.get("blockReason")?.asString
+                    if (!blockReason.isNullOrBlank()) {
+                        Result.failure(IOException("Gemini prompt blocked ($blockReason)"))
+                    } else {
+                        Result.success("")
+                    }
                 }
             } catch (e: Exception) {
                 Result.failure(IOException("Failed to parse Gemini response: ${e.message}"))
@@ -519,9 +539,29 @@ class DirectAIClient(
         val clean = cleanJsonMarkdown(rawText)
         return try {
             val obj = gson.fromJson(clean, JsonObject::class.java)
-            val summary = obj.get("summary")?.asString ?: rawText
+            val summary = try {
+                val elem = obj.get("summary") 
+                    ?: obj.get("executive_summary") 
+                    ?: obj.get("summary_text") 
+                    ?: obj.get("overview")
+                if (elem != null && elem.isJsonArray) {
+                    elem.asJsonArray.mapNotNull { if (it.isJsonPrimitive) it.asString else null }.joinToString("\n\n")
+                } else if (elem != null && elem.isJsonPrimitive) {
+                    elem.asString
+                } else {
+                    rawText
+                }
+            } catch (_: Exception) {
+                rawText
+            }
+
             val keyPoints = try {
-                obj.getAsJsonArray("key_points")?.mapNotNull { elem ->
+                val array = obj.getAsJsonArray("key_points")
+                    ?: obj.getAsJsonArray("keyPoints")
+                    ?: obj.getAsJsonArray("points")
+                    ?: obj.getAsJsonArray("takeaways")
+                    ?: obj.getAsJsonArray("highlights")
+                array?.mapNotNull { elem ->
                     if (elem.isJsonPrimitive) elem.asString
                     else if (elem.isJsonObject) {
                         val kpObj = elem.asJsonObject
@@ -533,7 +573,12 @@ class DirectAIClient(
             }
 
             val rawActionItems = try {
-                obj.getAsJsonArray("action_items")?.mapNotNull { elem ->
+                val array = obj.getAsJsonArray("action_items")
+                    ?: obj.getAsJsonArray("actionItems")
+                    ?: obj.getAsJsonArray("tasks")
+                    ?: obj.getAsJsonArray("todos")
+                    ?: obj.getAsJsonArray("next_steps")
+                array?.mapNotNull { elem ->
                     if (elem.isJsonPrimitive) elem.asString
                     else if (elem.isJsonObject) {
                         val taskObj = elem.asJsonObject

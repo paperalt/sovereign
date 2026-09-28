@@ -354,25 +354,34 @@ object BackupManager {
         if (restoreSettings && payload.settings != null) {
             val s = payload.settings
 
-            if (s.sttConfigs.isNotEmpty()) {
-                val existing = if (replaceExisting) emptyList() else EndpointConfigStore.loadSTTConfigs(tokenStorage)
-                val merged = (existing.filterNot { ex -> s.sttConfigs.any { it.id == ex.id } } + s.sttConfigs)
-                EndpointConfigStore.saveSTTConfigs(tokenStorage, merged)
+            if (replaceExisting) {
+                EndpointConfigStore.saveSTTConfigs(tokenStorage, s.sttConfigs)
                 sttCount = s.sttConfigs.size
-            }
-
-            if (s.llmConfigs.isNotEmpty()) {
-                val existing = if (replaceExisting) emptyList() else EndpointConfigStore.loadLLMConfigs(tokenStorage)
-                val merged = (existing.filterNot { ex -> s.llmConfigs.any { it.id == ex.id } } + s.llmConfigs)
-                EndpointConfigStore.saveLLMConfigs(tokenStorage, merged)
+                EndpointConfigStore.saveLLMConfigs(tokenStorage, s.llmConfigs)
                 llmCount = s.llmConfigs.size
-            }
-
-            if (s.enginePresets.isNotEmpty()) {
-                val existing = if (replaceExisting) emptyList() else EnginePresetStore.loadAll(tokenStorage)
-                val merged = (existing.filterNot { ex -> s.enginePresets.any { it.id == ex.id } } + s.enginePresets)
-                EnginePresetStore.saveAll(tokenStorage, merged)
+                EnginePresetStore.saveAll(tokenStorage, s.enginePresets)
                 presetCount = s.enginePresets.size
+            } else {
+                if (s.sttConfigs.isNotEmpty()) {
+                    val existing = EndpointConfigStore.loadSTTConfigs(tokenStorage)
+                    val merged = (existing.filterNot { ex -> s.sttConfigs.any { it.id == ex.id } } + s.sttConfigs)
+                    EndpointConfigStore.saveSTTConfigs(tokenStorage, merged)
+                    sttCount = s.sttConfigs.size
+                }
+
+                if (s.llmConfigs.isNotEmpty()) {
+                    val existing = EndpointConfigStore.loadLLMConfigs(tokenStorage)
+                    val merged = (existing.filterNot { ex -> s.llmConfigs.any { it.id == ex.id } } + s.llmConfigs)
+                    EndpointConfigStore.saveLLMConfigs(tokenStorage, merged)
+                    llmCount = s.llmConfigs.size
+                }
+
+                if (s.enginePresets.isNotEmpty()) {
+                    val existing = EnginePresetStore.loadAll(tokenStorage)
+                    val merged = (existing.filterNot { ex -> s.enginePresets.any { it.id == ex.id } } + s.enginePresets)
+                    EnginePresetStore.saveAll(tokenStorage, merged)
+                    presetCount = s.enginePresets.size
+                }
             }
 
             if (!s.activeSttId.isNullOrBlank()) {
