@@ -26,6 +26,7 @@ Direktori ini memuat spesifikasi arsitektur teknis, sistem desain, dan analisis 
 | **[`UI_DESIGN.md`](./UI_DESIGN.md)** | **Standar Desain Antarmuka Industri:** Tema monokromatik gelap (`#0A0D12`), kontras WCAG AAA, proteksi safe-area, eliminasi emoji OEM, dan segmented control responsif. |
 | **[`AUTO_QUESTION_SUGGESTION_ENGINE_ID.md`](./AUTO_QUESTION_SUGGESTION_ENGINE_ID.md)** | **Mesin Rekomendasi Pertanyaan Rapat:** Analisis konteks sliding window real-time, guardrail zero-hallucination temperature 0.2, kutipan verbatim `context_ref`, dan ambang batas $\ge 35$ kata. |
 | **[`BYOK_ARCHITECTURE_AND_MARKET_ANALYSIS_ID.md`](./BYOK_ARCHITECTURE_AND_MARKET_ANALYSIS_ID.md)** | **Arsitektur BYOK & Analisis Pasar:** Benchmark kuota gratis (Groq LPU Llama 3.3 70B & Whisper Turbo, Google Gemini 2.0 Flash, OpenAI), perbandingan kompetitor, dan brankas zero-knowledge. |
+| **[`CHUNK_BOUNDARY_RESOLUTION_ARCHITECTURE_ID.md`](./CHUNK_BOUNDARY_RESOLUTION_ARCHITECTURE_ID.md)** | **Mitigasi Pemotongan Kata Chunk:** Dynamic VAD Valley Snapping, Whisper/Groq Prompt Conditioning, Sliding Audio Overlap + N-gram Stitching, dan Gemini Multi-turn Audio Context. |
 | **[`MIGRATION_GUIDE.md`](./MIGRATION_GUIDE.md)** | **Panduan Evolusi Arsitektur:** Perjalanan refaktor dari sistem server-managed menuju arsitektur 100% on-device standalone. |
 
 ---

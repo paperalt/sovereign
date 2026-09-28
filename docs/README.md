@@ -26,6 +26,7 @@ This directory contains the architecture specifications, design systems, and eng
 | **[`UI_DESIGN.md`](./UI_DESIGN.md)** | **Industrial UI Design Standards:** Monochromatic dark theme (`#0A0D12`), WCAG AAA contrast, safe-area protection, OEM emoji elimination, and responsive segmented controls. |
 | **[`AUTO_QUESTION_SUGGESTION_ENGINE.md`](./AUTO_QUESTION_SUGGESTION_ENGINE.md)** | **In-Meeting Inquiry Engine:** Live sliding window analysis, zero-hallucination temperature 0.2 guardrails, verbatim `context_ref` quotes, and $\ge 35$ word threshold. |
 | **[`BYOK_ARCHITECTURE_AND_MARKET_ANALYSIS.md`](./BYOK_ARCHITECTURE_AND_MARKET_ANALYSIS.md)** | **BYOK Architecture & Market Analysis:** AI rate limits benchmark (Groq LPU Llama 3.3 70B & Whisper Turbo, Google Gemini 2.0 Flash, OpenAI), competitor comparison, and zero-knowledge vault. |
+| **[`CHUNK_BOUNDARY_RESOLUTION_ARCHITECTURE.md`](./CHUNK_BOUNDARY_RESOLUTION_ARCHITECTURE.md)** | **Chunk Boundary Mitigation:** Dynamic VAD Valley Snapping, Whisper/Groq Prompt Conditioning, Sliding Audio Overlap + N-gram Stitching, and Gemini Multi-turn Audio Context. |
 | **[`MIGRATION_GUIDE.md`](./MIGRATION_GUIDE.md)** | **Architecture Evolution Guide:** Architectural journey from server-managed pipeline to 100% on-device standalone deployment. |
 
 ---
