@@ -33,32 +33,82 @@ object EndpointConfigStore {
 
     fun loadSTTConfigs(tokenStorage: TokenStorage): List<STTEndpointConfig> {
         val raw = tokenStorage.getSTTConfigsJson()
-        if (raw.isBlank()) return ensureDefaultSTTConfigs(tokenStorage)
-        return try {
-            val list = gson.fromJson<List<STTEndpointConfig>>(raw, sttListType)
-            if (list.isNullOrEmpty()) ensureDefaultSTTConfigs(tokenStorage) else list
-        } catch (_: Exception) {
+        val list = if (raw.isBlank()) {
             ensureDefaultSTTConfigs(tokenStorage)
+        } else {
+            try {
+                val parsed = gson.fromJson<List<STTEndpointConfig>>(raw, sttListType)
+                if (parsed.isNullOrEmpty()) ensureDefaultSTTConfigs(tokenStorage) else parsed
+            } catch (_: Exception) {
+                ensureDefaultSTTConfigs(tokenStorage)
+            }
+        }
+
+        // Hydrate secret API keys from dedicated Keystore vault
+        return list.map { cfg ->
+            val secretKey = tokenStorage.getEndpointSecretKey(cfg.id).ifBlank {
+                if (cfg.apiKey.isNotBlank()) {
+                    tokenStorage.setEndpointSecretKey(cfg.id, cfg.apiKey)
+                    cfg.apiKey
+                } else {
+                    tokenStorage.getProviderApiKey(cfg.providerId) ?: ""
+                }
+            }
+            cfg.copy(apiKey = secretKey)
         }
     }
 
     fun saveSTTConfigs(tokenStorage: TokenStorage, list: List<STTEndpointConfig>) {
-        tokenStorage.setSTTConfigsJson(gson.toJson(list))
+        // 1. Isolate and save secret keys in Android Keystore vault
+        for (cfg in list) {
+            tokenStorage.setEndpointSecretKey(cfg.id, cfg.apiKey)
+            if (cfg.apiKey.isNotBlank()) {
+                tokenStorage.setProviderApiKey(cfg.providerId, cfg.apiKey)
+            }
+        }
+        // 2. Persist metadata with sanitized empty API key in JSON string
+        val sanitized = list.map { it.copy(apiKey = "") }
+        tokenStorage.setSTTConfigsJson(gson.toJson(sanitized))
     }
 
     fun loadLLMConfigs(tokenStorage: TokenStorage): List<LLMEndpointConfig> {
         val raw = tokenStorage.getLLMConfigsJson()
-        if (raw.isBlank()) return ensureDefaultLLMConfigs(tokenStorage)
-        return try {
-            val list = gson.fromJson<List<LLMEndpointConfig>>(raw, llmListType)
-            if (list.isNullOrEmpty()) ensureDefaultLLMConfigs(tokenStorage) else list
-        } catch (_: Exception) {
+        val list = if (raw.isBlank()) {
             ensureDefaultLLMConfigs(tokenStorage)
+        } else {
+            try {
+                val parsed = gson.fromJson<List<LLMEndpointConfig>>(raw, llmListType)
+                if (parsed.isNullOrEmpty()) ensureDefaultLLMConfigs(tokenStorage) else parsed
+            } catch (_: Exception) {
+                ensureDefaultLLMConfigs(tokenStorage)
+            }
+        }
+
+        // Hydrate secret API keys from dedicated Keystore vault
+        return list.map { cfg ->
+            val secretKey = tokenStorage.getEndpointSecretKey(cfg.id).ifBlank {
+                if (cfg.apiKey.isNotBlank()) {
+                    tokenStorage.setEndpointSecretKey(cfg.id, cfg.apiKey)
+                    cfg.apiKey
+                } else {
+                    tokenStorage.getProviderApiKey(cfg.providerId) ?: ""
+                }
+            }
+            cfg.copy(apiKey = secretKey)
         }
     }
 
     fun saveLLMConfigs(tokenStorage: TokenStorage, list: List<LLMEndpointConfig>) {
-        tokenStorage.setLLMConfigsJson(gson.toJson(list))
+        // 1. Isolate and save secret keys in Android Keystore vault
+        for (cfg in list) {
+            tokenStorage.setEndpointSecretKey(cfg.id, cfg.apiKey)
+            if (cfg.apiKey.isNotBlank()) {
+                tokenStorage.setProviderApiKey(cfg.providerId, cfg.apiKey)
+            }
+        }
+        // 2. Persist metadata with sanitized empty API key in JSON string
+        val sanitized = list.map { it.copy(apiKey = "") }
+        tokenStorage.setLLMConfigsJson(gson.toJson(sanitized))
     }
 
     fun ensureDefaultSTTConfigs(tokenStorage: TokenStorage): List<STTEndpointConfig> {

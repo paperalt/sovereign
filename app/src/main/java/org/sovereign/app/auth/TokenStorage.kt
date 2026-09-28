@@ -79,6 +79,9 @@ interface TokenStorage {
 
     fun getAllProviderApiKeys(): Map<String, String>
     fun restoreProviderApiKeys(keys: Map<String, String>)
+
+    fun getEndpointSecretKey(endpointId: String): String
+    fun setEndpointSecretKey(endpointId: String, key: String)
 }
 
 class EncryptedTokenStorage(context: Context) : TokenStorage {
@@ -364,6 +367,20 @@ class EncryptedTokenStorage(context: Context) : TokenStorage {
             }
         }
         editor.apply()
+    }
+
+    override fun getEndpointSecretKey(endpointId: String): String {
+        if (endpointId.isBlank()) return ""
+        return prefs.getString("secret_endpoint_$endpointId", "") ?: ""
+    }
+
+    override fun setEndpointSecretKey(endpointId: String, key: String) {
+        if (endpointId.isBlank()) return
+        if (key.isBlank()) {
+            prefs.edit().remove("secret_endpoint_$endpointId").apply()
+        } else {
+            prefs.edit().putString("secret_endpoint_$endpointId", key.trim()).apply()
+        }
     }
 
     override fun hasValidSession(): Boolean {

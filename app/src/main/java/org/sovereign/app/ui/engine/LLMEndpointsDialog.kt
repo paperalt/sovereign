@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -211,11 +215,11 @@ fun LLMEndpointsDialog(
         LLMEditDialog(
             initial = LLMEndpointConfig(
                 id = UUID.randomUUID().toString(),
-                name = "New LLM Endpoint",
-                providerId = "groq",
-                endpoint = "https://api.groq.com/openai/v1/chat/completions",
-                model = "llama-3.3-70b-versatile",
-                apiKey = tokenStorage.getLLMKey(),
+                name = "",
+                providerId = "custom",
+                endpoint = "",
+                model = "",
+                apiKey = "",
                 isDeletable = true
             ),
             isNew = true,
@@ -442,6 +446,7 @@ private fun LLMEditDialog(
     var endpoint by remember { mutableStateOf(initial.endpoint) }
     var model by remember { mutableStateOf(initial.model) }
     var apiKey by remember { mutableStateOf(initial.apiKey) }
+    var showApiKey by remember { mutableStateOf(false) }
     var isDetecting by remember { mutableStateOf(false) }
     var detectedModels by remember { mutableStateOf<List<String>>(emptyList()) }
     var showPicker by remember { mutableStateOf(false) }
@@ -488,6 +493,7 @@ private fun LLMEditDialog(
                         value = name,
                         onValueChange = { name = it },
                         singleLine = true,
+                        placeholder = { Text("e.g. My Custom LLM / Local Ollama", color = EngineColors.TextMuted, fontSize = 11.sp) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = EngineColors.TextPrimary,
                             unfocusedTextColor = EngineColors.TextPrimary,
@@ -508,7 +514,7 @@ private fun LLMEditDialog(
                         value = endpoint,
                         onValueChange = { endpoint = it },
                         singleLine = true,
-                        placeholder = { Text("https://api.groq.com/openai/v1/chat/completions", color = EngineColors.TextMuted, fontSize = 11.sp) },
+                        placeholder = { Text("https://your-domain.com/v1/chat/completions", color = EngineColors.TextMuted, fontSize = 11.sp) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = EngineColors.TextPrimary,
                             unfocusedTextColor = EngineColors.TextPrimary,
@@ -566,7 +572,7 @@ private fun LLMEditDialog(
                         value = model,
                         onValueChange = { model = it },
                         singleLine = true,
-                        placeholder = { Text("llama-3.3-70b-versatile", color = EngineColors.TextMuted, fontSize = 11.sp) },
+                        placeholder = { Text("e.g. llama-3.3-70b-versatile, gpt-4o-mini", color = EngineColors.TextMuted, fontSize = 11.sp) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = EngineColors.TextPrimary,
                             unfocusedTextColor = EngineColors.TextPrimary,
@@ -582,11 +588,22 @@ private fun LLMEditDialog(
 
                 // API Key
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("API KEY (STORED IN ANDROID KEYSTORE)", color = EngineColors.TextMuted, fontSize = 10.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
+                    Text("API KEY (AES-256 ENCRYPTED KEYSTORE VAULT)", color = EngineColors.TextMuted, fontSize = 10.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
                     OutlinedTextField(
                         value = apiKey,
                         onValueChange = { apiKey = it },
                         singleLine = true,
+                        visualTransformation = if (showApiKey) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { showApiKey = !showApiKey }, modifier = Modifier.size(34.dp)) {
+                                Icon(
+                                    imageVector = if (showApiKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = "Toggle API Key visibility",
+                                    tint = EngineColors.TextSecondary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        },
                         placeholder = { Text("Enter API key or leave blank for local", color = EngineColors.TextMuted, fontSize = 11.sp) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = EngineColors.TextPrimary,

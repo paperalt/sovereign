@@ -21,6 +21,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -215,11 +219,11 @@ fun STTEndpointsDialog(
         STTEditDialog(
             initial = STTEndpointConfig(
                 id = UUID.randomUUID().toString(),
-                name = "New STT Endpoint",
-                providerId = "groq",
-                endpoint = "https://api.groq.com/openai/v1/audio/transcriptions",
-                model = "whisper-large-v3-turbo",
-                apiKey = tokenStorage.getSTTKey(),
+                name = "",
+                providerId = "custom",
+                endpoint = "",
+                model = "",
+                apiKey = "",
                 adaptiveStreaming = true,
                 isDeletable = true
             ),
@@ -446,6 +450,7 @@ private fun STTEditDialog(
     var endpoint by remember { mutableStateOf(initial.endpoint) }
     var model by remember { mutableStateOf(initial.model) }
     var apiKey by remember { mutableStateOf(initial.apiKey) }
+    var showApiKey by remember { mutableStateOf(false) }
     var adaptiveStreaming by remember { mutableStateOf(initial.adaptiveStreaming) }
     var providerId by remember { mutableStateOf(initial.providerId) }
 
@@ -491,6 +496,7 @@ private fun STTEditDialog(
                         value = name,
                         onValueChange = { name = it },
                         singleLine = true,
+                        placeholder = { Text("e.g. My Custom Whisper / Local STT", color = EngineColors.TextMuted, fontSize = 11.sp) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = EngineColors.TextPrimary,
                             unfocusedTextColor = EngineColors.TextPrimary,
@@ -511,7 +517,7 @@ private fun STTEditDialog(
                         value = endpoint,
                         onValueChange = { endpoint = it },
                         singleLine = true,
-                        placeholder = { Text("https://api.groq.com/openai/v1/audio/transcriptions", color = EngineColors.TextMuted, fontSize = 11.sp) },
+                        placeholder = { Text("https://your-domain.com/v1/audio/transcriptions", color = EngineColors.TextMuted, fontSize = 11.sp) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = EngineColors.TextPrimary,
                             unfocusedTextColor = EngineColors.TextPrimary,
@@ -532,7 +538,7 @@ private fun STTEditDialog(
                         value = model,
                         onValueChange = { model = it },
                         singleLine = true,
-                        placeholder = { Text("whisper-large-v3-turbo", color = EngineColors.TextMuted, fontSize = 11.sp) },
+                        placeholder = { Text("e.g. whisper-large-v3, whisper-1", color = EngineColors.TextMuted, fontSize = 11.sp) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = EngineColors.TextPrimary,
                             unfocusedTextColor = EngineColors.TextPrimary,
@@ -548,12 +554,23 @@ private fun STTEditDialog(
 
                 // API Key
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("API KEY (STORED IN ANDROID KEYSTORE)", color = EngineColors.TextMuted, fontSize = 10.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
+                    Text("API KEY (AES-256 ENCRYPTED KEYSTORE VAULT)", color = EngineColors.TextMuted, fontSize = 10.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
                     OutlinedTextField(
                         value = apiKey,
                         onValueChange = { apiKey = it },
                         singleLine = true,
-                        placeholder = { Text("gsk_...", color = EngineColors.TextMuted, fontSize = 11.sp) },
+                        visualTransformation = if (showApiKey) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { showApiKey = !showApiKey }, modifier = Modifier.size(34.dp)) {
+                                Icon(
+                                    imageVector = if (showApiKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = "Toggle API Key visibility",
+                                    tint = EngineColors.TextSecondary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        },
+                        placeholder = { Text("Enter API key or leave blank for local", color = EngineColors.TextMuted, fontSize = 11.sp) },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = EngineColors.TextPrimary,
                             unfocusedTextColor = EngineColors.TextPrimary,
