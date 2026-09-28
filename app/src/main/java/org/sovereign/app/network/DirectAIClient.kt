@@ -52,6 +52,9 @@ class DirectAIClient(
                     return@withContext transcribeGemini(wavBytes, language, apiKey, customEndpoint, prompt)
                 }
                 val model = if (!customModel.isNullOrBlank()) customModel else "whisper-large-v3-turbo"
+                if (model.contains("audio-preview") || customEndpoint.contains("/chat/completions")) {
+                    return@withContext transcribeOpenAIAudioInput(wavBytes, language, customEndpoint, model, apiKey, prompt)
+                }
                 return@withContext transcribeOpenAICompatible(wavBytes, language, customEndpoint, model, apiKey, prompt)
             }
 
@@ -59,6 +62,14 @@ class DirectAIClient(
                 "groq" -> transcribeGroq(wavBytes, language, apiKey, prompt)
                 "openai" -> transcribeOpenAI(wavBytes, language, apiKey, prompt)
                 "gemini" -> transcribeGemini(wavBytes, language, apiKey, prompt = prompt)
+                "openai-audio" -> transcribeOpenAIAudioInput(
+                    wavBytes,
+                    language,
+                    "https://api.openai.com/v1/chat/completions",
+                    "gpt-4o-mini-audio-preview",
+                    apiKey,
+                    prompt
+                )
                 else -> transcribeGroq(wavBytes, language, apiKey, prompt)
             }
         } catch (e: Exception) {
@@ -203,6 +214,54 @@ class DirectAIClient(
         }
     }
 
+    private fun transcribeOpenAIAudioInput(
+        wavBytes: ByteArray,
+        language: String,
+        endpoint: String,
+        model: String,
+        apiKey: String,
+        prompt: String? = null
+    ): Result<String> {
+        val base64Audio = Base64.encodeToString(wavBytes, Base64.NO_WRAP)
+        val instruction = if (!prompt.isNullOrBlank()) {
+            "The speaker was previously saying: \"${prompt.trim()}\". Continue transcribing the subsequent audio in $language without repeating prior words. Output ONLY the raw transcript text without preamble or commentary."
+        } else {
+            "Transcribe the following audio accurately in $language. Output ONLY the raw transcript text without preamble or commentary."
+        }
+
+        val payload = mapOf(
+            "model" to model,
+            "modalities" to listOf("text"),
+            "messages" to listOf(
+                mapOf(
+                    "role" to "user",
+                    "content" to listOf(
+                        mapOf("type" to "text", "text" to instruction),
+                        mapOf(
+                            "type" to "input_audio",
+                            "input_audio" to mapOf(
+                                "data" to base64Audio,
+                                "format" to "wav"
+                            )
+                        )
+                    )
+                )
+            ),
+            "stream" to false
+        )
+
+        val reqBuilder = Request.Builder()
+            .url(endpoint)
+            .header("User-Agent", "SovereignSpeechIntelligence/1.0")
+            .post(gson.toJson(payload).toRequestBody("application/json".toMediaType()))
+
+        if (apiKey.isNotBlank()) {
+            reqBuilder.header("Authorization", "Bearer $apiKey")
+        }
+
+        return executeTranscriptionRequest(reqBuilder.build())
+    }
+
     private fun executeTranscriptionRequest(request: Request): Result<String> {
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
@@ -212,10 +271,19 @@ class DirectAIClient(
             val bodyString = response.body?.string() ?: ""
             return try {
                 val jsonObject = gson.fromJson(bodyString, JsonObject::class.java)
-                val text = jsonObject?.get("text")?.asString
+                var text = jsonObject?.get("text")?.asString
                     ?: jsonObject?.get("transcript")?.asString
-                    ?: ""
-                Result.success(text.trim())
+
+                if (text.isNullOrBlank()) {
+                    val choices = jsonObject?.getAsJsonArray("choices")
+                    if (choices != null && choices.size() > 0) {
+                        text = choices[0].asJsonObject
+                            .getAsJsonObject("message")
+                            ?.get("content")?.asString
+                    }
+                }
+
+                Result.success(text?.trim() ?: "")
             } catch (e: Exception) {
                 Result.failure(IOException("Failed to parse transcription response: ${e.message}"))
             }
