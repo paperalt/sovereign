@@ -22,6 +22,8 @@ import org.sovereign.app.auth.TokenStorage
 import org.sovereign.app.data.LocalMeetingRepository
 import org.sovereign.app.network.DirectAIClient
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -65,6 +67,7 @@ class TranscriptionService : Service() {
 
     private val chunkIndexCounter = AtomicInteger(0)
     private val activeTranscribeJobs = java.util.concurrent.CopyOnWriteArrayList<Job>()
+    private val transcriptionMutex = Mutex()
     private var lastChunkTranscript: String = ""
 
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
@@ -272,58 +275,57 @@ class TranscriptionService : Service() {
         val wavBytes = WavEncoder.encodePcmToWav(chunk.pcmData)
 
         val job = serviceScope.launch {
-            val provider = tokenStorage.getSelectedPreset().ifBlank { "groq" }
-            val sttEndpoint = tokenStorage.getSTTEndpoint()
-            val sttModel = tokenStorage.getSTTModel()
-            val apiKey = tokenStorage.getSTTKey()
+            transcriptionMutex.withLock {
+                val provider = tokenStorage.getSelectedPreset().ifBlank { "groq" }
+                val sttEndpoint = tokenStorage.getSTTEndpoint()
+                val sttModel = tokenStorage.getSTTModel()
+                val apiKey = tokenStorage.getSTTKey()
 
-            if (apiKey.isBlank() && !sttEndpoint.contains("localhost") && !sttEndpoint.contains("10.0.2.2")) {
-                _events.emit(StreamEvent.Error("API key is missing. Add it in AI Engine settings."))
-                return@launch
-            }
-
-            val priorPrompt = synchronized(this@TranscriptionService) {
-                if (lastChunkTranscript.isNotBlank()) lastChunkTranscript.takeLast(250) else null
-            }
-
-            val res = directAIClient.transcribeAudio(
-                wavBytes = wavBytes,
-                language = language,
-                provider = provider,
-                apiKey = apiKey,
-                customEndpoint = sttEndpoint.ifBlank { null },
-                customModel = sttModel.ifBlank { null },
-                prompt = priorPrompt
-            )
-            if (res.isSuccess) {
-                val text = res.getOrThrow()
-                if (text.isNotBlank()) {
-                    synchronized(this@TranscriptionService) {
-                        lastChunkTranscript = text.trim()
-                    }
-                    // 1. Insert into local SQLite
-                    localRepo.insertTranscriptChunk(
-                        meetingId = meetingId,
-                        chunkIndex = index,
-                        text = text,
-                        startTimeSec = chunk.startTimeSec,
-                        endTimeSec = chunk.endTimeSec
-                    )
-
-                    // 2. Emit to UI stream
-                    _events.emit(
-                        StreamEvent.Chunk(
-                            index = index,
-                            startTimeSec = chunk.startTimeSec,
-                            endTimeSec = chunk.endTimeSec,
-                            text = text,
-                            remainingSeconds = null
-                        )
-                    )
+                if (apiKey.isBlank() && !sttEndpoint.contains("localhost") && !sttEndpoint.contains("10.0.2.2")) {
+                    _events.emit(StreamEvent.Error("API key is missing. Add it in AI Engine settings."))
+                    return@withLock
                 }
-            } else {
-                val err = res.exceptionOrNull()?.message ?: "Audio transcription failed"
-                _events.emit(StreamEvent.Error(err))
+
+                val priorPrompt = if (lastChunkTranscript.isNotBlank()) lastChunkTranscript.takeLast(250) else null
+
+                val res = directAIClient.transcribeAudio(
+                    wavBytes = wavBytes,
+                    language = language,
+                    provider = provider,
+                    apiKey = apiKey,
+                    customEndpoint = sttEndpoint.ifBlank { null },
+                    customModel = sttModel.ifBlank { null },
+                    prompt = priorPrompt
+                )
+                if (res.isSuccess) {
+                    val text = res.getOrThrow()
+                    if (text.isNotBlank()) {
+                        lastChunkTranscript = text.trim()
+
+                        // 1. Insert into local SQLite
+                        localRepo.insertTranscriptChunk(
+                            meetingId = meetingId,
+                            chunkIndex = index,
+                            text = text,
+                            startTimeSec = chunk.startTimeSec,
+                            endTimeSec = chunk.endTimeSec
+                        )
+
+                        // 2. Emit to UI stream
+                        _events.emit(
+                            StreamEvent.Chunk(
+                                index = index,
+                                startTimeSec = chunk.startTimeSec,
+                                endTimeSec = chunk.endTimeSec,
+                                text = text,
+                                remainingSeconds = null
+                            )
+                        )
+                    }
+                } else {
+                    val err = res.exceptionOrNull()?.message ?: "Audio transcription failed"
+                    _events.emit(StreamEvent.Error(err))
+                }
             }
         }
         activeTranscribeJobs.add(job)

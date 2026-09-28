@@ -183,7 +183,13 @@ class MainActivity : ComponentActivity() {
                                             val seconds = (event.startTimeSec % 60).toInt()
                                             val timeLabel = String.format(Locale.US, "%02d:%02d", minutes, seconds)
                                             if (transcriptItems.none { it.index == event.index }) {
-                                                transcriptItems.add(TranscriptItem(event.index, timeLabel, event.text))
+                                                val item = TranscriptItem(event.index, timeLabel, event.text)
+                                                val insertIdx = transcriptItems.indexOfFirst { it.index > event.index }
+                                                if (insertIdx >= 0) {
+                                                    transcriptItems.add(insertIdx, item)
+                                                } else {
+                                                    transcriptItems.add(item)
+                                                }
                                             }
                                             event.remainingSeconds?.let { remainingQuotaSec = it }
                                         }

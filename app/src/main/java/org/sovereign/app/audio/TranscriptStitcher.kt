@@ -27,6 +27,11 @@ object TranscriptStitcher {
             val tail = prevWords.takeLast(overlapSize).joinToString(" ")
             val head = currWords.take(overlapSize).joinToString(" ")
 
+            // Guardrail: for single-word overlap, require at least 3 characters to avoid false-matching trivial tokens
+            if (overlapSize == 1 && normalize(tail).length < 3) {
+                continue
+            }
+
             if (normalize(tail) == normalize(head)) {
                 // Suffix-prefix match found; append remaining non-duplicate words
                 val nonDuplicateCurr = currWords.drop(overlapSize).joinToString(" ")

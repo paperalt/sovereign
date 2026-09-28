@@ -8,6 +8,7 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import org.sovereign.app.auth.EncryptedTokenStorage
 import org.sovereign.app.auth.TokenStorage
+import org.sovereign.app.audio.TranscriptStitcher
 import org.sovereign.app.data.local.AppDatabaseHelper
 import org.sovereign.app.network.*
 import kotlinx.coroutines.Dispatchers
@@ -221,7 +222,11 @@ class LocalMeetingRepository(
                 }
             }
 
-            val fullText = chunks.joinToString(" ") { it.rawText }
+            var stitchedFullText = ""
+            for (c in chunks) {
+                stitchedFullText = TranscriptStitcher.stitch(stitchedFullText, c.rawText)
+            }
+            val fullText = stitchedFullText
 
             Result.success(
                 FullTranscriptDto(
@@ -309,13 +314,13 @@ class LocalMeetingRepository(
             val db = dbHelper.writableDatabase
 
             val chunksQuery = "SELECT text FROM transcript_chunks WHERE meeting_id = ? ORDER BY chunk_index ASC"
-            val sb = java.lang.StringBuilder()
+            var stitched = ""
             db.rawQuery(chunksQuery, arrayOf(meetingId)).use { cursor ->
                 while (cursor.moveToNext()) {
-                    sb.append(cursor.getString(0)).append(" ")
+                    stitched = TranscriptStitcher.stitch(stitched, cursor.getString(0))
                 }
             }
-            val fullText = sb.toString().trim()
+            val fullText = stitched.trim()
             if (fullText.isBlank()) {
                 return@withContext Result.failure(Exception("No audible speech recorded to summarize."))
             }
@@ -666,7 +671,11 @@ class LocalMeetingRepository(
                 chunksList.reverse()
             }
 
-            val contextText = chunksList.joinToString(" ").trim()
+            var stitchedContext = ""
+            for (text in chunksList) {
+                stitchedContext = TranscriptStitcher.stitch(stitchedContext, text)
+            }
+            val contextText = stitchedContext.trim()
             if (contextText.length < 50) {
                 return@withContext Result.success(
                     QuestionSuggestionResponseDto(

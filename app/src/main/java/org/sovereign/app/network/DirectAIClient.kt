@@ -149,23 +149,22 @@ class DirectAIClient(
             "Transcribe the following audio accurately in $language. Output ONLY the raw transcript text without preamble or commentary."
         }
 
-        val json = """
-            {
-              "contents": [
-                {
-                  "parts": [
-                    {"text": "$instruction"},
-                    {
-                      "inline_data": {
-                        "mime_type": "audio/wav",
-                        "data": "$base64Audio"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-        """.trimIndent()
+        val payload = mapOf(
+            "contents" to listOf(
+                mapOf(
+                    "parts" to listOf(
+                        mapOf("text" to instruction),
+                        mapOf(
+                            "inline_data" to mapOf(
+                                "mime_type" to "audio/wav",
+                                "data" to base64Audio
+                            )
+                        )
+                    )
+                )
+            )
+        )
+        val json = gson.toJson(payload)
 
         val fullUrl = if (endpoint.contains("key=")) endpoint else {
             val sep = if (endpoint.contains("?")) "&" else "?"
